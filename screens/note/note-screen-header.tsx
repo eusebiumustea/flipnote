@@ -30,8 +30,8 @@ export function NoteScreenHeader({
         flexDirection: "row",
         justifyContent: "space-between",
         padding: 16,
-        top: 0,
         zIndex: 6,
+        paddingTop: top,
       }}
     >
       <BackIcon onPress={onBack} />

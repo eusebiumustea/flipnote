@@ -24,12 +24,13 @@ export function NotePage({
   const { width } = Dimensions.get("window");
   const { top } = useSafeAreaInsets();
   return (
-    <View
-      style={{ flex: 1, backgroundColor: theme.background, paddingTop: top }}
-    >
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
       <NoteScreenHeader onBack={onBack} />
       <InputScrollView
-        contentContainerStyle={{ paddingTop: verticalScale(60), padding: 16 }}
+        contentContainerStyle={{
+          paddingTop: verticalScale(60) + top,
+          padding: 16,
+        }}
         style={{
           flex: 1,
         }}
