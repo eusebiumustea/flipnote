@@ -75,7 +75,6 @@ export function CreateNoteContainer({
               position: "absolute",
               bottom: 0,
               right: 0,
-              marginTop: top,
             }}
             animate={{
               margin: 0,
@@ -94,7 +93,6 @@ export function CreateNoteContainer({
               position: "absolute",
               bottom: 0,
               right: 0,
-              marginTop: top,
             }}
           >
             <MotiView

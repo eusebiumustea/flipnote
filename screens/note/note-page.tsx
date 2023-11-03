@@ -3,6 +3,7 @@ import { Dimensions, Text, TextInput, View } from "react-native";
 import InputScrollView from "react-native-input-scroll-view";
 import { useTheme, verticalScale } from "../../tools";
 import { NoteScreenHeader } from "./note-screen-header";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface NotePageProps {
   // titleValue?: string;
   // onTitleChange?: (e: string) => void;
@@ -21,8 +22,11 @@ export function NotePage({
   const [text, setText] = useState<string>("");
   const theme = useTheme();
   const { width } = Dimensions.get("window");
+  const { top } = useSafeAreaInsets();
   return (
-    <View style={{ flex: 1, backgroundColor: theme.background }}>
+    <View
+      style={{ flex: 1, backgroundColor: theme.background, paddingTop: top }}
+    >
       <NoteScreenHeader onBack={onBack} />
       <InputScrollView
         contentContainerStyle={{ paddingTop: verticalScale(60), padding: 16 }}
