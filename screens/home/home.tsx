@@ -26,7 +26,6 @@ export function Home() {
   const [createNote, setCreateNote] = useState(false);
   const [editNote, setEditNote] = useState<number | null>(null);
   const [data, setData] = useRecoilState(notesData);
-  const [scrollPosition, setScrollPosition] = useState(0);
   useEffect(() => {
     async function getData(key: any) {
       try {
@@ -50,7 +49,6 @@ export function Home() {
     }
     return data.data;
   }, [searchQuery, data]);
-  console.log(scrollPosition + "");
   return (
     <>
       <Header
@@ -61,8 +59,7 @@ export function Home() {
       <ScrollView
         scrollEventThrottle={16}
         onScroll={(e) => {
-          // scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y));
-          setScrollPosition(e.nativeEvent.contentOffset.y);
+          scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y));
         }}
         contentContainerStyle={{
           paddingTop: top + verticalScale(60),
@@ -106,7 +103,7 @@ export function Home() {
       <EditNoteContainer
         fromWidth={cardsLayout[editNote]?.width}
         fromHeight={cardsLayout[editNote]?.height}
-        fromY={cardsLayout[editNote]?.y / scrollPosition}
+        fromY={cardsLayout[editNote]?.y}
         fromX={cardsLayout[editNote]?.x}
         show={editNote !== null}
       >
