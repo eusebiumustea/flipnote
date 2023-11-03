@@ -1,4 +1,5 @@
 import { PropsWithChildren } from "react";
+import { ColorValue } from "react-native";
 
 export interface CreateNoteProps {
   show: boolean;
@@ -9,6 +10,7 @@ export interface EditNoteProps {
   fromY?: number;
   fromHeight?: number;
   fromWidth?: number;
+  fromBg: ColorValue;
   show: boolean;
   children?: PropsWithChildren<React.ReactNode>;
 }

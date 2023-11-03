@@ -16,6 +16,7 @@ export function EditNoteContainer({
   fromX,
   fromHeight,
   fromWidth,
+  fromBg,
   show,
   children,
 }: EditNoteProps) {
@@ -56,40 +57,32 @@ export function EditNoteContainer({
               backgroundColor: { duration: 200 },
             }}
             from={{
-              scale: 0.9,
-              opacity: 0,
-              //   translateX: fromX ? fromX : 0,
-              //   translateY: fromY ? fromY : 0,
-              //   width: fromWidth ? fromWidth : 0,
-              //   height: fromHeight ? fromHeight : 0,
-              width: width,
-              height: height,
-              backgroundColor: theme.onPrimary,
+              translateX: fromX ? fromX : 0,
+              translateY: fromY ? fromY : 0,
+              width: fromWidth ? fromWidth : 0,
+              height: fromHeight ? fromHeight : 0,
+              backgroundColor: fromBg,
               borderRadius: 16,
               zIndex: 5,
               position: "absolute",
               marginTop: top,
             }}
             animate={{
-              scale: 1,
-              opacity: 1,
-              //   translateX: 0,
-              //   translateY: 0,
-              //   width: width,
-              //   height: height,
+              translateX: 0,
+              translateY: 0,
+              width: width,
+              height: height,
               backgroundColor: theme.background,
               borderRadius: 0,
               zIndex: 5,
               position: "absolute",
             }}
             exit={{
-              scale: 0.9,
-              opacity: 0,
-              //   translateX: fromX ? fromX : 0,
-              //   translateY: fromY ? fromY : 0,
-              //   width: fromWidth ? fromWidth : 0,
-              //   height: fromHeight ? fromHeight : 0,
-              backgroundColor: theme.onPrimary,
+              translateX: fromX ? fromX : 0,
+              translateY: fromY ? fromY : 0,
+              width: fromWidth ? fromWidth : 0,
+              height: fromHeight ? fromHeight : 0,
+              backgroundColor: fromBg,
               borderRadius: 16,
               zIndex: 5,
               position: "absolute",
@@ -100,7 +93,7 @@ export function EditNoteContainer({
                 height: "100%",
                 width: "100%",
               }}
-              transition={{ delay: 250 }}
+              transition={{ delay: 100 }}
               from={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

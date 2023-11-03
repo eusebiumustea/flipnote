@@ -111,9 +111,7 @@ export function NotePage({ onBack = () => handleBack(), open }: NotePageProps) {
             fontWeight: "bold",
           }}
         >
-          {title?.split("").map((e, i) => (
-            <Text key={i}>{e}</Text>
-          ))}
+          <Text>{title}</Text>
         </TextInput>
         <TextInput
           placeholderTextColor={theme.placeholder}
@@ -135,11 +133,7 @@ export function NotePage({ onBack = () => handleBack(), open }: NotePageProps) {
             marginTop: verticalScale(20),
           }}
         >
-          {text?.split("").map((e, i) => (
-            <Text style={{}} key={i}>
-              {e}
-            </Text>
-          ))}
+          <Text>{text}</Text>
         </TextInput>
       </InputScrollView>
     </>

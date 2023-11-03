@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BackHandler,
   Dimensions,
@@ -49,6 +49,7 @@ export function NotePageEdit({
   const { width } = Dimensions.get("window");
   const { top } = useSafeAreaInsets();
   const keyboard = useKeyboard();
+
   function handleBack() {
     try {
       if (item.title.length > 0 || item.text.length > 0) {
@@ -74,6 +75,7 @@ export function NotePageEdit({
       onAnimationClose();
     }
   }
+
   useMemo(() => {
     const storeData = async (value: any) => {
       try {
@@ -121,9 +123,7 @@ export function NotePageEdit({
             fontWeight: "bold",
           }}
         >
-          {editedTitle?.split("").map((e, i) => (
-            <Text key={i}>{e}</Text>
-          ))}
+          <Text>{editedTitle}</Text>
         </TextInput>
         <TextInput
           placeholderTextColor={theme.placeholder}
@@ -145,11 +145,7 @@ export function NotePageEdit({
             marginTop: verticalScale(20),
           }}
         >
-          {editedText?.split("").map((e, i) => (
-            <Text style={{}} key={i}>
-              {e}
-            </Text>
-          ))}
+          <Text style={{}}>{editedText}</Text>
         </TextInput>
       </InputScrollView>
     </>

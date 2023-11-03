@@ -27,7 +27,7 @@ export function Home() {
   const [createNote, setCreateNote] = useState(false);
   const [editNote, setEditNote] = useState<number | null>(null);
   const [data, setData] = useRecoilState(notesData);
-  useEffect(() => {
+  useMemo(() => {
     async function getData(key: any) {
       try {
         const res = await AsyncStorage.getItem(key);
@@ -47,8 +47,9 @@ export function Home() {
       return data.data.filter(
         (e) => e.text.includes(searchQuery) || e.title.includes(searchQuery)
       );
+    } else {
+      return data.data;
     }
-    return data.data;
   }, [searchQuery, data]);
   return (
     <>
@@ -57,6 +58,24 @@ export function Home() {
         searchValue={searchQuery}
         onSearch={setSearchQuery}
       />
+      <EditNoteContainer
+        fromBg={filteredData[editNote]?.cardColor}
+        fromWidth={cardsLayout[editNote]?.width}
+        fromHeight={cardsLayout[editNote]?.height}
+        fromY={cardsLayout[editNote]?.y}
+        fromX={cardsLayout[editNote]?.x}
+        show={editNote !== null}
+      >
+        {filteredData.map((item, i) => (
+          <NotePageEdit
+            key={item.id}
+            item={item}
+            currentItem={i}
+            onAnimationClose={() => setEditNote(null)}
+            open={editNote === i}
+          />
+        ))}
+      </EditNoteContainer>
       <ScrollView
         scrollEventThrottle={16}
         onScroll={(e) => {
@@ -102,26 +121,6 @@ export function Home() {
         </View>
       </ScrollView>
 
-      <EditNoteContainer
-        fromWidth={cardsLayout[editNote]?.width}
-        fromHeight={cardsLayout[editNote]?.height}
-        fromY={cardsLayout[editNote]?.y}
-        fromX={cardsLayout[editNote]?.x}
-        show={editNote !== null}
-      >
-        {filteredData.map((item, i) => (
-          <Fragment key={item.id}>
-            {editNote === i && (
-              <NotePageEdit
-                item={item}
-                currentItem={i}
-                onAnimationClose={() => setEditNote(null)}
-                open={editNote === i}
-              />
-            )}
-          </Fragment>
-        ))}
-      </EditNoteContainer>
       {!createNote && <CreateIcon onPress={() => setCreateNote(true)} />}
       <CreateNoteContainer show={createNote}>
         <NotePage open={createNote} onBack={() => setCreateNote(false)} />
