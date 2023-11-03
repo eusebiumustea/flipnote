@@ -18,7 +18,7 @@ export function CreateNoteContainer({
 }: CreateNoteProps) {
   const theme = useTheme();
   const { width, height } = Dimensions.get("window");
-  const { top, bottom } = useSafeAreaInsets();
+  const { top } = useSafeAreaInsets();
   useMemo(() => {
     const back = BackHandler.addEventListener("hardwareBackPress", () => {
       onHide();
@@ -59,16 +59,17 @@ export function CreateNoteContainer({
             }}
           />
           <MotiView
+            exitTransition={{ backgroundColor: { delay: 100, duration: 250 } }}
             transition={{
               type: "timing",
               duration: 250,
               borderRadius: { duration: 300 },
-              backgroundColor: { duration: 300 },
+              backgroundColor: { duration: 200 },
             }}
             from={{
-              margin: moderateScale(25),
-              width: moderateScale(65),
-              height: moderateScale(65),
+              margin: 25,
+              width: moderateScale(61),
+              height: moderateScale(61),
               backgroundColor: theme.onPrimary,
               borderRadius: 100,
               zIndex: 4,
@@ -78,13 +79,18 @@ export function CreateNoteContainer({
             }}
             animate={{
               margin: 0,
+              flex: 1,
               width: width,
               height: height,
               backgroundColor: theme.background,
               borderRadius: 0,
+              zIndex: 4,
+              position: "absolute",
+              bottom: 0,
+              right: 0,
             }}
             exit={{
-              margin: moderateScale(25),
+              margin: 25,
               width: moderateScale(61),
               height: moderateScale(61),
               backgroundColor: theme.onPrimary,

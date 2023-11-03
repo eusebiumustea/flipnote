@@ -1,16 +1,16 @@
 import { BlurView } from "expo-blur";
-import { moderateScale, verticalScale } from "../../tools";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ScrollView, View } from "react-native";
 import {
   BackIcon,
   ClipboardIcon,
   HeartIcon,
   ShareIcon,
 } from "../../components/assets";
+import { moderateScale, verticalScale } from "../../tools";
 
 interface NoteScreenHeaderProps {
-  onBack?: () => void;
+  onBack?: any;
   onCopy?: () => void;
   onFavoriteAdd?: () => void;
   onShare?: () => void;
@@ -24,14 +24,17 @@ export function NoteScreenHeader({
   const { top } = useSafeAreaInsets();
   return (
     <BlurView
+      intensity={30}
       style={{
         width: "100%",
         position: "absolute",
         flexDirection: "row",
         justifyContent: "space-between",
         padding: 16,
-        zIndex: 6,
+
         paddingTop: top,
+        zIndex: 6,
+        alignItems: "center",
       }}
     >
       <BackIcon onPress={onBack} />

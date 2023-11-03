@@ -7,14 +7,14 @@ import { RecoilRoot } from "recoil";
 export default function App() {
   return (
     <RecoilRoot>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <ThemeProvider>
+      <NavigationContainer>
+        <ThemeProvider>
+          <SafeAreaProvider>
             <StatusBarController />
             <AppRouting />
-          </ThemeProvider>
-        </NavigationContainer>
-      </SafeAreaProvider>
+          </SafeAreaProvider>
+        </ThemeProvider>
+      </NavigationContainer>
     </RecoilRoot>
   );
 }

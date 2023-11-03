@@ -5,16 +5,16 @@ import {
   TouchableOpacity,
   ColorValue,
 } from "react-native";
-import { useTheme, verticalScale } from "../../tools";
+import { moderateFontScale, useTheme, verticalScale } from "../../tools";
 import { cardColors } from "../../tools/colors";
+import { note } from "../../screens/note";
 interface NoteCardProps {
-  text: string;
-  bgColor?: ColorValue;
+  item?: note;
   onPress: () => void;
 }
 export function NoteCard({
-  text,
-  bgColor = cardColors[Math.floor(Math.random() * cardColors.length)],
+  item,
+
   onPress,
 }: NoteCardProps) {
   const theme = useTheme();
@@ -24,16 +24,33 @@ export function NoteCard({
       onPress={onPress}
       activeOpacity={1}
       style={{
-        backgroundColor: bgColor,
+        backgroundColor: item.cardColor,
         borderRadius: 16,
         maxWidth: width / 2 - 20,
         maxHeight: verticalScale(250),
         width: "auto",
         height: "auto",
         overflow: "hidden",
+        padding: 16,
       }}
     >
-      <Text style={{ padding: 16, color: theme.text }}>{text}</Text>
+      <Text
+        style={{
+          color: theme.text,
+          fontSize: moderateFontScale(25),
+          fontWeight: "bold",
+        }}
+      >
+        {item.title}
+      </Text>
+      <Text
+        style={{
+          color: theme.text,
+          fontSize: moderateFontScale(18),
+        }}
+      >
+        {item.text}
+      </Text>
     </TouchableOpacity>
   );
 }

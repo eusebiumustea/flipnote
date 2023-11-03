@@ -1,9 +1,13 @@
-import { useState } from "react";
-import { Dimensions, Text, TextInput, View } from "react-native";
+import { useMemo, useState } from "react";
+import { Dimensions, Text, TextInput, ToastAndroid, View } from "react-native";
 import InputScrollView from "react-native-input-scroll-view";
-import { useTheme, verticalScale } from "../../tools";
+import { moderateFontScale, useTheme, verticalScale } from "../../tools";
 import { NoteScreenHeader } from "./note-screen-header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRecoilState } from "recoil";
+import { notesData } from "./atom";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { cardColors } from "../../tools/colors";
 interface NotePageProps {
   // titleValue?: string;
   // onTitleChange?: (e: string) => void;
@@ -20,15 +24,53 @@ export function NotePage({
 }: NotePageProps) {
   const [title, setTitle] = useState<string>("");
   const [text, setText] = useState<string>("");
+  const [data, setData] = useRecoilState(notesData);
+  const [favorite, setFavorite] = useState(false);
   const theme = useTheme();
   const { width } = Dimensions.get("window");
   const { top } = useSafeAreaInsets();
+  useMemo(() => {
+    const storeData = async (value: any) => {
+      try {
+        await AsyncStorage.setItem("userdata", JSON.stringify(value));
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    storeData(data.data);
+  }, [data.data]);
   return (
-    <View style={{ flex: 1, backgroundColor: theme.background }}>
-      <NoteScreenHeader onBack={onBack} />
+    <>
+      <NoteScreenHeader
+        onFavoriteAdd={() => setFavorite(true)}
+        onBack={() => {
+          try {
+            if (title.length > 0 || text.length > 0) {
+              setData((prev) => ({
+                ...prev,
+                data: [
+                  ...prev.data,
+                  {
+                    title: title,
+                    text: text,
+                    isFavorite: favorite,
+                    cardColor:
+                      cardColors[Math.floor(Math.random() * cardColors.length)],
+                  },
+                ],
+                loading: false,
+              }));
+            }
+            onBack();
+          } catch (error) {
+            ToastAndroid.show(`Failed to save note: ${error}`, 300);
+            onBack();
+          }
+        }}
+      />
       <InputScrollView
         contentContainerStyle={{
-          paddingTop: verticalScale(60) + top,
+          paddingTop: verticalScale(70) + top,
           padding: 16,
         }}
         style={{
@@ -36,6 +78,7 @@ export function NotePage({
         }}
       >
         <TextInput
+          placeholderTextColor={theme.placeholder}
           onSelectionChange={(e) => {
             const start = e.nativeEvent.selection.start;
             const end = e.nativeEvent.selection.end;
@@ -51,6 +94,9 @@ export function NotePage({
           style={{
             width: "100%",
             height: "auto",
+            color: theme.onBackground,
+            fontSize: moderateFontScale(40),
+            fontWeight: "bold",
           }}
         >
           {title?.split("").map((e, i) => (
@@ -58,6 +104,7 @@ export function NotePage({
           ))}
         </TextInput>
         <TextInput
+          placeholderTextColor={theme.placeholder}
           cursorColor={"#FFCB09"}
           scrollEnabled={false}
           clearTextOnFocus
@@ -71,6 +118,9 @@ export function NotePage({
           style={{
             width: "100%",
             height: "auto",
+            color: theme.onBackground,
+            fontSize: moderateFontScale(18),
+            marginTop: verticalScale(20),
           }}
         >
           {text?.split("").map((e, i) => (
@@ -80,6 +130,6 @@ export function NotePage({
           ))}
         </TextInput>
       </InputScrollView>
-    </View>
+    </>
   );
 }

@@ -30,7 +30,7 @@ export function Header({ searchValue, onSearch, scrollY }: HeaderProps) {
         height: verticalScale(60),
         paddingHorizontal: moderateScale(30),
 
-        top: top,
+        top,
         transform: [
           {
             translateY: Animated.diffClamp(
@@ -66,12 +66,13 @@ export function Header({ searchValue, onSearch, scrollY }: HeaderProps) {
         </View>
 
         <TextInput
+          value={searchValue}
           style={{
             width: "95%",
             height: verticalScale(50),
             backgroundColor: theme.backgroundSearch,
             justifyContent: "flex-start",
-            fontSize: moderateFontScale(15),
+            fontSize: moderateFontScale(14),
             borderRadius: moderateScale(15),
             color: theme.onBackgroundSearch,
             paddingLeft: moderateScale(40),
@@ -81,20 +82,15 @@ export function Header({ searchValue, onSearch, scrollY }: HeaderProps) {
           placeholderTextColor={theme.onBackgroundSearch}
           keyboardType="default"
           textContentType="none"
-          onSelectionChange={(e) => console.log(e.nativeEvent.selection)}
-        >
-          {searchValue.split("").map((e, i) => (
-            <Text key={i}>{e}</Text>
-          ))}
-        </TextInput>
+        />
       </View>
       <TouchableOpacity
         style={{
-          width: moderateScale(24),
-          height: verticalScale(24),
+          width: moderateScale(28),
+          height: verticalScale(28),
         }}
       >
-        <InboxIcon badge={true} />
+        <InboxIcon badge={false} />
       </TouchableOpacity>
     </Animated.View>
   );

@@ -25,13 +25,13 @@ export function CreateIcon({ svgProps, onPress }: CreateIconProps) {
         zIndex: 3,
         bottom: 0,
         right: 0,
-        margin: moderateScale(25),
+        margin: 25,
       }}
     >
       <Svg
         {...svgProps}
-        width={39}
-        height={39}
+        width={"100%"}
+        height={"100%"}
         viewBox="0 0 39 39"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
