@@ -93,7 +93,7 @@ export function CreateNoteContainer({ show, children }: CreateNoteProps) {
               from={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              exitTransition={{ duration: 100, delay: 0 }}
+              exitTransition={{ duration: 300, delay: 0 }}
             >
               {children}
             </MotiView>

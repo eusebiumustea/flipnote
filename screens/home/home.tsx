@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   Dimensions,
+  FlatList,
   Pressable,
   ScrollView,
   View,
@@ -13,7 +14,7 @@ import { CreateIcon } from "../../components/assets";
 import { Header } from "../../components/header";
 import { NoteCard } from "../../components/note-card";
 import { useTheme, verticalScale } from "../../tools";
-import { NotePage, notesData } from "../note";
+import { NotePage, note, notesData } from "../note";
 import { CreateNoteContainer } from "./create-note-container";
 import { EditNoteContainer } from "./edit-note-container";
 import { NotePageEdit } from "../note/note-page-edit";
@@ -32,7 +33,6 @@ export function Home() {
       try {
         const res = await AsyncStorage.getItem(key);
         const data = JSON.parse(res);
-        setData({ loading: true, data: [] });
         if (data) {
           setData({ loading: false, data: data });
         }
@@ -58,6 +58,49 @@ export function Home() {
         searchValue={searchQuery}
         onSearch={setSearchQuery}
       />
+
+      <FlatList
+        numColumns={2}
+        columnWrapperStyle={{ gap: 20, justifyContent: "center" }}
+        scrollEventThrottle={16}
+        onScroll={(e) => {
+          scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y));
+        }}
+        contentContainerStyle={{
+          paddingTop: top + verticalScale(60),
+          backgroundColor: theme.background,
+          width: "100%",
+          padding: 16,
+          gap: 20,
+          // flexWrap: "wrap",
+          flexDirection: "column",
+        }}
+        style={{ flex: 1, backgroundColor: theme.background }}
+        data={filteredData}
+        keyExtractor={(item: any) => item.id}
+        renderItem={({ item, i }: any) => (
+          <NoteCard
+            onLayout={(e: any) => {
+              if (filteredData) {
+                cardsLayout[i] = {
+                  x: e.nativeEvent.layout.x,
+                  y: e.nativeEvent.layout.y,
+                  width: e.nativeEvent.layout.width,
+                  height: e.nativeEvent.layout.height,
+                };
+              }
+            }}
+            onPress={() => setEditNote(i)}
+            item={item}
+            key={i}
+          />
+        )}
+      />
+
+      {!createNote && <CreateIcon onPress={() => setCreateNote(true)} />}
+      <CreateNoteContainer show={createNote}>
+        <NotePage open={createNote} onBack={() => setCreateNote(false)} />
+      </CreateNoteContainer>
       <EditNoteContainer
         fromBg={filteredData[editNote]?.cardColor}
         fromWidth={cardsLayout[editNote]?.width}
@@ -68,7 +111,7 @@ export function Home() {
       >
         {filteredData.map((item, i) => (
           <NotePageEdit
-            key={item.id}
+            key={i}
             item={item}
             currentItem={i}
             onAnimationClose={() => setEditNote(null)}
@@ -76,55 +119,6 @@ export function Home() {
           />
         ))}
       </EditNoteContainer>
-      <ScrollView
-        scrollEventThrottle={16}
-        onScroll={(e) => {
-          scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y));
-        }}
-        contentContainerStyle={{
-          paddingTop: top + verticalScale(60),
-          backgroundColor: theme.background,
-        }}
-        style={{ flex: 1, backgroundColor: theme.background }}
-      >
-        <View
-          style={{
-            width: "100%",
-            padding: 16,
-            justifyContent: "flex-start",
-            gap: 20,
-            flexWrap: "wrap",
-            flexDirection: "row",
-          }}
-        >
-          {filteredData.map((item, i) => (
-            <NoteCard
-              onLayout={(e: any) => {
-                try {
-                  if (filteredData) {
-                    cardsLayout[i] = {
-                      x: e.nativeEvent.layout.x,
-                      y: e.nativeEvent.layout.y,
-                      width: e.nativeEvent.layout.width,
-                      height: e.nativeEvent.layout.height,
-                    };
-                  }
-                } catch (error) {
-                  console.log(error);
-                }
-              }}
-              onPress={() => setEditNote(i)}
-              item={item}
-              key={item.id}
-            />
-          ))}
-        </View>
-      </ScrollView>
-
-      {!createNote && <CreateIcon onPress={() => setCreateNote(true)} />}
-      <CreateNoteContainer show={createNote}>
-        <NotePage open={createNote} onBack={() => setCreateNote(false)} />
-      </CreateNoteContainer>
     </>
   );
 }

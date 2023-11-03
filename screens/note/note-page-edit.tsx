@@ -17,10 +17,10 @@ import { note } from "./types";
 import { KeyboardState } from "react-native-reanimated";
 import { useKeyboard } from "@react-native-community/hooks";
 interface EditNotePageProps {
-  item: note;
+  item?: note;
   onAnimationClose?: any;
   open?: boolean;
-  currentItem: number;
+  currentItem?: number;
 }
 export function NotePageEdit({
   onAnimationClose,
@@ -67,11 +67,10 @@ export function NotePageEdit({
           ],
           loading: false,
         }));
+        onAnimationClose();
       }
     } catch (error) {
       ToastAndroid.show(`Failed to save note: ${error}`, 300);
-      onAnimationClose();
-    } finally {
       onAnimationClose();
     }
   }
