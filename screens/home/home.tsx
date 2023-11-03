@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   Dimensions,
   Pressable,
@@ -16,6 +16,7 @@ import { useTheme, verticalScale } from "../../tools";
 import { NotePage, notesData } from "../note";
 import { CreateNoteContainer } from "./create-note-container";
 import { EditNoteContainer } from "./edit-note-container";
+import { NotePageEdit } from "../note/note-page-edit";
 export function Home() {
   const cardsLayout = useRef<any[]>([]).current;
   const theme = useTheme();
@@ -95,11 +96,12 @@ export function Home() {
               }}
               onPress={() => setEditNote(i)}
               item={item}
-              key={i}
+              key={item.id}
             />
           ))}
         </View>
       </ScrollView>
+
       <EditNoteContainer
         fromWidth={cardsLayout[editNote]?.width}
         fromHeight={cardsLayout[editNote]?.height}
@@ -107,21 +109,20 @@ export function Home() {
         fromX={cardsLayout[editNote]?.x}
         show={editNote !== null}
       >
-        <Pressable
-          style={{ flex: 1, backgroundColor: "yellow" }}
-          onPress={() => {
-            setEditNote(null);
-          }}
-        ></Pressable>
+        {filteredData.map((item, i) => (
+          <Fragment key={item.id}>
+            {editNote === i && (
+              <NotePageEdit
+                item={item}
+                currentItem={i}
+                onAnimationClose={() => setEditNote(null)}
+                open={editNote === i}
+              />
+            )}
+          </Fragment>
+        ))}
       </EditNoteContainer>
-      {!createNote && (
-        <CreateIcon
-          onPress={() => {
-            setCreateNote(true);
-            console.log(cardsLayout);
-          }}
-        />
-      )}
+      {!createNote && <CreateIcon onPress={() => setCreateNote(true)} />}
       <CreateNoteContainer show={createNote}>
         <NotePage open={createNote} onBack={() => setCreateNote(false)} />
       </CreateNoteContainer>

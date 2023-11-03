@@ -11,17 +11,26 @@ import InputScrollView from "react-native-input-scroll-view";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 import { moderateFontScale, useTheme, verticalScale } from "../../tools";
-import { cardColors } from "../../tools/colors";
 import { notesData } from "./atom";
 import { NoteScreenHeader } from "./note-screen-header";
-interface NotePageProps {
-  onBack?: () => void;
-  open: boolean;
+import { note } from "./types";
+import { KeyboardState } from "react-native-reanimated";
+import { useKeyboard } from "@react-native-community/hooks";
+interface EditNotePageProps {
+  item: note;
+  onAnimationClose?: any;
+  open?: boolean;
+  currentItem: number;
 }
-export function NotePage({ onBack = () => handleBack(), open }: NotePageProps) {
+export function NotePageEdit({
+  onAnimationClose,
+  open,
+  item,
+  currentItem,
+}: EditNotePageProps) {
   useMemo(() => {
     const back = BackHandler.addEventListener("hardwareBackPress", () => {
-      onBack();
+      handleBack();
       return true;
     });
     if (open === false) {
@@ -32,36 +41,37 @@ export function NotePage({ onBack = () => handleBack(), open }: NotePageProps) {
       });
     }
   }, [open]);
-  const [title, setTitle] = useState<string>("");
-  const [text, setText] = useState<string>("");
+  const [editedTitle, setEditedTitle] = useState<string>(item.title);
+  const [editedText, setEditedText] = useState<string>(item.text);
   const [data, setData] = useRecoilState(notesData);
   const [favorite, setFavorite] = useState(false);
   const theme = useTheme();
   const { width } = Dimensions.get("window");
   const { top } = useSafeAreaInsets();
+  const keyboard = useKeyboard();
   function handleBack() {
     try {
-      if (title.length > 0 || text.length > 0) {
+      if (item.title.length > 0 || item.text.length > 0) {
         setData((prev) => ({
           ...prev,
           data: [
-            ...prev.data,
+            ...prev.data.filter((e) => e !== prev.data[currentItem]),
             {
-              id: prev.data.length + 1,
-              title: title,
-              text: text,
+              id: prev.data[currentItem].id,
+              title: editedTitle,
+              text: editedText,
               isFavorite: favorite,
-              cardColor:
-                cardColors[Math.floor(Math.random() * cardColors.length)],
+              cardColor: prev.data[currentItem].cardColor,
             },
           ],
           loading: false,
         }));
       }
-      onBack();
     } catch (error) {
       ToastAndroid.show(`Failed to save note: ${error}`, 300);
-      onBack();
+      onAnimationClose();
+    } finally {
+      onAnimationClose();
     }
   }
   useMemo(() => {
@@ -96,7 +106,7 @@ export function NotePage({ onBack = () => handleBack(), open }: NotePageProps) {
             const end = e.nativeEvent.selection.end;
           }}
           scrollEnabled={false}
-          onChangeText={setTitle}
+          onChangeText={setEditedTitle}
           underlineColorAndroid="transparent"
           keyboardType="default"
           selectTextOnFocus={false}
@@ -111,7 +121,7 @@ export function NotePage({ onBack = () => handleBack(), open }: NotePageProps) {
             fontWeight: "bold",
           }}
         >
-          {title?.split("").map((e, i) => (
+          {editedTitle?.split("").map((e, i) => (
             <Text key={i}>{e}</Text>
           ))}
         </TextInput>
@@ -121,7 +131,7 @@ export function NotePage({ onBack = () => handleBack(), open }: NotePageProps) {
           scrollEnabled={false}
           clearTextOnFocus
           selectTextOnFocus={false}
-          onChangeText={setText}
+          onChangeText={setEditedText}
           underlineColorAndroid="transparent"
           keyboardType="default"
           multiline
@@ -135,7 +145,7 @@ export function NotePage({ onBack = () => handleBack(), open }: NotePageProps) {
             marginTop: verticalScale(20),
           }}
         >
-          {text?.split("").map((e, i) => (
+          {editedText?.split("").map((e, i) => (
             <Text style={{}} key={i}>
               {e}
             </Text>
