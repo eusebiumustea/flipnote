@@ -1,27 +1,37 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMemo, useState } from "react";
-import { Dimensions, Text, TextInput, ToastAndroid, View } from "react-native";
+import {
+  BackHandler,
+  Dimensions,
+  Text,
+  TextInput,
+  ToastAndroid,
+} from "react-native";
 import InputScrollView from "react-native-input-scroll-view";
-import { moderateFontScale, useTheme, verticalScale } from "../../tools";
-import { NoteScreenHeader } from "./note-screen-header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
-import { notesData } from "./atom";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { moderateFontScale, useTheme, verticalScale } from "../../tools";
 import { cardColors } from "../../tools/colors";
+import { notesData } from "./atom";
+import { NoteScreenHeader } from "./note-screen-header";
 interface NotePageProps {
-  // titleValue?: string;
-  // onTitleChange?: (e: string) => void;
-  // textValue?: string;
-  // onTextChange?: (e: string) => void;
   onBack?: () => void;
+  open: boolean;
 }
-export function NotePage({
-  // titleValue,
-  // onTitleChange,
-  // textValue,
-  // onTextChange,
-  onBack,
-}: NotePageProps) {
+export function NotePage({ onBack = () => handleBack(), open }: NotePageProps) {
+  useMemo(() => {
+    const back = BackHandler.addEventListener("hardwareBackPress", () => {
+      onBack();
+      return true;
+    });
+    if (open === false) {
+      back.remove();
+      BackHandler.addEventListener("hardwareBackPress", () => {
+        BackHandler.exitApp();
+        return false;
+      });
+    }
+  }, [open]);
   const [title, setTitle] = useState<string>("");
   const [text, setText] = useState<string>("");
   const [data, setData] = useRecoilState(notesData);
@@ -29,6 +39,30 @@ export function NotePage({
   const theme = useTheme();
   const { width } = Dimensions.get("window");
   const { top } = useSafeAreaInsets();
+  function handleBack() {
+    try {
+      if (title.length > 0 || text.length > 0) {
+        setData((prev) => ({
+          ...prev,
+          data: [
+            ...prev.data,
+            {
+              title: title,
+              text: text,
+              isFavorite: favorite,
+              cardColor:
+                cardColors[Math.floor(Math.random() * cardColors.length)],
+            },
+          ],
+          loading: false,
+        }));
+      }
+      onBack();
+    } catch (error) {
+      ToastAndroid.show(`Failed to save note: ${error}`, 300);
+      onBack();
+    }
+  }
   useMemo(() => {
     const storeData = async (value: any) => {
       try {
@@ -43,30 +77,7 @@ export function NotePage({
     <>
       <NoteScreenHeader
         onFavoriteAdd={() => setFavorite(true)}
-        onBack={() => {
-          try {
-            if (title.length > 0 || text.length > 0) {
-              setData((prev) => ({
-                ...prev,
-                data: [
-                  ...prev.data,
-                  {
-                    title: title,
-                    text: text,
-                    isFavorite: favorite,
-                    cardColor:
-                      cardColors[Math.floor(Math.random() * cardColors.length)],
-                  },
-                ],
-                loading: false,
-              }));
-            }
-            onBack();
-          } catch (error) {
-            ToastAndroid.show(`Failed to save note: ${error}`, 300);
-            onBack();
-          }
-        }}
+        onBack={handleBack}
       />
       <InputScrollView
         contentContainerStyle={{

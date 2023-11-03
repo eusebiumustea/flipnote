@@ -8,10 +8,17 @@ import {
   BackHandler,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CreateNoteProps } from "./types";
+import { CreateNoteProps, EditNoteProps } from "./types";
 import { useCallback, useEffect, useMemo } from "react";
 
-export function CreateNoteContainer({ show, children }: CreateNoteProps) {
+export function EditNoteContainer({
+  fromY,
+  fromX,
+  fromHeight,
+  fromWidth,
+  show,
+  children,
+}: EditNoteProps) {
   const theme = useTheme();
   const { width, height } = Dimensions.get("window");
   const { top } = useSafeAreaInsets();
@@ -27,7 +34,7 @@ export function CreateNoteContainer({ show, children }: CreateNoteProps) {
               opacity: 0,
               backgroundColor: "#000",
               marginTop: top,
-              zIndex: 3,
+              zIndex: 4,
               position: "absolute",
             }}
             animate={{ opacity: 0.4 }}
@@ -37,7 +44,7 @@ export function CreateNoteContainer({ show, children }: CreateNoteProps) {
               opacity: 0,
               backgroundColor: "#000",
               marginTop: top,
-              zIndex: 3,
+              zIndex: 4,
               position: "absolute",
             }}
           />
@@ -46,42 +53,35 @@ export function CreateNoteContainer({ show, children }: CreateNoteProps) {
             transition={{
               type: "timing",
               duration: 250,
-              borderRadius: { duration: 300 },
               backgroundColor: { duration: 200 },
             }}
             from={{
-              margin: 25,
-              width: moderateScale(61),
-              height: moderateScale(61),
+              translateX: fromX ? fromX : 0,
+              translateY: fromY ? fromY : 0,
+              width: fromWidth ? fromWidth : 0,
+              height: fromHeight ? fromHeight : 0,
               backgroundColor: theme.onPrimary,
-              borderRadius: 100,
-              zIndex: 4,
+              borderRadius: 16,
+              zIndex: 5,
               position: "absolute",
-              bottom: 0,
-              right: 0,
             }}
             animate={{
-              margin: 0,
-              flex: 1,
+              translateX: 0,
+              translateY: 0,
               width: width,
               height: height,
               backgroundColor: theme.background,
               borderRadius: 0,
-              zIndex: 4,
-              position: "absolute",
-              bottom: 0,
-              right: 0,
             }}
             exit={{
-              margin: 25,
-              width: moderateScale(61),
-              height: moderateScale(61),
+              translateX: fromX ? fromX : 0,
+              translateY: fromY ? fromY : 0,
+              width: fromWidth ? fromWidth : 0,
+              height: fromHeight ? fromHeight : 0,
               backgroundColor: theme.onPrimary,
-              borderRadius: 100,
-              zIndex: 4,
+              borderRadius: 16,
+              zIndex: 5,
               position: "absolute",
-              bottom: 0,
-              right: 0,
             }}
           >
             <MotiView

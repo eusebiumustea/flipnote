@@ -10,23 +10,21 @@ import { cardColors } from "../../tools/colors";
 import { note } from "../../screens/note";
 interface NoteCardProps {
   item?: note;
+  onLayout?: any;
   onPress: () => void;
 }
-export function NoteCard({
-  item,
-
-  onPress,
-}: NoteCardProps) {
+export function NoteCard({ item, onLayout, onPress }: NoteCardProps) {
   const theme = useTheme();
   const { width } = Dimensions.get("window");
   return (
     <TouchableOpacity
+      onLayout={onLayout}
       onPress={onPress}
       activeOpacity={1}
       style={{
         backgroundColor: item.cardColor,
         borderRadius: 16,
-        maxWidth: width / 2 - 20,
+        maxWidth: width / 2 - 16,
         maxHeight: verticalScale(250),
         width: "auto",
         height: "auto",
