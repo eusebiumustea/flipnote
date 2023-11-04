@@ -39,7 +39,7 @@ export function NotePageCreate() {
     }
 
     navigation.addListener("beforeRemove", () => {
-      console.log(title);
+      console.log("closing");
       createNote();
     });
   }, []);
