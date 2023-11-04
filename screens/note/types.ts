@@ -1,7 +1,6 @@
 import { ColorValue } from "react-native";
 
 export interface note {
-  id: number;
   title: string;
   text: string;
   isFavorite: boolean;
@@ -9,5 +8,4 @@ export interface note {
 }
 export interface userdataState {
   data: note[];
-  loading: boolean;
 }

@@ -8,16 +8,14 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 export default function App() {
   return (
     <RecoilRoot>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider>
         <NavigationContainer>
-          <ThemeProvider>
-            <SafeAreaProvider>
-              <StatusBarController />
-              <AppRouting />
-            </SafeAreaProvider>
-          </ThemeProvider>
+          <SafeAreaProvider>
+            <StatusBarController />
+            <AppRouting />
+          </SafeAreaProvider>
         </NavigationContainer>
-      </GestureHandlerRootView>
+      </ThemeProvider>
     </RecoilRoot>
   );
 }

@@ -24,12 +24,11 @@ export function Header({ searchValue, onSearch, scrollY }: HeaderProps) {
         justifyContent: "center",
         position: "absolute",
         backgroundColor: theme.background,
-        zIndex: 2,
+        zIndex: 3,
         alignItems: "center",
         flexDirection: "row",
         height: verticalScale(60),
         paddingHorizontal: moderateScale(30),
-
         top,
         transform: [
           {

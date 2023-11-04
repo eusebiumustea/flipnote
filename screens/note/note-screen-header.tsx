@@ -7,7 +7,6 @@ import {
   HeartIcon,
   ShareIcon,
 } from "../../components/assets";
-import { moderateScale, verticalScale } from "../../tools";
 
 interface NoteScreenHeaderProps {
   onBack?: any;
@@ -31,9 +30,8 @@ export function NoteScreenHeader({
         flexDirection: "row",
         justifyContent: "space-between",
         padding: 16,
-
-        paddingTop: top,
-        zIndex: 6,
+        marginTop: top,
+        zIndex: 1,
         alignItems: "center",
       }}
     >

@@ -13,6 +13,10 @@ import {
 } from "../../tools";
 import { cardColors } from "../../tools/colors";
 import { note } from "../../screens/note";
+import Animated, {
+  SharedTransition,
+  withSpring,
+} from "react-native-reanimated";
 interface NoteCardProps {
   item?: note;
   onLayout?: any;
@@ -33,14 +37,11 @@ export function NoteCard({ item, onLayout, onPress }: NoteCardProps) {
         maxHeight: verticalScale(250),
         width: "auto",
         height: "auto",
+        padding: 16,
         overflow: "hidden",
       }}
     >
-      <View
-        style={{
-          padding: 16,
-        }}
-      >
+      <View style={{ height: "auto" }}>
         <Text
           style={{
             color: theme.text,

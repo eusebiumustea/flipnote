@@ -7,6 +7,7 @@ interface CreateIconProps {
   svgProps?: any;
   onPress?: () => void;
 }
+
 export function CreateIcon({ svgProps, onPress }: CreateIconProps) {
   const theme = useTheme();
   const { bottom } = useSafeAreaInsets();

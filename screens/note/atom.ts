@@ -5,6 +5,5 @@ export const notesData = atom<userdataState>({
   key: "userdata",
   default: {
     data: [],
-    loading: false,
   },
 });

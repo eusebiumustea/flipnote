@@ -1,46 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useKeyboard } from "@react-native-community/hooks";
 import { useEffect, useMemo, useState } from "react";
-import {
-  BackHandler,
-  Dimensions,
-  Text,
-  TextInput,
-  ToastAndroid,
-} from "react-native";
+import { Dimensions, Text, TextInput, ToastAndroid, View } from "react-native";
 import InputScrollView from "react-native-input-scroll-view";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 import { moderateFontScale, useTheme, verticalScale } from "../../tools";
 import { notesData } from "./atom";
 import { NoteScreenHeader } from "./note-screen-header";
-import { note } from "./types";
-import { KeyboardState } from "react-native-reanimated";
-import { useKeyboard } from "@react-native-community/hooks";
-interface EditNotePageProps {
-  item: note;
-  onAnimationClose?: any;
-  open?: boolean;
-  currentItem: number;
-}
-export function NotePageEdit({
-  onAnimationClose,
-  open,
-  item,
-  currentItem,
-}: EditNotePageProps) {
-  useMemo(() => {
-    const back = BackHandler.addEventListener("hardwareBackPress", () => {
-      handleBack();
-      return true;
-    });
-    if (open === false) {
-      back.remove();
-      BackHandler.addEventListener("hardwareBackPress", () => {
-        BackHandler.exitApp();
-        return false;
-      });
-    }
-  }, [open]);
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+
+export function NotePageEdit({ route }: any) {
+  const { item, currentItem } = route.params;
   const [editedTitle, setEditedTitle] = useState<string>(item.title);
   const [editedText, setEditedText] = useState<string>(item.text);
   const [data, setData] = useRecoilState(notesData);
@@ -49,34 +20,45 @@ export function NotePageEdit({
   const { width } = Dimensions.get("window");
   const { top } = useSafeAreaInsets();
   const keyboard = useKeyboard();
-
-  function handleBack() {
-    try {
-      if (item.title.length > 0 || item.text.length > 0) {
-        setData((prev) => ({
-          ...prev,
-          data: [
-            ...prev.data.filter((e) => e !== prev.data[currentItem]),
-            {
-              id: prev.data[currentItem].id,
-              title: editedTitle,
-              text: editedText,
-              isFavorite: favorite,
-              cardColor: prev.data[currentItem].cardColor,
-            },
-          ],
-          loading: false,
-        }));
+  const noteIsEmpty =
+    favorite === false && editedText.length === 0 && editedTitle.length === 0;
+  useEffect(() => {
+    function Save() {
+      try {
+        if (noteIsEmpty) {
+          setData((prev) => {
+            const newData = [...prev.data];
+            return {
+              ...prev,
+              data: newData.filter((e) => e !== newData[currentItem]),
+            };
+          });
+        }
+        if (editedTitle.length > 0 || editedTitle.length > 0) {
+          setData((prev) => {
+            const newData = [...prev.data];
+            if (currentItem >= 0 && currentItem < newData.length) {
+              const updatedItem = {
+                title: editedTitle,
+                text: editedText,
+                isFavorite: favorite,
+                cardColor: newData[currentItem].cardColor,
+              };
+              newData.splice(currentItem, 1, updatedItem);
+            }
+            return {
+              ...prev,
+              data: newData,
+            };
+          });
+        }
+      } catch (error) {
+        ToastAndroid.show(`Failed to save note: ${error}`, 300);
       }
-    } catch (error) {
-      ToastAndroid.show(`Failed to save note: ${error}`, 300);
-      onAnimationClose();
-    } finally {
-      onAnimationClose();
     }
-  }
-
-  useMemo(() => {
+    return () => Save();
+  }, [editedText, editedTitle, favorite]);
+  useEffect(() => {
     const storeData = async (value: any) => {
       try {
         await AsyncStorage.setItem("userdata", JSON.stringify(value));
@@ -85,12 +67,21 @@ export function NotePageEdit({
       }
     };
     storeData(data.data);
-  }, [data.data]);
+    return () => {
+      storeData(data.data);
+    };
+  }, [data]);
+  const navigation = useNavigation<NavigationProp<any>>();
   return (
-    <>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: theme.background,
+      }}
+    >
       <NoteScreenHeader
         onFavoriteAdd={() => setFavorite(true)}
-        onBack={handleBack}
+        onBack={() => navigation.goBack()}
       />
       <InputScrollView
         contentContainerStyle={{
@@ -107,7 +98,6 @@ export function NotePageEdit({
             const start = e.nativeEvent.selection.start;
             const end = e.nativeEvent.selection.end;
           }}
-          scrollEnabled={false}
           onChangeText={setEditedTitle}
           underlineColorAndroid="transparent"
           keyboardType="default"
@@ -128,7 +118,6 @@ export function NotePageEdit({
         <TextInput
           placeholderTextColor={theme.placeholder}
           cursorColor={"#FFCB09"}
-          scrollEnabled={false}
           clearTextOnFocus
           selectTextOnFocus={false}
           onChangeText={setEditedText}
@@ -148,6 +137,6 @@ export function NotePageEdit({
           <Text style={{}}>{editedText}</Text>
         </TextInput>
       </InputScrollView>
-    </>
+    </View>
   );
 }
