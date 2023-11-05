@@ -8,15 +8,16 @@ import { StatusBarController, ThemeProvider } from "./tools";
 export default function App() {
   return (
     <RecoilRoot>
-      <AppStorageContext />
-      <ThemeProvider>
-        <NavigationContainer>
-          <SafeAreaProvider>
-            <StatusBarController />
-            <AppRouting />
-          </SafeAreaProvider>
-        </NavigationContainer>
-      </ThemeProvider>
+      <AppStorageContext>
+        <ThemeProvider>
+          <NavigationContainer>
+            <SafeAreaProvider>
+              <StatusBarController />
+              <AppRouting />
+            </SafeAreaProvider>
+          </NavigationContainer>
+        </ThemeProvider>
+      </AppStorageContext>
     </RecoilRoot>
   );
 }

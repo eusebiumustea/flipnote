@@ -5,7 +5,21 @@ import { notesData } from "../../screens/note";
 
 export function AppStorageContext({ children }: PropsWithChildren) {
   const [notes, setNotes] = useRecoilState(notesData);
-  console.log(notes);
+  useEffect(() => {
+    async function getData(key: any) {
+      try {
+        const res = await AsyncStorage.getItem(key);
+        const notes = JSON.parse(res);
+        if (notes) {
+          setNotes({ data: notes });
+          console.log(notes);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    getData("userdata");
+  }, []);
   useEffect(() => {
     const storeData = async (value: any) => {
       try {
@@ -14,22 +28,12 @@ export function AppStorageContext({ children }: PropsWithChildren) {
         console.log(e);
       }
     };
-    async function getData(key: any) {
-      try {
-        const res = await AsyncStorage.getItem(key);
-        const notes = JSON.parse(res);
-        if (notes) {
-          setNotes({ data: notes });
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    }
-    getData("userdata");
+    storeData(notes.data);
+    console.log(notes.data);
     return () => {
       storeData(notes.data);
     };
-  }, []);
+  }, [notes]);
 
   return <>{children}</>;
 }
