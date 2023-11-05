@@ -13,17 +13,19 @@ interface NoteScreenHeaderProps {
   onCopy?: () => void;
   onFavoriteAdd?: () => void;
   onShare?: () => void;
+  favorite?: boolean;
 }
 export function NoteScreenHeader({
   onBack,
   onCopy,
   onFavoriteAdd,
   onShare,
+  favorite,
 }: NoteScreenHeaderProps) {
   const { top } = useSafeAreaInsets();
   return (
     <BlurView
-      intensity={30}
+      intensity={20}
       style={{
         width: "100%",
         position: "absolute",
@@ -45,7 +47,7 @@ export function NoteScreenHeader({
         }}
       >
         <ClipboardIcon />
-        <HeartIcon />
+        <HeartIcon onPress={onFavoriteAdd} focused={favorite} />
         <ShareIcon />
       </View>
     </BlurView>

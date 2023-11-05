@@ -1,6 +1,5 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { FlatList, useAnimatedValue } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
@@ -15,44 +14,18 @@ export function Home() {
   const scrollY = useAnimatedValue(0, { useNativeDriver: true });
   const { top } = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState("");
-  const [data, setData] = useRecoilState(notesData);
-  useEffect(() => {
-    async function getData(key: any) {
-      try {
-        const res = await AsyncStorage.getItem(key);
-        const data = JSON.parse(res);
-        if (data) {
-          setData({ data: data });
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    }
-    getData("userdata");
-  }, []);
-  useEffect(() => {
-    const storeData = async (value: any) => {
-      try {
-        await AsyncStorage.setItem("userdata", JSON.stringify(value));
-      } catch (e) {
-        console.log(e);
-      }
-    };
-    storeData(data.data);
-
-    return () => {
-      storeData(data.data);
-    };
-  }, [data]);
+  const [notes, setNotes] = useRecoilState(notesData);
   const filteredData = useMemo(() => {
     if (searchQuery.length > 0) {
-      return data.data.filter(
-        (e) => e.text.includes(searchQuery) || e.title.includes(searchQuery)
+      return notes.data.filter(
+        (e) =>
+          e.text.includes(searchQuery.toLowerCase()) ||
+          e.title.includes(searchQuery.toLowerCase())
       );
     } else {
-      return data.data;
+      return notes.data;
     }
-  }, [searchQuery, data]);
+  }, [searchQuery, notes]);
   return (
     <>
       <Header
