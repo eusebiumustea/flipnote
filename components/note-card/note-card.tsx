@@ -1,65 +1,63 @@
-import {
-  View,
-  Text,
-  Dimensions,
-  TouchableOpacity,
-  ColorValue,
-} from "react-native";
-import {
-  moderateFontScale,
-  moderateScale,
-  useTheme,
-  verticalScale,
-} from "../../tools";
-import { cardColors } from "../../tools/colors";
+import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 import { note } from "../../screens/note";
-import Animated, {
-  SharedTransition,
-  withSpring,
-} from "react-native-reanimated";
+import { moderateFontScale, useTheme, verticalScale } from "../../tools";
+import { CheckIcon } from "../assets/check-icon";
+import { MotiPressable } from "moti/interactions";
 interface NoteCardProps {
   item?: note;
   onLayout?: any;
   onPress: () => void;
+  onLongPress?: any;
+  selectedForOptions?: boolean;
+  options?: boolean;
 }
-export function NoteCard({ item, onLayout, onPress }: NoteCardProps) {
+export function NoteCard({
+  item,
+  onLayout,
+  onPress,
+  onLongPress,
+  selectedForOptions,
+  options,
+}: NoteCardProps) {
   const theme = useTheme();
   const { width } = Dimensions.get("window");
   return (
-    <TouchableOpacity
+    <MotiPressable
+      transition={{ type: "timing", duration: 120 }}
+      onLongPress={onLongPress}
       onLayout={onLayout}
       onPress={onPress}
-      activeOpacity={1}
-      style={{
+      from={{
         backgroundColor: item.cardColor,
         borderRadius: 16,
-        maxWidth: width / 2 - moderateScale(30),
-        maxHeight: verticalScale(250),
-        width: "auto",
-        height: "auto",
-        padding: 16,
+        height: verticalScale(250),
+        width: width / 2 - 16,
         overflow: "hidden",
+        padding: 16,
       }}
+      animate={{ scale: options ? 0.93 : 1, translateY: 0 }}
     >
-      <View style={{ height: "auto" }}>
+      {options && <CheckIcon focused={selectedForOptions} />}
+      {item.title && (
         <Text
           style={{
-            color: theme.text,
-            fontSize: moderateFontScale(25),
+            color: "#000",
+            fontSize: moderateFontScale(20),
             fontWeight: "bold",
           }}
         >
           {item.title}
         </Text>
-        <Text
-          style={{
-            color: theme.text,
-            fontSize: moderateFontScale(18),
-          }}
-        >
-          {item.text}
-        </Text>
-      </View>
-    </TouchableOpacity>
+      )}
+      <Text
+        style={{
+          color: "#000",
+          fontSize: moderateFontScale(14),
+          paddingBottom: item.title ? verticalScale(40) : 0,
+        }}
+      >
+        {item.text}
+      </Text>
+    </MotiPressable>
   );
 }

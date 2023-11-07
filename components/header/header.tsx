@@ -4,6 +4,7 @@ import {
   Text,
   TouchableOpacity,
   Animated,
+  Dimensions,
 } from "react-native";
 import { HeaderProps } from "./types";
 import {
@@ -17,13 +18,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export function Header({ searchValue, onSearch, scrollY }: HeaderProps) {
   const theme = useTheme();
   const { top } = useSafeAreaInsets();
+  const { width } = Dimensions.get("window");
   return (
     <Animated.View
       style={{
         width: "100%",
         justifyContent: "center",
-        position: "absolute",
         backgroundColor: theme.background,
+        gap: moderateScale(8),
         zIndex: 3,
         alignItems: "center",
         flexDirection: "row",
@@ -67,14 +69,14 @@ export function Header({ searchValue, onSearch, scrollY }: HeaderProps) {
         <TextInput
           value={searchValue}
           style={{
-            width: "95%",
+            width: "100%",
             height: verticalScale(50),
             backgroundColor: theme.backgroundSearch,
             justifyContent: "flex-start",
             fontSize: moderateFontScale(14),
             borderRadius: moderateScale(15),
             color: theme.onBackgroundSearch,
-            paddingLeft: moderateScale(40),
+            paddingHorizontal: moderateScale(40),
           }}
           placeholder="Search for notes"
           onChangeText={onSearch}

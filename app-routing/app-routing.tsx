@@ -1,8 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Home } from "../screens/home";
-import { Inbox } from "../screens/inbox";
-import { NotePageCreate } from "../screens/note";
-import { NotePageEdit } from "../screens/note/note-page-edit";
+import { NotePageCreate, NotePageEdit, Home, Inbox } from "../screens";
 
 export function AppRouting() {
   const Stack = createNativeStackNavigator();
@@ -17,10 +14,9 @@ export function AppRouting() {
       }}
       initialRouteName="Home"
     >
+      <Stack.Screen component={Home} name="Home" />
       <Stack.Screen component={NotePageEdit} name="Edit-note" />
       <Stack.Screen component={NotePageCreate} name="Create-note" />
-      <Stack.Screen component={Home} name="Home" />
-
       <Stack.Screen component={Inbox} name="Inbox" />
     </Stack.Navigator>
   );

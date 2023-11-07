@@ -12,7 +12,6 @@ export function AppStorageContext({ children }: PropsWithChildren) {
         const notes = JSON.parse(res);
         if (notes) {
           setNotes({ data: notes });
-          console.log(notes);
         }
       } catch (e) {
         console.log(e);
@@ -29,7 +28,6 @@ export function AppStorageContext({ children }: PropsWithChildren) {
       }
     };
     storeData(notes.data);
-    console.log(notes.data);
     return () => {
       storeData(notes.data);
     };

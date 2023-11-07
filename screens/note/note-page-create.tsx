@@ -1,14 +1,6 @@
-import { useKeyboard } from "@react-native-community/hooks";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
-import {
-  AppState,
-  BackHandler,
-  Dimensions,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { BackHandler, Text, TextInput, View } from "react-native";
 import InputScrollView from "react-native-input-scroll-view";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
@@ -16,31 +8,25 @@ import { moderateFontScale, useTheme, verticalScale } from "../../tools";
 import { cardColors } from "../../tools/colors";
 import { notesData } from "./atom";
 import { NoteScreenHeader } from "./note-screen-header";
+import { note } from "./types";
 export function NotePageCreate() {
   const navigation = useNavigation<NavigationProp<any>>();
-  const [, setData] = useRecoilState(notesData);
-  const [title, setTitle] = useState<string>("");
-  const [text, setText] = useState<string>("");
-  const [favorite, setFavorite] = useState(false);
-  const noteIsEmpty = title.length === 0 && title.length === 0;
+  const [notes, setNotes] = useRecoilState(notesData);
+  const [newNote, setNewNote] = useState<note>({
+    id: notes.data.length + 1,
+    title: "",
+    text: "",
+    isFavorite: false,
+    cardColor: cardColors[Math.floor(Math.random() * cardColors.length)],
+  });
+  const noteIsEmpty = newNote.text.length === 0 && newNote.title.length === 0;
   const theme = useTheme();
-  const { width } = Dimensions.get("window");
   const { top } = useSafeAreaInsets();
-  const keyboard = useKeyboard();
   function handleBack() {
-    if (!noteIsEmpty) {
-      setData((prev) => ({
+    if (noteIsEmpty === false) {
+      setNotes((prev) => ({
         ...prev,
-        data: [
-          ...prev.data,
-          {
-            title: title,
-            text: text,
-            isFavorite: favorite,
-            cardColor:
-              cardColors[Math.floor(Math.random() * cardColors.length)],
-          },
-        ],
+        data: [...prev.data, newNote],
       }));
     }
     navigation.goBack();
@@ -48,53 +34,17 @@ export function NotePageCreate() {
   useEffect(() => {
     const subscribe = BackHandler.addEventListener("hardwareBackPress", () => {
       if (!noteIsEmpty) {
-        setData((prev) => ({
-          ...prev,
-          data: [
-            ...prev.data,
-            {
-              title: title,
-              text: text,
-              isFavorite: favorite,
-              cardColor:
-                cardColors[Math.floor(Math.random() * cardColors.length)],
-            },
-          ],
+        setNotes((prev) => ({
+          data: [...prev.data, newNote],
         }));
         navigation.goBack();
       } else {
         navigation.goBack();
       }
-
       return true;
     });
     return () => subscribe.remove();
-  }, [title, text, favorite]);
-  useEffect(() => {
-    function createNote() {
-      if (!noteIsEmpty) {
-        setData((prev) => ({
-          ...prev,
-          data: [
-            ...prev.data,
-            {
-              title: title,
-              text: text,
-              isFavorite: favorite,
-              cardColor:
-                cardColors[Math.floor(Math.random() * cardColors.length)],
-            },
-          ],
-        }));
-      }
-    }
-
-    return () => {
-      if (AppState.currentState === "unknown") {
-        createNote();
-      }
-    };
-  }, [AppState.currentState]);
+  }, [newNote]);
   return (
     <View
       style={{
@@ -103,9 +53,14 @@ export function NotePageCreate() {
       }}
     >
       <NoteScreenHeader
-        onFavoriteAdd={() => setFavorite((prev) => !prev)}
+        onFavoriteAdd={() =>
+          setNewNote((prev) => ({
+            ...prev,
+            isFavorite: !prev.isFavorite,
+          }))
+        }
         onBack={handleBack}
-        favorite={favorite}
+        favorite={newNote.isFavorite}
       />
       <InputScrollView
         keyboardAvoidingViewProps={{ behavior: "height" }}
@@ -121,7 +76,12 @@ export function NotePageCreate() {
         <View style={{}}>
           <TextInput
             placeholderTextColor={theme.placeholder}
-            onChangeText={(e) => setTitle(e)}
+            onChangeText={(title) =>
+              setNewNote((prev) => ({
+                ...prev,
+                title,
+              }))
+            }
             multiline
             selectionColor={"#FFF3C7"}
             cursorColor={"#FFCB09"}
@@ -132,7 +92,7 @@ export function NotePageCreate() {
               fontWeight: "bold",
             }}
           >
-            <Text>{title}</Text>
+            <Text>{newNote.title}</Text>
           </TextInput>
         </View>
         <View
@@ -143,7 +103,12 @@ export function NotePageCreate() {
           <TextInput
             placeholderTextColor={theme.placeholder}
             cursorColor={"#FFCB09"}
-            onChangeText={(e) => setText(e)}
+            onChangeText={(text) =>
+              setNewNote((prev) => ({
+                ...prev,
+                text,
+              }))
+            }
             multiline
             selectionColor={"#FFF3C7"}
             placeholder="Take the note"
@@ -152,7 +117,7 @@ export function NotePageCreate() {
               fontSize: moderateFontScale(18),
             }}
           >
-            <Text>{text}</Text>
+            <Text>{newNote.text}</Text>
           </TextInput>
         </View>
       </InputScrollView>

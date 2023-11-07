@@ -7,6 +7,10 @@ export const light = {
   onPrimary: "#000",
   text: "#131313",
   placeholder: "#7d7d7d",
+  border: "#A0A0A0",
+  textSecoundary: "#7C7C7C",
+  yellow: "#fdffde",
+  yellowAccent: "#eeff00",
 };
 export const dark = {
   background: "#181818",
@@ -15,8 +19,12 @@ export const dark = {
   onBackgroundSearch: "#F0F0F0",
   primary: "#000",
   onPrimary: "#fff",
-  text: "#131313",
+  text: "#fff",
   placeholder: "#b0b0b0",
+  border: "#A0A0A0",
+  textSecoundary: "#fff",
+  yellow: "#fdffde",
+  yellowAccent: "#eeff00",
 };
 export const cardColors = [
   "#D9E8FC",

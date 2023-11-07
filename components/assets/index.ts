@@ -6,3 +6,5 @@ export * from "./clipboard-icon";
 export * from "./search-icon";
 export * from "./share-icon";
 export * from "./heart-icon";
+export * from "./delete-icon";
+export * from "./close-icon";
