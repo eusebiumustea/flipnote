@@ -23,7 +23,7 @@ export function NoteOptions({ onDelete, onClose }: NoteOptionsProps) {
         zIndex: 3,
         alignItems: "center",
         flexDirection: "row",
-        height: verticalScale(100),
+        height: verticalScale(60),
         paddingHorizontal: moderateScale(20),
 
         top,

@@ -1,6 +1,12 @@
 {
   "expo": {
     "userInterfaceStyle": "automatic",
-    "android": {}
+
+    "android": {},
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    }
   }
 }

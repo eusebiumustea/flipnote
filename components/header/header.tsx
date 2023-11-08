@@ -25,8 +25,9 @@ export function Header({ searchValue, onSearch, scrollY }: HeaderProps) {
         width: "100%",
         justifyContent: "center",
         backgroundColor: theme.background,
+
         gap: moderateScale(8),
-        zIndex: 3,
+        zIndex: 9,
         alignItems: "center",
         flexDirection: "row",
         height: verticalScale(60),

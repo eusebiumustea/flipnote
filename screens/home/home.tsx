@@ -98,7 +98,7 @@ export function Home() {
                 "Alert",
                 `Are you sure you want to delete permanently ${
                   optionsSelection.length
-                } ${optionsSelection.length === 1 ? "item" : "items"}`,
+                } ${optionsSelection.length === 1 ? "note" : "notes"}`,
                 [
                   { text: "Cencel", style: "cancel" },
                   {
@@ -151,8 +151,7 @@ export function Home() {
           scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y))
         }
         contentContainerStyle={{
-          paddingTop:
-            optionsSelection.length > 0 ? top + verticalScale(100) : top + 10,
+          paddingTop: optionsSelection.length > 0 ? verticalScale(100) : 10,
           backgroundColor: theme.background,
           padding: 16,
           width: "100%",
@@ -161,8 +160,8 @@ export function Home() {
         style={{
           flex: 1,
           backgroundColor: theme.background,
+          // paddingTop: top,
         }}
-        ListHeaderComponentStyle={{}}
         ListHeaderComponent={() => (
           <>
             {optionsSelection.length === 0 && (

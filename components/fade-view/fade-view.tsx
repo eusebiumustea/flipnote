@@ -5,19 +5,23 @@ import { useTheme } from "../../tools";
 interface FadeViewProps {
   children?: ReactNode;
   style?: ViewStyle;
+  duration?: number;
 }
-export const FadeView = ({ children, style }: FadeViewProps) => {
+export const FadeView = ({
+  children,
+  style,
+  duration = 180,
+}: FadeViewProps) => {
   const theme = useTheme();
   return (
     <AnimatePresence>
       <MotiView
         style={style}
-        transition={{ type: "timing", duration: 160 }}
+        transition={{ type: "timing", duration: duration }}
         from={{
-          backgroundColor: theme.background,
           opacity: 0,
         }}
-        animate={{ opacity: 1, translateX: 0 }}
+        animate={{ opacity: 1 }}
       >
         {children}
       </MotiView>
