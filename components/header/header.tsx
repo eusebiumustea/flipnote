@@ -1,12 +1,11 @@
 import {
-  TextInput,
-  View,
-  Text,
-  TouchableOpacity,
   Animated,
   Dimensions,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { HeaderProps } from "./types";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   moderateFontScale,
   moderateScale,
@@ -14,34 +13,36 @@ import {
   verticalScale,
 } from "../../tools";
 import { InboxIcon, SearchIcon } from "../assets";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-export function Header({ searchValue, onSearch, scrollY }: HeaderProps) {
+import { HeaderProps } from "./types";
+import { PropsWithChildren } from "react";
+export function Header({
+  searchValue,
+  onSearch,
+  scrollY,
+  children,
+  extraHeight = 0,
+}: PropsWithChildren<HeaderProps>) {
   const theme = useTheme();
   const { top } = useSafeAreaInsets();
-  const { width } = Dimensions.get("window");
   return (
     <Animated.View
       style={{
+        position: "absolute",
         width: "100%",
-        justifyContent: "center",
+        zIndex: 999,
+        height: verticalScale(70) + top + extraHeight,
         backgroundColor: theme.background,
-
-        gap: moderateScale(8),
-        zIndex: 9,
-        alignItems: "center",
-        flexDirection: "row",
-        height: verticalScale(60),
-        paddingHorizontal: moderateScale(30),
-        top,
+        top: 0,
+        paddingTop: top,
         transform: [
           {
             translateY: Animated.diffClamp(
               scrollY,
               0,
-              verticalScale(60 + top)
+              verticalScale(80)
             ).interpolate({
-              inputRange: [0, verticalScale(60 + top)],
-              outputRange: [0, verticalScale(-60 - top)],
+              inputRange: [0, verticalScale(80)],
+              outputRange: [0, verticalScale(-80)],
               extrapolate: "clamp",
             }),
           },
@@ -51,49 +52,64 @@ export function Header({ searchValue, onSearch, scrollY }: HeaderProps) {
       <View
         style={{
           width: "100%",
-          alignItems: "center",
+          height: verticalScale(70),
+          justifyContent: "center",
           flexDirection: "row",
+          alignItems: "center",
+          paddingHorizontal: 30,
           alignSelf: "center",
-          height: "100%",
+          gap: moderateScale(7),
         }}
       >
         <View
           style={{
-            position: "absolute",
-            zIndex: 1,
-            paddingHorizontal: moderateScale(10),
+            width: "100%",
+            alignItems: "center",
+            flexDirection: "row",
+            alignSelf: "center",
+            height: "100%",
           }}
         >
-          <SearchIcon />
+          <View
+            style={{
+              position: "absolute",
+              zIndex: 1,
+              paddingHorizontal: moderateScale(10),
+            }}
+          >
+            <SearchIcon />
+          </View>
+          <TextInput
+            value={searchValue}
+            style={{
+              width: "100%",
+              height: verticalScale(50),
+              backgroundColor: theme.backgroundSearch,
+              justifyContent: "flex-start",
+              fontSize: moderateFontScale(14),
+              borderRadius: moderateScale(15),
+              color: theme.onBackgroundSearch,
+              paddingHorizontal: moderateScale(40),
+              fontFamily: "google-sans",
+            }}
+            placeholder="Search for notes"
+            onChangeText={onSearch}
+            placeholderTextColor={theme.onBackgroundSearch}
+            keyboardType="default"
+            textContentType="none"
+          />
         </View>
-
-        <TextInput
-          value={searchValue}
+        <TouchableOpacity
           style={{
-            width: "100%",
-            height: verticalScale(50),
-            backgroundColor: theme.backgroundSearch,
-            justifyContent: "flex-start",
-            fontSize: moderateFontScale(14),
-            borderRadius: moderateScale(15),
-            color: theme.onBackgroundSearch,
-            paddingHorizontal: moderateScale(40),
+            width: moderateScale(28),
+            height: verticalScale(28),
           }}
-          placeholder="Search for notes"
-          onChangeText={onSearch}
-          placeholderTextColor={theme.onBackgroundSearch}
-          keyboardType="default"
-          textContentType="none"
-        />
+        >
+          <InboxIcon badge={false} />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        style={{
-          width: moderateScale(28),
-          height: verticalScale(28),
-        }}
-      >
-        <InboxIcon badge={false} />
-      </TouchableOpacity>
+
+      {children}
     </Animated.View>
   );
 }

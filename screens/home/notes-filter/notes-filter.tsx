@@ -31,6 +31,7 @@ export const FilterButton = ({
         style={{
           fontSize: moderateFontScale(12),
           color: selected ? theme.primary : theme.onPrimary,
+          fontFamily: "google-sans",
         }}
       >
         {label.length > 40 ? `${label.slice(0, 40)}...` : label}
@@ -38,6 +39,7 @@ export const FilterButton = ({
     </TouchableOpacity>
   );
 };
+
 export function FilterFavoritesButton({
   onSelected,
   selected,
@@ -61,7 +63,7 @@ export function FilterFavoritesButton({
       <Text
         style={{
           fontSize: moderateFontScale(12),
-          // color: theme.onPrimary,
+          fontFamily: "google-sans",
         }}
       >
         Favorites

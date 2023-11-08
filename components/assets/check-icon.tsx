@@ -1,5 +1,10 @@
 import * as React from "react";
-import { TouchableOpacity, ViewProps } from "react-native";
+import {
+  ColorValue,
+  TouchableOpacity,
+  ViewProps,
+  ViewStyle,
+} from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { moderateScale, useTheme, verticalScale } from "../../tools";
 interface CheckIconProps {
@@ -7,12 +12,16 @@ interface CheckIconProps {
   onPress?: () => void;
   btnProps?: ViewProps;
   focused?: boolean;
+  style?: ViewStyle;
+  fill?: ColorValue;
 }
 export function CheckIcon({
   svgProps,
   onPress,
   btnProps,
   focused,
+  style,
+  fill = "#000",
 }: CheckIconProps) {
   const theme = useTheme();
   return (
@@ -22,13 +31,13 @@ export function CheckIcon({
       style={{
         width: moderateScale(25),
         height: verticalScale(25),
-        position: "absolute",
-        top: 0,
+        ...style,
       }}
       {...btnProps}
     >
       {focused ? (
         <Svg
+          fill={fill}
           width={"100%"}
           height={"100%"}
           xmlns="http://www.w3.org/2000/svg"
@@ -39,6 +48,7 @@ export function CheckIcon({
         </Svg>
       ) : (
         <Svg
+          fill={fill}
           width={"100%"}
           height={"100%"}
           xmlns="http://www.w3.org/2000/svg"

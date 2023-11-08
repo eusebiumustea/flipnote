@@ -4,4 +4,5 @@ export interface HeaderProps {
   onSearch: (e: string) => void;
   searchValue: string;
   scrollY: Animated.Value;
+  extraHeight?: number;
 }

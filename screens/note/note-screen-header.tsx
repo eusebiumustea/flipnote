@@ -32,7 +32,7 @@ export function NoteScreenHeader({
         flexDirection: "row",
         justifyContent: "space-between",
         padding: 16,
-        marginTop: top,
+        paddingTop: top + 16,
         zIndex: 1,
         alignItems: "center",
       }}

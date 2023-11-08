@@ -8,3 +8,4 @@ export * from "./share-icon";
 export * from "./heart-icon";
 export * from "./delete-icon";
 export * from "./close-icon";
+export * from "./icon-buttons";

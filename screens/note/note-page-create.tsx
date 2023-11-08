@@ -90,6 +90,7 @@ export function NotePageCreate() {
               color: theme.onBackground,
               fontSize: moderateFontScale(40),
               fontWeight: "bold",
+              fontFamily: "google-sans",
             }}
           >
             <Text>{newNote.title}</Text>
@@ -115,6 +116,7 @@ export function NotePageCreate() {
             style={{
               color: theme.onBackground,
               fontSize: moderateFontScale(18),
+              fontFamily: "google-sans",
             }}
           >
             <Text>{newNote.text}</Text>

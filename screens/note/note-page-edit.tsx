@@ -1,6 +1,13 @@
 import { useKeyboard } from "@react-native-community/hooks";
-import { useEffect, useMemo, useState } from "react";
-import { BackHandler, Text, TextInput, View } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  BackHandler,
+  Dimensions,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scrollview";
@@ -18,7 +25,7 @@ import {
 import { notesData } from "./atom";
 import { NoteScreenHeader } from "./note-screen-header";
 import { note } from "./types";
-import { FadeView } from "../../components/fade-view";
+import { CustomizeBar } from "./customize-bar";
 
 interface ParamsProps {
   item: note;
@@ -38,6 +45,7 @@ export function NotePageEdit({ route }: any) {
   const theme = useTheme();
   const { top } = useSafeAreaInsets();
   const keyboard = useKeyboard();
+
   const noteIsEmpty = editNote.text.length === 0 && editNote.title.length === 0;
   function handleBack() {
     if (noteIsEmpty) {
@@ -49,7 +57,6 @@ export function NotePageEdit({ route }: any) {
         data: replaceElementAtId(prev.data, item.id, editNote),
       }));
     }
-
     navigation.goBack();
   }
   useEffect(() => {
@@ -66,14 +73,22 @@ export function NotePageEdit({ route }: any) {
       navigation.goBack();
       return true;
     });
-    return () => subscribe.remove();
+    return () => {
+      subscribe.remove();
+    };
   }, [editNote]);
-  useMemo(() => {
+  useEffect(() => {
     const prevItemIndex = data.data.findLastIndex((e) => e.id < item.id);
     setEditNote((prev) => ({ ...prev, id: prevItemIndex + 2 }));
   }, [data.data]);
+
+  const marginBottom =
+    Dimensions.get("screen").height -
+    (keyboard.coordinates.end.screenY || Dimensions.get("screen").height);
+
+  console.log(editNote);
   return (
-    <FadeView
+    <View
       style={{
         flex: 1,
         backgroundColor: theme.background,
@@ -89,13 +104,16 @@ export function NotePageEdit({ route }: any) {
         onBack={handleBack}
         favorite={editNote.isFavorite}
       />
-      <KeyboardAwareScrollView
+      <ScrollView
+        snapToAlignment="center"
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           paddingTop: verticalScale(70) + top,
           padding: 16,
         }}
         style={{
           flex: 1,
+          marginBottom: marginBottom,
         }}
       >
         <TextInput
@@ -111,12 +129,14 @@ export function NotePageEdit({ route }: any) {
           keyboardType="default"
           selectTextOnFocus={false}
           multiline
+          scrollEnabled={false}
           selectionColor={"#FFF3C7"}
           placeholder="Title"
           style={{
             color: theme.onBackground,
-            fontSize: moderateFontScale(40),
+            fontSize: moderateFontScale(28),
             fontWeight: "bold",
+            fontFamily: "google-sans",
           }}
         >
           <Text>{editNote.title}</Text>
@@ -135,17 +155,22 @@ export function NotePageEdit({ route }: any) {
           underlineColorAndroid="transparent"
           keyboardType="default"
           multiline
+          scrollEnabled={false}
           selectionColor={"#FFF3C7"}
           placeholder="Take the note"
           style={{
             color: theme.onBackground,
-            fontSize: moderateFontScale(18),
+            fontSize: moderateFontScale(16),
             marginTop: verticalScale(20),
+            fontFamily: "google-sans",
+            paddingBottom: 300,
           }}
         >
           <Text style={{}}>{editNote.text}</Text>
         </TextInput>
-      </KeyboardAwareScrollView>
-    </FadeView>
+        {/* <View style={{ height: 100, backgroundColor: "red" }}></View> */}
+      </ScrollView>
+      <CustomizeBar />
+    </View>
   );
 }

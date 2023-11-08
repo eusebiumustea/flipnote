@@ -1,15 +1,28 @@
 import { NavigationContainer } from "@react-navigation/native";
+import { Dimensions, View } from "react-native";
 import "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { RecoilRoot } from "recoil";
 import { AppRouting } from "./app-routing";
 import { AppStorageContext } from "./components/app-storage-context";
 import { StatusBarController, ThemeProvider } from "./tools";
-import { Dimensions, LayoutAnimation } from "react-native";
-import { useCallback, useEffect, useState } from "react";
-import { useDimensionsChange } from "react-native-responsive-dimensions";
+import * as SplashScreen from "expo-splash-screen";
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
 const initialScreenSize = JSON.stringify(Dimensions.get("screen"));
+SplashScreen.preventAutoHideAsync();
 export default function App() {
+  const [fontLoaded] = useFonts({
+    "google-sans": require("./assets/fonts/OpenSans-VariableFont_wdthwght.ttf"),
+  });
+  const onLayoutRootView = useCallback(async () => {
+    if (fontLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontLoaded]);
+  if (!fontLoaded) {
+    return null;
+  }
   // useEffect(() => {
   //   const subscription = Dimensions.addEventListener("change", ({ screen }) => {
   //     setState(JSON.stringify(screen));
@@ -19,18 +32,21 @@ export default function App() {
   //     subscription.remove();
   //   };
   // }, []);
+
   return (
     <RecoilRoot>
-      <AppStorageContext>
-        <ThemeProvider>
-          <NavigationContainer>
-            <SafeAreaProvider>
-              <StatusBarController />
-              <AppRouting />
-            </SafeAreaProvider>
-          </NavigationContainer>
-        </ThemeProvider>
-      </AppStorageContext>
+      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <AppStorageContext>
+          <ThemeProvider>
+            <NavigationContainer>
+              <SafeAreaProvider>
+                <StatusBarController />
+                <AppRouting />
+              </SafeAreaProvider>
+            </NavigationContainer>
+          </ThemeProvider>
+        </AppStorageContext>
+      </View>
     </RecoilRoot>
   );
 }
