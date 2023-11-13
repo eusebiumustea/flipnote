@@ -79,10 +79,13 @@ export function NoteOptions({
       const zip = new JSZip();
       shareNotes.forEach((note) => {
         zip.file(
-          `${note.title.substring(0, 40)}.txt`,
+          `${
+            note.title.length > 0
+              ? note.title.substring(0, 40)
+              : note.text.substring(0, 30)
+          }.txt`,
           `Title: ${note.title} Text: ${note.text}`
         );
-        console.log("zipping", zip.length);
       });
       zip
         .generateAsync({ type: "base64", compression: "STORE" })
@@ -151,76 +154,81 @@ export function NoteOptions({
         onRequestClose={onModalClose}
         visible={showModal}
       >
-        <BlurView
-          tint="dark"
-          intensity={50}
+        <View
           style={{
             flex: 1,
             backgroundColor: theme.onPrimary,
             zIndex: -1,
+            opacity: 0.5,
           }}
         />
         <View
           style={{
+            height: "100%",
             width: "100%",
-            backgroundColor: theme.primary,
-            height: "auto",
-            justifyContent: "center",
-            alignSelf: "center",
-            padding: 10,
             position: "absolute",
-            top: keyboard.keyboardShown
-              ? keyboard.keyboardHeight
-              : height / 2.3,
             zIndex: 1,
-            flexDirection: "column",
-            maxHeight: height / 2.3,
-            paddingBottom: 30,
-            elevation: 10,
-            borderRadius: 16,
+            justifyContent: "center",
           }}
         >
-          <Text
+          <View
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
+              width: "100%",
+              backgroundColor: theme.primary,
+              height: "auto",
+              justifyContent: "center",
+              alignSelf: "center",
               padding: 10,
-              color: theme.onPrimary,
-              fontSize: moderateFontScale(16),
-            }}
-          >
-            Share selected {shareNotes.length === 1 ? "note" : "notes"} as zip
-            archive format?
-          </Text>
-          <ScrollView
-            contentContainerStyle={{
-              padding: 20,
-              paddingTop: 30,
               flexDirection: "column",
-              alignItems: "center",
-              rowGap: 5,
+              maxHeight: height / 2,
+              paddingBottom: 30,
+              elevation: 10,
+              borderRadius: 16,
             }}
-            style={{ width: "100%" }}
           >
-            {shareNotes.map((e, i) => (
-              <Text
-                key={i}
-                style={{
-                  textAlign: "center",
-                  fontSize: moderateFontScale(16),
-                  fontFamily: "google-sans",
-                  color: "#000",
-                  backgroundColor: e.background,
-                  borderRadius: 6,
-                  padding: 5,
-                }}
-              >
-                {e.title}
-              </Text>
-            ))}
-          </ScrollView>
-          {/* <TextInput
+            <Text
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                padding: 10,
+                color: theme.onPrimary,
+                fontSize: moderateFontScale(16),
+              }}
+            >
+              Share selected {shareNotes.length === 1 ? "note" : "notes"} as zip
+              archive format?
+            </Text>
+            <ScrollView
+              contentContainerStyle={{
+                padding: 20,
+                paddingTop: 30,
+                flexDirection: "column",
+                alignItems: "center",
+                rowGap: 5,
+              }}
+              style={{ width: "100%" }}
+            >
+              {shareNotes.map((e, i) => (
+                <Text
+                  key={i}
+                  style={{
+                    textAlign: "center",
+                    fontSize: moderateFontScale(16),
+                    fontFamily: "google-sans",
+                    color: "#000",
+                    backgroundColor: e.background,
+                    borderRadius: 6,
+                    padding: 5,
+                  }}
+                >
+                  {e.title.length > 0
+                    ? e.title.substring(0, 40)
+                    : e.text.substring(0, 30)}
+                </Text>
+              ))}
+            </ScrollView>
+            {/* <TextInput
             onChangeText={onChangeText}
             value={textValue}
             placeholderTextColor={theme.onBackgroundSearch}
@@ -248,40 +256,41 @@ export function NoteOptions({
               data.
             </Text>
           )} */}
-          <View
-            style={{
-              columnGap: 30,
-              flexDirection: "row",
-              position: "absolute",
-              bottom: 0,
-              right: 0,
-              margin: 10,
-            }}
-          >
-            <TouchableOpacity onPress={onModalClose}>
-              <Text
-                style={{
-                  fontSize: moderateFontScale(15),
-                  fontFamily: "google-sans",
-                  fontWeight: "bold",
-                  color: theme.onPrimary,
-                }}
-              >
-                Cencel
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={Share}>
-              <Text
-                style={{
-                  fontSize: moderateFontScale(15),
-                  fontFamily: "google-sans",
-                  fontWeight: "bold",
-                  color: theme.onPrimary,
-                }}
-              >
-                Share
-              </Text>
-            </TouchableOpacity>
+            <View
+              style={{
+                columnGap: 20,
+                flexDirection: "row",
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                margin: 10,
+              }}
+            >
+              <TouchableOpacity onPress={onModalClose}>
+                <Text
+                  style={{
+                    fontSize: moderateFontScale(15),
+                    fontFamily: "google-sans",
+                    fontWeight: "bold",
+                    color: theme.onPrimary,
+                  }}
+                >
+                  Cencel
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={Share}>
+                <Text
+                  style={{
+                    fontSize: moderateFontScale(15),
+                    fontFamily: "google-sans",
+                    fontWeight: "bold",
+                    color: theme.onPrimary,
+                  }}
+                >
+                  Share
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
