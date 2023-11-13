@@ -32,8 +32,8 @@ export const dark = {
 };
 
 export const cardColors = [
+  "#fff",
   "#D9E8FC",
-  "#FFD8F4",
   "#FDE99D",
   "#B0E9CA",
   "#FCFAD9",

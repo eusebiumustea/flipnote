@@ -9,6 +9,7 @@ import { StatusBarController, ThemeProvider } from "./tools";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
 import { useCallback } from "react";
+import { ToastProvider } from "./components";
 const initialScreenSize = JSON.stringify(Dimensions.get("screen"));
 SplashScreen.preventAutoHideAsync();
 export default function App() {
@@ -41,7 +42,9 @@ export default function App() {
             <NavigationContainer>
               <SafeAreaProvider>
                 <StatusBarController />
-                <AppRouting />
+                <ToastProvider>
+                  <AppRouting />
+                </ToastProvider>
               </SafeAreaProvider>
             </NavigationContainer>
           </ThemeProvider>

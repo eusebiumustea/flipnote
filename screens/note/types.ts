@@ -5,7 +5,7 @@ export interface note {
   title: string;
   text: string;
   isFavorite: boolean;
-  cardColor: ColorValue;
+  background: ColorValue | string;
 }
 export interface userdataState {
   data: note[];

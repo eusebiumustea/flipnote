@@ -1,6 +1,6 @@
 import * as React from "react";
 import Svg, { Path, Circle } from "react-native-svg";
-import { useTheme } from "../../tools";
+import { useTheme } from "../../../tools";
 export function InboxIcon({ props, badge }: any) {
   const theme = useTheme();
   return (

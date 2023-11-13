@@ -1,7 +1,7 @@
 import * as React from "react";
 import { TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
-import { moderateScale, useTheme, verticalScale } from "../../tools";
+import { moderateScale, useTheme, verticalScale } from "../../../tools";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface DeleteIconProps {
   svgProps?: any;

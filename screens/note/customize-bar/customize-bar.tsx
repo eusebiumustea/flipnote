@@ -1,11 +1,14 @@
+import { useKeyboard } from "@react-native-community/hooks";
 import {
+  ColorValue,
   Dimensions,
   GestureResponderEvent,
   ScrollView,
   View,
+  useWindowDimensions,
 } from "react-native";
-import { useTheme } from "../../../tools";
 import {
+  BackgroundIcon,
   BoldIcon,
   CenterAlignIcon,
   ItalicIcon,
@@ -15,15 +18,22 @@ import {
   TextIcon,
   UnderlineIcon,
 } from "../../../components/assets";
-import { useKeyboard } from "@react-native-community/hooks";
+import { toggleState, useTheme } from "../../../tools";
+import { AnimatePresence, MotiScrollView, MotiView } from "moti";
+import { PropsWithChildren, ReactNode, useState } from "react";
 interface CustomizeBarProps {
-  onBold: () => void;
-  onItalic: () => void;
+  onBold?: () => void;
+  onItalic?: () => void;
+  backgroundItems?: PropsWithChildren<ReactNode>;
 }
-export function CustomizeBar() {
+export function CustomizeBar({
+  backgroundItems,
+  onBold,
+  onItalic,
+}: CustomizeBarProps) {
+  const [showOption, setShowOption] = useState<string | null>(null);
   const theme = useTheme();
   const keyboard = useKeyboard();
-
   const handlePress = (e: GestureResponderEvent) => {
     e.stopPropagation();
     e.preventDefault();
@@ -33,40 +43,90 @@ export function CustomizeBar() {
   // const isHidden =
   //   !keyboard.coordinates.end.screenY ||
   //   keyboard.coordinates.end.screenY === Dimensions.get("screen").height;
-
+  const { width } = useWindowDimensions();
   const paddingTop =
     Dimensions.get("screen").height -
-    (keyboard.coordinates.end.screenY || Dimensions.get("screen").height);
+    (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height);
+
   return (
-    <ScrollView
-      contentContainerStyle={{
-        padding: 15,
-        alignItems: "center",
-        justifyContent: "space-between",
-        flexDirection: "row",
-        width: "100%",
-      }}
-      horizontal
-      keyboardShouldPersistTaps="always"
-      keyboardDismissMode="on-drag"
+    <MotiView
+      transition={{ type: "timing", duration: 300 }}
       style={{
+        width: width - 30,
+        borderRadius: 16,
+        backgroundColor: theme.customizeBarColor,
         position: "absolute",
         bottom: 0,
-        backgroundColor: theme.customizeBarColor,
-        width: "90%",
-        borderRadius: 16,
-        alignSelf: "center",
         marginBottom: paddingTop + 20,
+        alignSelf: "center",
       }}
+      from={{ paddingTop: 0 }}
+      animate={{ paddingTop: showOption ? 60 : 0 }}
     >
-      <BoldIcon active onPress={handlePress} />
-      <ItalicIcon onPress={handlePress} />
-      <UnderlineIcon onPress={handlePress} />
-      <TextIcon onPress={handlePress} />
-      <JustifyAlignIcon active onPress={handlePress} />
-      <LeftAlignIcon onPress={handlePress} />
-      <CenterAlignIcon onPress={handlePress} />
-      <RightAlignIcon onPress={handlePress} />
-    </ScrollView>
+      <AnimatePresence>
+        {showOption === "background" && (
+          <MotiScrollView
+            horizontal
+            keyboardShouldPersistTaps="always"
+            keyboardDismissMode="interactive"
+            from={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ type: "timing", delay: 300, duration: 120 }}
+            exit={{ opacity: 0 }}
+            exitTransition={{ delay: 0 }}
+            contentContainerStyle={{
+              flexDirection: "row",
+              alignItems: "center",
+              columnGap: 15,
+              padding: 15,
+            }}
+            style={{
+              width: "100%",
+              height: 60,
+
+              backgroundColor: theme.customizeBarColor,
+              position: "absolute",
+              borderTopLeftRadius: 16,
+              borderTopRightRadius: 16,
+              top: 0,
+            }}
+          >
+            {backgroundItems}
+          </MotiScrollView>
+        )}
+      </AnimatePresence>
+      <ScrollView
+        showsHorizontalScrollIndicator={false}
+        decelerationRate={"fast"}
+        contentContainerStyle={{
+          padding: 15,
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "row",
+          columnGap: 15,
+        }}
+        horizontal
+        keyboardShouldPersistTaps="always"
+        keyboardDismissMode="interactive"
+        style={{
+          backgroundColor: theme.customizeBarColor,
+          alignSelf: "center",
+          borderRadius: 16,
+        }}
+        scrollEventThrottle={16}
+      >
+        <BoldIcon onPress={handlePress} />
+        <ItalicIcon onPress={handlePress} />
+        <UnderlineIcon onPress={handlePress} />
+        <TextIcon onPress={handlePress} />
+        <JustifyAlignIcon onPress={handlePress} />
+        <LeftAlignIcon onPress={handlePress} />
+        <CenterAlignIcon onPress={handlePress} />
+        <RightAlignIcon onPress={handlePress} />
+        <BackgroundIcon
+          onPress={() => setShowOption(toggleState(null, "background"))}
+        />
+      </ScrollView>
+    </MotiView>
   );
 }

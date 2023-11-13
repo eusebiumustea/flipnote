@@ -17,12 +17,12 @@ export function AppStorageContext({ children }: PropsWithChildren) {
         console.log(e);
       }
     }
-    getData("userdata");
+    getData("appdata");
   }, []);
   useEffect(() => {
     const storeData = async (value: any) => {
       try {
-        await AsyncStorage.setItem("userdata", JSON.stringify(value));
+        await AsyncStorage.setItem("appdata", JSON.stringify(value));
       } catch (e) {
         console.log(e);
       }
@@ -33,5 +33,5 @@ export function AppStorageContext({ children }: PropsWithChildren) {
     };
   }, [notes]);
 
-  return <>{children}</>;
+  return children;
 }

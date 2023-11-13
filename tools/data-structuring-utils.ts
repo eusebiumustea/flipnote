@@ -1,5 +1,4 @@
 import { note } from "../screens/note";
-
 export function toggleArrayElement<T>(array: T[], value: T) {
   const indexOfValue = array.indexOf(value);
   if (indexOfValue === -1) {
@@ -7,21 +6,35 @@ export function toggleArrayElement<T>(array: T[], value: T) {
   }
   return removeElementAtIndex(array, indexOfValue);
 }
-
-export function removeElementAtIndex(array: any[], removeIndex: number) {
+export function toggleState<T>(initialValue: T, changeValue: T) {
+  return (prevState: T) => {
+    if (prevState === initialValue) {
+      return changeValue;
+    }
+    if (prevState === changeValue) {
+      return initialValue;
+    }
+  };
+}
+export function removeElementAtIndex<T>(array: T[], removeIndex: number) {
   return [...array.slice(0, removeIndex), ...array.slice(removeIndex + 1)];
 }
-export function removeElementAtId(array: any[], removeId: number) {
+export function generateUniqueFileId() {
+  const time = new Date().getTime;
+  const random = Math.floor(Math.random() * 10000);
+  return `${time}-${random}`;
+}
+export function removeElementAtId(array: note[], removeId: number) {
   const arrayIndexOfId = array.findIndex((e) => e?.id === removeId);
   return [
     ...array.slice(0, arrayIndexOfId),
     ...array.slice(arrayIndexOfId + 1),
   ];
 }
-export function replaceElementAtIndex(
-  array: any[],
+export function replaceElementAtIndex<T>(
+  array: T[],
   replaceIndex: number,
-  newElement: any
+  newElement: T
 ) {
   return [
     ...array.slice(0, replaceIndex),
@@ -30,11 +43,11 @@ export function replaceElementAtIndex(
   ];
 }
 export function replaceElementAtId(
-  array: any[],
+  array: note[],
   replaceId: number,
-  newElement: any
+  newElement: note
 ) {
-  const arrayIndexOfId = array.findIndex((e) => e?.id === replaceId);
+  const arrayIndexOfId = array.findIndex((e) => e.id === replaceId);
   return [
     ...array.slice(0, arrayIndexOfId),
     newElement,
@@ -54,6 +67,15 @@ export function removeArrayKeyDuplicates<T, K extends keyof T>(
   }, []);
 }
 
-export function excludeElemnts<T>(array: T[], elementsToRemove: T[]) {
-  return array.filter((e) => !elementsToRemove.includes(e));
+export function excludeElemnts(array: note[], elementsToRemove: number[]) {
+  return array.filter((e: note) => !elementsToRemove.includes(e.id));
+}
+export function recalculateId(array: note[]) {
+  return array.map((item) => {
+    const prevItemIndex = array.findLastIndex((e) => e.id < item.id);
+    return {
+      ...item,
+      id: prevItemIndex + 2,
+    };
+  });
 }

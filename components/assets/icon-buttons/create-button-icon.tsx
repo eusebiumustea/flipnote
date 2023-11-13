@@ -1,13 +1,13 @@
 import * as React from "react";
 import { TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
-import { moderateScale, useTheme } from "../../tools";
+import { moderateScale, useTheme } from "../../../tools";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboard } from "@react-native-community/hooks";
 import { MotiPressable } from "moti/interactions";
 interface CreateIconProps {
   svgProps?: any;
-  onPress?: () => void;
+  onPress: () => void;
 }
 
 export function CreateIcon({ svgProps, onPress }: CreateIconProps) {

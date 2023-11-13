@@ -1,13 +1,6 @@
-import {
-  PropsWithChildren,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { dark, light } from "./colors";
+import { PropsWithChildren, createContext, useContext, useMemo } from "react";
 import { useColorScheme } from "react-native";
+import { dark, light } from "./colors";
 
 const ThemeContext = createContext(light);
 

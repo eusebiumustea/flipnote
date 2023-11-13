@@ -1,30 +1,32 @@
-import { NavigationProp, useNavigation } from "@react-navigation/native";
-import React, { useCallback, useMemo, useState } from "react";
+import _ from "lodash";
+import React, { useEffect, useMemo, useState } from "react";
 import { Alert, FlatList, View, useAnimatedValue } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
-import { Header, CreateIcon, NoteCard } from "../../components";
+import { CreateIcon, Header, Loading, NoteCard } from "../../components";
 import {
   excludeElemnts,
+  recalculateId,
   removeArrayKeyDuplicates,
   toggleArrayElement,
   useTheme,
   verticalScale,
 } from "../../tools";
-import { note, notesData } from "../note";
+import { notesData } from "../note";
 import { NoteOptions } from "./note-options/note-options";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
-export function Home() {
+export function Home({ navigation }: any) {
   const [selected, setSelected] = useState<string[]>([]);
-  const [optionsSelection, setOptionsSelection] = useState<note[]>([]);
+  const [password, setPassword] = useState("");
+  const [optionsSelection, setOptionsSelection] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [notes, setNotes] = useRecoilState(notesData);
   const [favorite, setFavorite] = useState(false);
+  const [modal, setModal] = useState(false);
+  const [loading, setLoading] = useState(false);
   const theme = useTheme();
-  const navigation = useNavigation<NavigationProp<any>>();
   const scrollY = useAnimatedValue(0, { useNativeDriver: true });
   const { top } = useSafeAreaInsets();
-
   const data = useMemo(() => {
     const searchFiltered = notes.data.filter(
       (e) =>
@@ -45,21 +47,13 @@ export function Home() {
       return favorite ? data.filter((e) => e.isFavorite === true) : data;
     }
   }, [data, selected, favorite]);
-
   const notesWithoutCopies = useMemo(() => {
     return removeArrayKeyDuplicates(data, "title");
   }, [data, selected]);
-  useMemo(() => {
+  useEffect(() => {
     if (filteredData.filter((e) => e.isFavorite === true).length === 0) {
       setFavorite(false);
     }
-  }, [favorite, filteredData]);
-  useMemo(() => {
-    if (notes.data.length === 0) {
-      setOptionsSelection([]);
-    }
-  }, [notes]);
-  useMemo(() => {
     if (
       optionsSelection.length > 0 &&
       favorite &&
@@ -67,8 +61,35 @@ export function Home() {
     ) {
       setOptionsSelection([]);
     }
-  }, [notes.data, optionsSelection]);
-
+    if (notes.data.length === 0) {
+      setOptionsSelection([]);
+    }
+  }, [notes.data, favorite, filteredData]);
+  function deleteNotes() {
+    Alert.alert(
+      "Alert",
+      `Are you sure you want to delete permanently ${optionsSelection.length} ${
+        optionsSelection.length === 1 ? "note" : "notes"
+      }`,
+      [
+        { text: "Cencel", style: "cancel", onPress: () => {} },
+        {
+          text: "Delete permanently",
+          onPress: () => {
+            try {
+              setNotes((prev) => ({
+                data: excludeElemnts(prev.data, optionsSelection),
+              }));
+              setNotes((prev) => ({
+                data: recalculateId(prev.data),
+              }));
+              setOptionsSelection([]);
+            } catch (error) {}
+          },
+        },
+      ]
+    );
+  }
   return (
     <View
       style={{
@@ -77,6 +98,7 @@ export function Home() {
         backgroundColor: theme.background,
       }}
     >
+      <Loading show={loading} />
       {optionsSelection.length === 0 && (
         <Header
           scrollY={scrollY}
@@ -92,7 +114,7 @@ export function Home() {
               }}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{
-                paddingLeft: 14,
+                paddingHorizontal: 14,
                 columnGap: 12,
                 flexDirection: "row",
                 alignItems: "center",
@@ -140,32 +162,24 @@ export function Home() {
 
       {optionsSelection.length > 0 && (
         <NoteOptions
-          totalSelected={optionsSelection === filteredData}
-          onTotalSelect={() =>
-            setOptionsSelection(
-              optionsSelection === filteredData ? [] : filteredData
-            )
-          }
-          onDelete={() => {
-            Alert.alert(
-              "Alert",
-              `Are you sure you want to delete permanently ${
-                optionsSelection.length
-              } ${optionsSelection.length === 1 ? "note" : "notes"}`,
-              [
-                { text: "Cencel", style: "cancel" },
-                {
-                  text: "Delete permanently",
-                  onPress: () => {
-                    setNotes((prev) => ({
-                      data: excludeElemnts(prev.data, optionsSelection),
-                    }));
-                    setOptionsSelection([]);
-                  },
-                },
-              ]
-            );
+          // textValue={password}
+          // onChangeText={setPassword}
+          selectedNotes={optionsSelection}
+          onModalOpen={() => setModal(true)}
+          onModalClose={() => {
+            setModal(false);
+            setPassword("");
           }}
+          showModal={modal}
+          totalSelected={optionsSelection.length === filteredData.length}
+          onTotalSelect={() => {
+            if (optionsSelection.length === filteredData.length) {
+              setOptionsSelection([]);
+            } else {
+              setOptionsSelection(filteredData.map((e) => e.id).sort());
+            }
+          }}
+          onDelete={deleteNotes}
           onClose={() => setOptionsSelection([])}
         />
       )}
@@ -181,18 +195,19 @@ export function Home() {
         renderItem={({ item }) => (
           <NoteCard
             options={optionsSelection.length > 0}
-            selectedForOptions={optionsSelection.includes(item)}
+            selectedForOptions={optionsSelection.includes(item.id)}
             onLongPress={() =>
-              setOptionsSelection(toggleArrayElement(optionsSelection, item))
+              setOptionsSelection(
+                toggleArrayElement(optionsSelection, item.id).sort()
+              )
             }
             onPress={() => {
               if (optionsSelection.length > 0) {
-                setOptionsSelection(toggleArrayElement(optionsSelection, item));
-              }
-              if (optionsSelection.length === 0) {
-                navigation.navigate("Edit-note", {
-                  item,
-                });
+                setOptionsSelection(
+                  toggleArrayElement(optionsSelection, item.id).sort()
+                );
+              } else if (optionsSelection.length === 0) {
+                navigation.push("note", { id: item.id, edit: true });
               }
             }}
             item={item}
@@ -208,15 +223,14 @@ export function Home() {
           width: "100%",
           rowGap: 12,
           paddingBottom: 10,
-          paddingTop:
-            optionsSelection.length > 0 ? 100 + top : verticalScale(110) + top,
+          paddingTop: verticalScale(115) + top,
         }}
         style={{
           flex: 1,
           backgroundColor: theme.background,
         }}
       />
-      <CreateIcon onPress={() => navigation.navigate("Create-note")} />
+      <CreateIcon onPress={() => navigation.push("note")} />
     </View>
   );
 }

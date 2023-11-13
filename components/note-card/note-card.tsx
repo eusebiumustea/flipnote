@@ -1,8 +1,8 @@
-import { Dimensions, Text, TouchableOpacity, View } from "react-native";
+import { MotiPressable } from "moti/interactions";
+import { Dimensions, Text } from "react-native";
 import { note } from "../../screens/note";
 import { moderateFontScale, useTheme, verticalScale } from "../../tools";
-import { CheckIcon } from "../assets/check-icon";
-import { MotiPressable } from "moti/interactions";
+import { CheckIcon } from "../assets/icon-buttons/check-icon";
 interface NoteCardProps {
   item: note;
   onLayout?: () => void;
@@ -25,22 +25,24 @@ export function NoteCard({
     <MotiPressable
       transition={{ type: "timing", duration: 120 }}
       onLongPress={onLongPress}
-      onLayout={onLayout}
       onPress={onPress}
       style={{
-        backgroundColor: item.cardColor,
+        backgroundColor: item.background,
         borderRadius: 16,
         height: verticalScale(250),
         width: width / 2 - 16,
         padding: 16,
+        overflow: "hidden",
+        elevation: 5,
       }}
       from={{ scale: 1 }}
-      animate={{ scale: options === true ? 0.85 : 1 }}
+      animate={{ scale: selectedForOptions === true ? 0.9 : 1 }}
     >
       {options && (
         <CheckIcon
           style={{ position: "absolute", top: 0 }}
           focused={selectedForOptions}
+          onPress={onPress}
         />
       )}
       {item.title && (

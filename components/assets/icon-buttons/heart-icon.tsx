@@ -1,17 +1,19 @@
 import * as React from "react";
 import { TouchableOpacity, ViewProps } from "react-native";
 import Svg, { Path } from "react-native-svg";
-import { moderateScale, useTheme, verticalScale } from "../../tools";
-interface ClipboardIconProps {
+import { moderateScale, useTheme, verticalScale } from "../../../tools";
+interface HeartIconProps {
   svgProps?: any;
   onPress?: () => void;
   btnProps?: ViewProps;
+  focused?: boolean;
 }
-export function ClipboardIcon({
+export function HeartIcon({
   svgProps,
   onPress,
   btnProps,
-}: ClipboardIconProps) {
+  focused,
+}: HeartIconProps) {
   const theme = useTheme();
   return (
     <TouchableOpacity
@@ -29,18 +31,10 @@ export function ClipboardIcon({
         {...svgProps}
       >
         <Path
-          d="M8 12.2h7m-7 4h4.38M10 6h4c2 0 2-1 2-2 0-2-1-2-2-2h-4C9 2 8 2 8 4s1 2 2 2z"
+          fill={focused === true ? "yellow" : undefined}
+          d="M12.62 20.81c-.34.12-.9.12-1.24 0C8.48 19.82 2 15.69 2 8.69 2 5.6 4.49 3.1 7.56 3.1c1.82 0 3.43.88 4.44 2.24a5.53 5.53 0 014.44-2.24C19.51 3.1 22 5.6 22 8.69c0 7-6.48 11.13-9.38 12.12z"
           stroke={theme.onBackground}
           strokeWidth={1.5}
-          strokeMiterlimit={10}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <Path
-          d="M16 4.02c3.33.18 5 1.41 5 5.98v6c0 4-1 6-6 6H9c-5 0-6-2-6-6v-6c0-4.56 1.67-5.8 5-5.98"
-          stroke={theme.onBackground}
-          strokeWidth={1.5}
-          strokeMiterlimit={10}
           strokeLinecap="round"
           strokeLinejoin="round"
         />

@@ -39,10 +39,10 @@ export function Header({
             translateY: Animated.diffClamp(
               scrollY,
               0,
-              verticalScale(80)
+              verticalScale(130)
             ).interpolate({
-              inputRange: [0, verticalScale(80)],
-              outputRange: [0, verticalScale(-80)],
+              inputRange: [0, verticalScale(130)],
+              outputRange: [0, verticalScale(-130)],
               extrapolate: "clamp",
             }),
           },
