@@ -5,6 +5,7 @@ import * as Sharing from "expo-sharing";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Dimensions,
+  Modal,
   ScrollView,
   Text,
   TextInput,
@@ -31,6 +32,7 @@ interface ParamsProps {
 }
 
 export function NotePage({ route, navigation }: any) {
+  const [showOption, setShowOption] = useState(false);
   const theme = useTheme();
   const { id, edit }: ParamsProps = route.params;
   const [notes, setNotes] = useRecoilState(notesData);
@@ -218,19 +220,7 @@ export function NotePage({ route, navigation }: any) {
             paddingBottom: verticalScale(200),
           }}
         >
-          {editNote.styles.length > 0 ? (
-            editNote.styles.map((e, i) => (
-              <>
-                <Text>{editNote.text.slice(0, e.interval.start)}</Text>
-                <Text style={{ ...e.style }} key={i}>
-                  {editNote.text.slice(e.interval.start, e.interval.end)}
-                </Text>
-                <Text>{editNote.text.slice(e.interval.end)}</Text>
-              </>
-            ))
-          ) : (
-            <Text>{editNote.text}</Text>
-          )}
+          <Text>{editNote.text}</Text>
         </TextInput>
         {/* <View style={{ height: 100, backgroundColor: "red" }}></View> */}
       </ScrollView>

@@ -1,9 +1,20 @@
-import _ from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, FlatList, View, useAnimatedValue } from "react-native";
+import {
+  Alert,
+  FlatList,
+  Platform,
+  View,
+  useAnimatedValue,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
-import { CreateIcon, Header, Loading, NoteCard } from "../../components";
+import {
+  CreateIcon,
+  Header,
+  Loading,
+  NoteCard,
+  useToast,
+} from "../../components";
 import {
   excludeElemnts,
   recalculateId,
@@ -12,6 +23,7 @@ import {
   useTheme,
   verticalScale,
 } from "../../tools";
+import * as Notifications from "expo-notifications";
 import { notesData } from "../note";
 import { NoteOptions } from "./note-options/note-options";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
@@ -33,14 +45,16 @@ export function Home({ navigation }: any) {
         e.text.includes(searchQuery.toLowerCase()) ||
         e.title.includes(searchQuery.toLowerCase())
     );
+    if (searchQuery.length === 0) {
+      return notes.data;
+    }
     if (searchQuery.length > 0) {
       return searchFiltered;
-    } else {
-      return notes.data;
     }
   }, [searchQuery, notes]);
   const filteredData = useMemo(() => {
     const newData = data.filter((e) => selected.includes(e.title));
+
     if (selected.length > 0) {
       return favorite ? newData.filter((e) => e.isFavorite === true) : newData;
     } else {
@@ -66,15 +80,16 @@ export function Home({ navigation }: any) {
     }
   }, [notes.data, favorite, filteredData]);
   function deleteNotes() {
+    const noteCount = optionsSelection.length;
+    const plural = noteCount === 1 ? "" : "s";
     Alert.alert(
-      "Alert",
-      `Are you sure you want to delete permanently ${optionsSelection.length} ${
-        optionsSelection.length === 1 ? "note" : "notes"
-      }`,
+      "Confirm Deletion",
+      `You're about to permanently delete ${noteCount} item${plural}. This action cannot be undone. Proceed?`,
       [
         { text: "Cencel", style: "cancel", onPress: () => {} },
         {
           text: "Delete permanently",
+          style: "destructive",
           onPress: () => {
             try {
               setNotes((prev) => ({
@@ -89,6 +104,33 @@ export function Home({ navigation }: any) {
         },
       ]
     );
+  }
+  const toast = useToast();
+  async function registerNotifications() {
+    let { status }: any = await Notifications.getPermissionsAsync();
+    if (status !== "granted") {
+      status = await Notifications.requestPermissionsAsync();
+    }
+    if (status !== "granted") {
+      toast({ message: "Permission denied" });
+      return;
+    }
+  }
+  async function scheduleNotifications() {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Hello!",
+        body: "This is a local notification!",
+        data: { data: "goes here" },
+      },
+      trigger: { seconds: 10 },
+    });
+  }
+  async function setupNotifications() {
+    if (Platform.OS === "ios") {
+      await registerNotifications();
+    }
+    await scheduleNotifications();
   }
   return (
     <View

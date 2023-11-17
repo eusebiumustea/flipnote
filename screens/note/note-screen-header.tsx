@@ -5,6 +5,7 @@ import {
   BackIcon,
   ClipboardIcon,
   HeartIcon,
+  ReminderIcon,
   ShareIcon,
 } from "../../components/assets";
 import { useTheme } from "../../tools";
@@ -14,6 +15,7 @@ interface NoteScreenHeaderProps {
   onBack: () => void;
   onFavoriteAdd?: () => void;
   onShare?: () => void;
+  onReminder?: () => void;
   favorite?: boolean;
 }
 export function NoteScreenHeader({
@@ -22,6 +24,7 @@ export function NoteScreenHeader({
   onFavoriteAdd,
   onShare,
   favorite,
+  onReminder,
 }: NoteScreenHeaderProps) {
   const { top } = useSafeAreaInsets();
   const { width } = Dimensions.get("window");
@@ -59,10 +62,11 @@ export function NoteScreenHeader({
         style={{
           flexDirection: "row",
           alignItems: "center",
-          columnGap: 26,
+          columnGap: 16,
           zIndex: 1,
         }}
       >
+        <ReminderIcon onPress={onReminder} />
         <ClipboardIcon onPress={onClipboard} />
         <HeartIcon onPress={onFavoriteAdd} focused={favorite} />
         <ShareIcon onPress={onShare} />

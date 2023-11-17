@@ -7,6 +7,7 @@ import { AppRouting } from "./app-routing";
 import { AppStorageContext } from "./components/app-storage-context";
 import { StatusBarController, ThemeProvider } from "./tools";
 import * as SplashScreen from "expo-splash-screen";
+import * as Notifications from "expo-notifications";
 import { useFonts } from "expo-font";
 import { useCallback } from "react";
 import { ToastProvider } from "./components";
@@ -33,7 +34,14 @@ export default function App() {
   //     subscription.remove();
   //   };
   // }, []);
-
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+      priority: Notifications.AndroidNotificationPriority.MAX,
+    }),
+  });
   return (
     <RecoilRoot>
       <View style={{ flex: 1 }} onLayout={onLayoutRootView}>

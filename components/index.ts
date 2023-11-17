@@ -5,3 +5,4 @@ export * from "./screen-header";
 export * from "./loading-dialog";
 export * from "./toast";
 export * from "./color-box";
+export * from "./dialog";

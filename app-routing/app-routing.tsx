@@ -40,6 +40,7 @@ export function AppRouting() {
         headerShown: false,
         // headerTransparent: true,
         animation: "default",
+        gestureEnabled: false,
       }}
       initialRouteName="Home"
     >

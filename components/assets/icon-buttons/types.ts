@@ -3,7 +3,7 @@ import { SvgProps } from "react-native-svg";
 
 export type IconButtonBase<T = unknown> = {
   active?: boolean;
-  svgProps?: SvgProps;
+  svgProps?: any;
   onPress?: (event: GestureResponderEvent) => void;
   btnProps?: ViewProps;
 } & T;
