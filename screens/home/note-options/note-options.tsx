@@ -159,7 +159,7 @@ export function NoteOptions({
             flex: 1,
             backgroundColor: theme.onPrimary,
             zIndex: -1,
-            opacity: 0.5,
+            opacity: 0.4,
           }}
         />
         <View

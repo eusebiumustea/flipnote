@@ -1,6 +1,6 @@
 import { atom } from "recoil";
-import { userdataState } from "./types";
-export const notesData = atom<userdataState>({
+import { UserdataState } from "./types";
+export const notesData = atom<UserdataState>({
   key: "userdata",
   default: {
     data: [],

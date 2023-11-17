@@ -1,5 +1,5 @@
 import { TouchableOpacity } from "react-native";
-import { moderateScale, verticalScale } from "../../tools";
+import { moderateScale, useTheme, verticalScale } from "../../tools";
 import { ColorBoxProps } from "./types";
 import Svg, { Path } from "react-native-svg";
 
@@ -9,6 +9,7 @@ export function ColorBox({
   svgProps,
   onPress,
 }: ColorBoxProps) {
+  const theme = useTheme();
   return (
     <TouchableOpacity
       activeOpacity={0.7}

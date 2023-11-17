@@ -22,14 +22,18 @@ import { toggleState, useTheme } from "../../../tools";
 import { AnimatePresence, MotiScrollView, MotiView } from "moti";
 import { PropsWithChildren, ReactNode, useState } from "react";
 interface CustomizeBarProps {
+  boldFocused?: boolean;
+  italicFocused?: boolean;
   onBold?: () => void;
   onItalic?: () => void;
-  backgroundItems?: PropsWithChildren<ReactNode>;
+  backgroundOptions?: PropsWithChildren<ReactNode>;
 }
 export function CustomizeBar({
-  backgroundItems,
+  backgroundOptions,
   onBold,
   onItalic,
+  italicFocused,
+  boldFocused,
 }: CustomizeBarProps) {
   const [showOption, setShowOption] = useState<string | null>(null);
   const theme = useTheme();
@@ -91,7 +95,7 @@ export function CustomizeBar({
               top: 0,
             }}
           >
-            {backgroundItems}
+            {backgroundOptions}
           </MotiScrollView>
         )}
       </AnimatePresence>
@@ -115,8 +119,8 @@ export function CustomizeBar({
         }}
         scrollEventThrottle={16}
       >
-        <BoldIcon onPress={handlePress} />
-        <ItalicIcon onPress={handlePress} />
+        <BoldIcon active={boldFocused} onPress={onBold} />
+        <ItalicIcon active={italicFocused} onPress={onItalic} />
         <UnderlineIcon onPress={handlePress} />
         <TextIcon onPress={handlePress} />
         <JustifyAlignIcon onPress={handlePress} />

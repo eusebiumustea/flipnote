@@ -13,6 +13,19 @@ export const light = {
   yellow: "#fdffde",
   yellowAccent: "#eeff00",
   customizeBarColor: "#181818",
+  cardColors: [
+    "#fff",
+    "#D9E8FC",
+    "#FDE99D",
+    "#B0E9CA",
+    "#A9E9E8", // Light mint green
+    "#FCFAE2", // Light cream yellow
+    "#F4F1F2", // Light gray
+    "#EAE9F9", // Light lavender
+    "#FDE9E2", // Light peach
+    "#D9F1F8", // Light sky blue green
+    "#F2FDE9", // Light apricot
+  ],
 };
 export const dark = {
   background: "#121212",
@@ -29,6 +42,19 @@ export const dark = {
   yellow: "#242410",
   yellowAccent: "#A0A000",
   customizeBarColor: "#F0F0F0",
+  cardColors: [
+    "#000",
+    "#2f3031", // Dark gray
+    "#454c50", // Darker gray
+    "#5b5d5f", // Darkest gray
+    "#3d4e5b", // Dark blue
+    "#2a4a41", // Dark mint green
+    "#544c39", // Dark cream yellow
+    "#5a5a5b", // Dark lavender
+    "#433d5f", // Dark peach
+    "#323a41", // Dark sky blue green
+    "#493d38", // Dark apricot
+  ],
 };
 
 export const cardColors = [
@@ -36,6 +62,24 @@ export const cardColors = [
   "#D9E8FC",
   "#FDE99D",
   "#B0E9CA",
-  "#FCFAD9",
-  "#FFEADD",
+  "#A9E9E8", // Light mint green
+  "#FCFAE2", // Light cream yellow
+  "#F4F1F2", // Light gray
+  "#EAE9F9", // Light lavender
+  "#FDE9E2", // Light peach
+  "#D9F1F8", // Light sky blue green
+  "#F2FDE9", // Light apricot
+];
+export const darkCardColors = [
+  "#000",
+  "#2f3031", // Dark gray
+  "#454c50", // Darker gray
+  "#5b5d5f", // Darkest gray
+  "#3d4e5b", // Dark blue
+  "#2a4a41", // Dark mint green
+  "#544c39", // Dark cream yellow
+  "#5a5a5b", // Dark lavender
+  "#433d5f", // Dark peach
+  "#323a41", // Dark sky blue green
+  "#493d38", // Dark apricot
 ];

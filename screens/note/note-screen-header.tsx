@@ -36,8 +36,9 @@ export function NoteScreenHeader({
         padding: 16,
         paddingTop: top + 16,
         zIndex: 1,
-        paddingBottom: 26,
+        paddingBottom: 32,
         alignItems: "center",
+
         top: 0,
       }}
     >
