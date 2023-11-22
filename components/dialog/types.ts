@@ -1,4 +1,5 @@
 import { PropsWithChildren, ReactNode } from "react";
+import { ViewStyle } from "react-native";
 
 export interface DialogProps {
   action: () => void;
@@ -9,4 +10,6 @@ export interface DialogProps {
   actionLabel: string;
   animation?: "fade" | "none" | "slide";
   statusBarTranslucent?: boolean;
+  darkBackground?: boolean;
+  styles?: ViewStyle;
 }

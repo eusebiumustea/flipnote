@@ -15,7 +15,7 @@ interface NoteScreenHeaderProps {
   onBack: () => void;
   onFavoriteAdd?: () => void;
   onShare?: () => void;
-  onReminder?: () => void;
+  onReminderOpen?: () => void;
   favorite?: boolean;
 }
 export function NoteScreenHeader({
@@ -24,7 +24,7 @@ export function NoteScreenHeader({
   onFavoriteAdd,
   onShare,
   favorite,
-  onReminder,
+  onReminderOpen,
 }: NoteScreenHeaderProps) {
   const { top } = useSafeAreaInsets();
   const { width } = Dimensions.get("window");
@@ -66,7 +66,7 @@ export function NoteScreenHeader({
           zIndex: 1,
         }}
       >
-        <ReminderIcon onPress={onReminder} />
+        <ReminderIcon onPress={onReminderOpen} />
         <ClipboardIcon onPress={onClipboard} />
         <HeartIcon onPress={onFavoriteAdd} focused={favorite} />
         <ShareIcon onPress={onShare} />

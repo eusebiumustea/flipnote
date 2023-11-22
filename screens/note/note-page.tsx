@@ -2,10 +2,13 @@ import { useBackHandler, useKeyboard } from "@react-native-community/hooks";
 import * as Clipboard from "expo-clipboard";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import * as Notifications from "expo-notifications";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Button,
   Dimensions,
   Modal,
+  Platform,
   ScrollView,
   Text,
   TextInput,
@@ -14,7 +17,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
-import { ColorBox, useToast } from "../../components";
+import { ColorBox, Dialog, useToast } from "../../components";
 import {
   moderateFontScale,
   replaceElementAtId,
@@ -24,8 +27,11 @@ import {
 import { notesData } from "./atom";
 import { CustomizeBar } from "./customize-bar";
 import { NoteScreenHeader } from "./note-screen-header";
-import { InputSelectionProps, note } from "./types";
+import { InputSelectionProps, ReminderProps, note } from "./types";
 import { cardColors, darkCardColors } from "../../tools/colors";
+import DateTimePicker, {
+  DateTimePickerAndroid,
+} from "@react-native-community/datetimepicker";
 interface ParamsProps {
   id: number;
   edit: boolean;
@@ -33,6 +39,7 @@ interface ParamsProps {
 
 export function NotePage({ route, navigation }: any) {
   const [showOption, setShowOption] = useState(false);
+
   const theme = useTheme();
   const { id, edit }: ParamsProps = route.params;
   const [notes, setNotes] = useRecoilState(notesData);
@@ -45,6 +52,7 @@ export function NotePage({ route, navigation }: any) {
         isFavorite: false,
         background: "#fff",
         styles: [],
+        reminder: null,
       };
     }
     return notes.data.find((e) => e.id === id);
@@ -56,12 +64,42 @@ export function NotePage({ route, navigation }: any) {
     isFavorite: item.isFavorite,
     background: item.background,
     styles: item.styles,
+    reminder: item.reminder,
   });
+  const [reminder, setReminder] = useState<ReminderProps>({
+    date: new Date(),
+    time: new Date(),
+  });
+  const [reminderDialog, setReminderDialog] = useState(false);
   let selection = useRef<InputSelectionProps>({
     start: 0,
     end: 0,
   });
-  console.log(JSON.stringify(editNote));
+  async function registerNotifications() {
+    let { status }: any = await Notifications.getPermissionsAsync();
+    if (status !== "granted") {
+      status = await Notifications.requestPermissionsAsync();
+    }
+    if (status !== "granted") {
+      toast({ message: "Permission denied" });
+      return;
+    }
+  }
+  async function scheduleNotifications() {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: editNote.title ? editNote.title : "Flipnote",
+        body: editNote.text ? editNote.text : editNote.title,
+      },
+      trigger: null,
+    });
+  }
+  async function setupNotifications() {
+    if (Platform.OS === "ios") {
+      await registerNotifications();
+    }
+    await scheduleNotifications();
+  }
   // const [selection, setSelection] = useState({ start: 0, end: 0 });
   const empty = item.text.length === 0 && item.title.length === 0;
   const noteStateIsEmpty =
@@ -106,6 +144,7 @@ export function NotePage({ route, navigation }: any) {
     console.log(TextComponents);
     return TextComponents;
   }
+
   return (
     <View
       style={{
@@ -113,7 +152,139 @@ export function NotePage({ route, navigation }: any) {
         backgroundColor: theme.background,
       }}
     >
+      <Dialog
+        styles={{ width: "90%" }}
+        animation="fade"
+        action={async () => {
+          await setupNotifications();
+          if (reminder.date >= new Date()) {
+            setEditNote((prev) => ({
+              ...prev,
+              reminder: {
+                date: reminder.date,
+                time: reminder.time,
+              },
+            }));
+            toast({
+              message: `Reminder set for ${reminder.date.getDate()}.${
+                reminder.date.getMonth() + 1
+              }.${reminder.date.getFullYear()}  ${reminder.time.getHours()}:${reminder.time.getMinutes()}`,
+            });
+          }
+          if (reminder.date < new Date()) {
+            setEditNote((prev) => ({
+              ...prev,
+              reminder: {
+                date: new Date(),
+                time: new Date(),
+              },
+            }));
+            toast({
+              message: `Reminder set for ${new Date().getDate()}.${
+                new Date().getMonth() + 1
+              }.${new Date().getFullYear()}  ${new Date().getHours()}:${new Date().getMinutes()}`,
+            });
+          }
+          setReminderDialog(false);
+        }}
+        actionLabel="Set reminder"
+        title="Schedule a reminder for task"
+        onCencel={() => setReminderDialog(false)}
+        visible={reminderDialog}
+      >
+        {Platform.OS === "ios" && (
+          <>
+            <DateTimePicker
+              mode="date"
+              value={reminder.date}
+              display="spinner"
+              onChange={(e, date) => {
+                setReminder((prev) => ({ ...prev, date }));
+              }}
+            />
+            <DateTimePicker
+              value={reminder.date}
+              display="spinner"
+              onChange={(e, date) => {
+                setReminder((prev) => ({ ...prev, time: date }));
+              }}
+            />
+          </>
+        )}
+        {Platform.OS === "android" && (
+          <>
+            <View
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100%",
+                paddingBottom: 10,
+              }}
+            >
+              <Text
+                style={{ fontSize: moderateFontScale(20), fontWeight: "bold" }}
+              >{`Date: ${reminder.date.getDate()}.${
+                reminder.date.getMonth() + 1
+              }.${reminder.date.getFullYear()}`}</Text>
+              <Text
+                style={{ fontSize: moderateFontScale(20), fontWeight: "bold" }}
+              >{`Hour: ${reminder.time.getHours()}:${reminder.time.getMinutes()}`}</Text>
+            </View>
+            <Button
+              onPress={() => {
+                DateTimePickerAndroid.open({
+                  minimumDate: new Date(),
+                  mode: "date",
+                  value: reminder.date,
+                  display: "spinner",
+                  onChange(event, date) {
+                    if (event.type === "set") {
+                      setReminder((prev) => ({ ...prev, date }));
+                      DateTimePickerAndroid.open({
+                        is24Hour: true,
+                        mode: "time",
+                        value: reminder.time,
+                        onError(arg) {
+                          toast({ message: arg.message });
+                        },
+                        display: "spinner",
+                        onChange(event, date) {
+                          if (event.type === "set") {
+                            setReminder((prev) => ({ ...prev, time: date }));
+                          }
+                        },
+                      });
+                    }
+                  },
+                });
+              }}
+              title="Change"
+            />
+          </>
+        )}
+      </Dialog>
       <NoteScreenHeader
+        onReminderOpen={() => {
+          if (reminder.time.getTime() <= new Date().getTime()) {
+            setEditNote((prev) => ({ ...prev, reminder: null }));
+            setReminderDialog(true);
+            return;
+          }
+          if (editNote.reminder) {
+            toast({
+              message: `Reminder already set for ${reminder.date.getDate()}.${
+                reminder.date.getMonth() + 1
+              }.${reminder.date.getFullYear()}  ${reminder.time.getHours()}:${reminder.time.getMinutes()}`,
+            });
+            return;
+          }
+
+          if (empty) {
+            toast({ message: "Write something to schedule reminder" });
+            return;
+          }
+          setReminderDialog(true);
+        }}
         onClipboard={async () => {
           await Clipboard.setStringAsync(`${editNote.title}\n${editNote.text}`);
           toast({ message: "Copied" });

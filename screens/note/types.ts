@@ -3,6 +3,10 @@ interface TextNoteStyle {
   interval: InputSelectionProps;
   style: TextStyle;
 }
+export interface ReminderProps {
+  date: Date;
+  time: Date;
+}
 export interface note {
   id: number;
   title: string;
@@ -10,6 +14,7 @@ export interface note {
   isFavorite: boolean;
   background: string;
   styles: TextNoteStyle[];
+  reminder: ReminderProps;
 }
 export interface InputSelectionProps {
   start: number;

@@ -56,7 +56,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
   });
   function ShowToast({ message }: ToastComponentProps) {
     setConfig({ show: true, message });
-    setTimeout(() => setConfig({ show: false, message: null }), 600);
+    setTimeout(() => setConfig({ show: false, message: null }), 1200);
   }
   return (
     <ToastContext.Provider value={{ ShowToast }}>

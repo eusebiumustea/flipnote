@@ -17,6 +17,8 @@ export function Dialog({
   actionLabel,
   animation = "none",
   statusBarTranslucent = false,
+  darkBackground = true,
+  styles,
 }: DialogProps) {
   const theme = useTheme();
   const { height } = useWindowDimensions();
@@ -33,7 +35,7 @@ export function Dialog({
           flex: 1,
           backgroundColor: theme.onPrimary,
           zIndex: -1,
-          opacity: 0.4,
+          opacity: darkBackground ? 0.4 : 0,
         }}
       />
       <View
@@ -58,9 +60,12 @@ export function Dialog({
             paddingBottom: 30,
             elevation: 10,
             borderRadius: 16,
+            ...styles,
           }}
         >
-          {children}
+          <View style={{ width: "100%", padding: 20, paddingTop: 30 }}>
+            {children}
+          </View>
           <Text
             style={{
               position: "absolute",

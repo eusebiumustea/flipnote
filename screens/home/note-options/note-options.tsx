@@ -159,8 +159,6 @@ export function NoteOptions({
       >
         <ScrollView
           contentContainerStyle={{
-            padding: 20,
-            paddingTop: 30,
             flexDirection: "column",
             alignItems: "center",
             rowGap: 5,
