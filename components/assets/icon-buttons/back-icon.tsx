@@ -13,7 +13,10 @@ export function BackIcon({ svgProps, onPress, btnProps }: BackIconProps) {
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.5}
-      style={{ width: moderateScale(30), height: verticalScale(30) }}
+      style={{
+        width: 35,
+        height: 35,
+      }}
       {...btnProps}
     >
       <Svg

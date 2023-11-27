@@ -23,7 +23,6 @@ import {
   useTheme,
   verticalScale,
 } from "../../tools";
-import * as Notifications from "expo-notifications";
 import { notesData } from "../note";
 import { NoteOptions } from "./note-options/note-options";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
@@ -99,39 +98,15 @@ export function Home({ navigation }: any) {
                 data: recalculateId(prev.data),
               }));
               setOptionsSelection([]);
-            } catch (error) {}
+            } catch (message) {
+              toast({ message });
+            }
           },
         },
       ]
     );
   }
   const toast = useToast();
-  async function registerNotifications() {
-    let { status }: any = await Notifications.getPermissionsAsync();
-    if (status !== "granted") {
-      status = await Notifications.requestPermissionsAsync();
-    }
-    if (status !== "granted") {
-      toast({ message: "Permission denied" });
-      return;
-    }
-  }
-  async function scheduleNotifications() {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Hello!",
-        body: "This is a local notification!",
-        data: { data: "goes here" },
-      },
-      trigger: { seconds: 10 },
-    });
-  }
-  async function setupNotifications() {
-    if (Platform.OS === "ios") {
-      await registerNotifications();
-    }
-    await scheduleNotifications();
-  }
   return (
     <View
       style={{

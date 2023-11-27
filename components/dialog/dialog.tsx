@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import { moderateFontScale, useTheme } from "../../tools";
 import { DialogProps } from "./types";
+import { BlurView } from "expo-blur";
 
 export function Dialog({
   onCencel,
@@ -17,8 +18,8 @@ export function Dialog({
   actionLabel,
   animation = "none",
   statusBarTranslucent = false,
-  darkBackground = true,
   styles,
+  backgroundBlur = false,
 }: DialogProps) {
   const theme = useTheme();
   const { height } = useWindowDimensions();
@@ -30,14 +31,28 @@ export function Dialog({
       visible={visible}
       animationType={animation}
     >
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: theme.onPrimary,
-          zIndex: -1,
-          opacity: darkBackground ? 0.4 : 0,
-        }}
-      />
+      {backgroundBlur && (
+        <BlurView
+          intensity={35}
+          tint="dark"
+          style={{
+            flex: 1,
+
+            zIndex: -1,
+          }}
+        />
+      )}
+      {!backgroundBlur && (
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: theme.onPrimary,
+            zIndex: -1,
+            opacity: 0.6,
+          }}
+        />
+      )}
+
       <View
         style={{
           height: "100%",
@@ -60,6 +75,13 @@ export function Dialog({
             paddingBottom: 30,
             elevation: 10,
             borderRadius: 16,
+            shadowColor: "#000000",
+            shadowOffset: {
+              width: 0,
+              height: 3,
+            },
+            shadowOpacity: 0.17,
+            shadowRadius: 3.05,
             ...styles,
           }}
         >

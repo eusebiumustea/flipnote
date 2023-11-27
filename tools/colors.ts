@@ -28,7 +28,7 @@ export const light = {
   ],
 };
 export const dark = {
-  background: "#121212",
+  background: "#000",
   onBackground: "#F0F0F0",
   backgroundSearch: "#0D0D0D",
   onBackgroundSearch: "#A0A0A0",

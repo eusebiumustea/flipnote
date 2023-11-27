@@ -12,4 +12,5 @@ export interface DialogProps {
   statusBarTranslucent?: boolean;
   darkBackground?: boolean;
   styles?: ViewStyle;
+  backgroundBlur?: boolean;
 }

@@ -70,6 +70,15 @@ export function NotePage({ route, navigation }: any) {
     date: new Date(),
     time: new Date(),
   });
+  const reminderSplit = new Date(
+    [
+      reminder.date.toJSON().slice(0, 10),
+
+      reminder.time.toJSON().slice(11),
+    ].join("T")
+  );
+  const scheduleDateForNotification: Date =
+    editNote.reminder && new Date(editNote.reminder);
   const [reminderDialog, setReminderDialog] = useState(false);
   let selection = useRef<InputSelectionProps>({
     start: 0,
@@ -86,13 +95,30 @@ export function NotePage({ route, navigation }: any) {
     }
   }
   async function scheduleNotifications() {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: editNote.title ? editNote.title : "Flipnote",
-        body: editNote.text ? editNote.text : editNote.title,
-      },
-      trigger: null,
-    });
+    try {
+      if (reminderSplit >= new Date()) {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: editNote.title ? editNote.title : "Flipnote",
+            body: editNote.text ? editNote.text : null,
+            sound: true,
+          },
+          trigger: {
+            date: reminderSplit,
+          },
+        });
+      }
+      if (reminderSplit < new Date()) {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: editNote.title ? editNote.title : "Flipnote",
+            body: editNote.text ? editNote.text : null,
+            sound: true,
+          },
+          trigger: null,
+        });
+      }
+    } catch (error) {}
   }
   async function setupNotifications() {
     if (Platform.OS === "ios") {
@@ -100,6 +126,7 @@ export function NotePage({ route, navigation }: any) {
     }
     await scheduleNotifications();
   }
+  // console.log(editNote.reminder);
   // const [selection, setSelection] = useState({ start: 0, end: 0 });
   const empty = item.text.length === 0 && item.title.length === 0;
   const noteStateIsEmpty =
@@ -144,7 +171,7 @@ export function NotePage({ route, navigation }: any) {
     console.log(TextComponents);
     return TextComponents;
   }
-
+  console.log(editNote);
   return (
     <View
       style={{
@@ -154,35 +181,19 @@ export function NotePage({ route, navigation }: any) {
     >
       <Dialog
         styles={{ width: "90%" }}
+        backgroundBlur={Platform.OS === "ios"}
         animation="fade"
         action={async () => {
           await setupNotifications();
-          if (reminder.date >= new Date()) {
+          if (reminderSplit >= new Date()) {
             setEditNote((prev) => ({
               ...prev,
-              reminder: {
-                date: reminder.date,
-                time: reminder.time,
-              },
+              reminder: reminderSplit.getTime(),
             }));
             toast({
               message: `Reminder set for ${reminder.date.getDate()}.${
                 reminder.date.getMonth() + 1
               }.${reminder.date.getFullYear()}  ${reminder.time.getHours()}:${reminder.time.getMinutes()}`,
-            });
-          }
-          if (reminder.date < new Date()) {
-            setEditNote((prev) => ({
-              ...prev,
-              reminder: {
-                date: new Date(),
-                time: new Date(),
-              },
-            }));
-            toast({
-              message: `Reminder set for ${new Date().getDate()}.${
-                new Date().getMonth() + 1
-              }.${new Date().getFullYear()}  ${new Date().getHours()}:${new Date().getMinutes()}`,
             });
           }
           setReminderDialog(false);
@@ -195,6 +206,7 @@ export function NotePage({ route, navigation }: any) {
         {Platform.OS === "ios" && (
           <>
             <DateTimePicker
+              style={{ height: "50%" }}
               mode="date"
               value={reminder.date}
               display="spinner"
@@ -203,7 +215,9 @@ export function NotePage({ route, navigation }: any) {
               }}
             />
             <DateTimePicker
-              value={reminder.date}
+              style={{ height: "50%" }}
+              mode="time"
+              value={reminder.time}
               display="spinner"
               onChange={(e, date) => {
                 setReminder((prev) => ({ ...prev, time: date }));
@@ -222,12 +236,20 @@ export function NotePage({ route, navigation }: any) {
               }}
             >
               <Text
-                style={{ fontSize: moderateFontScale(20), fontWeight: "bold" }}
+                style={{
+                  fontSize: moderateFontScale(20),
+                  fontWeight: "bold",
+                  color: theme.onPrimary,
+                }}
               >{`Date: ${reminder.date.getDate()}.${
                 reminder.date.getMonth() + 1
               }.${reminder.date.getFullYear()}`}</Text>
               <Text
-                style={{ fontSize: moderateFontScale(20), fontWeight: "bold" }}
+                style={{
+                  fontSize: moderateFontScale(20),
+                  fontWeight: "bold",
+                  color: theme.onPrimary,
+                }}
               >{`Hour: ${reminder.time.getHours()}:${reminder.time.getMinutes()}`}</Text>
             </View>
             <Button
@@ -265,22 +287,21 @@ export function NotePage({ route, navigation }: any) {
       </Dialog>
       <NoteScreenHeader
         onReminderOpen={() => {
-          if (reminder.time.getTime() <= new Date().getTime()) {
-            setEditNote((prev) => ({ ...prev, reminder: null }));
-            setReminderDialog(true);
+          if (noteStateIsEmpty) {
+            toast({ message: "Write something to schedule reminder" });
             return;
           }
-          if (editNote.reminder) {
+          if (scheduleDateForNotification > new Date()) {
             toast({
-              message: `Reminder already set for ${reminder.date.getDate()}.${
-                reminder.date.getMonth() + 1
-              }.${reminder.date.getFullYear()}  ${reminder.time.getHours()}:${reminder.time.getMinutes()}`,
+              message: `Reminder already set for ${scheduleDateForNotification.getDate()}.${
+                scheduleDateForNotification.getMonth() + 1
+              }.${scheduleDateForNotification.getFullYear()}  ${scheduleDateForNotification.getHours()}:${scheduleDateForNotification.getMinutes()}`,
             });
             return;
           }
-
-          if (empty) {
-            toast({ message: "Write something to schedule reminder" });
+          if (scheduleDateForNotification <= new Date()) {
+            setEditNote((prev) => ({ ...prev, reminder: null }));
+            setReminderDialog(true);
             return;
           }
           setReminderDialog(true);
@@ -298,6 +319,10 @@ export function NotePage({ route, navigation }: any) {
         onBack={handleBack}
         favorite={editNote.isFavorite}
         onShare={async () => {
+          if (empty) {
+            toast({ message: "Can't share empty content" });
+            return;
+          }
           try {
             await FileSystem.writeAsStringAsync(
               `${FileSystem.documentDirectory}${editNote.title.substring(

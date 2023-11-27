@@ -14,7 +14,7 @@ export interface note {
   isFavorite: boolean;
   background: string;
   styles: TextNoteStyle[];
-  reminder: ReminderProps;
+  reminder: number | null;
 }
 export interface InputSelectionProps {
   start: number;

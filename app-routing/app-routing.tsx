@@ -35,10 +35,7 @@ export function AppRouting() {
   return (
     <Stack.Navigator
       screenOptions={{
-        // headerShown: false,
-        // header: () => null,
         headerShown: false,
-        // headerTransparent: true,
         animation: "default",
         gestureEnabled: false,
       }}

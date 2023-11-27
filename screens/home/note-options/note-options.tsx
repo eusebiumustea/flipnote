@@ -156,6 +156,7 @@ export function NoteOptions({
         visible={showModal}
         onCencel={onModalClose}
         action={Share}
+        animation="fade"
       >
         <ScrollView
           contentContainerStyle={{

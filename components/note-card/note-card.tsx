@@ -21,6 +21,12 @@ export function NoteCard({
 }: NoteCardProps) {
   const theme = useTheme();
   const { width } = Dimensions.get("window");
+  function scale() {
+    if (selectedForOptions) {
+      return 0.9;
+    }
+    return 1;
+  }
   return (
     <MotiPressable
       transition={{ type: "timing", duration: 120 }}
@@ -32,11 +38,18 @@ export function NoteCard({
         height: verticalScale(250),
         width: width / 2 - 16,
         padding: 16,
-        overflow: "hidden",
+        // overflow: "hidden",
         elevation: 5,
+        shadowColor: "#000000",
+        shadowOffset: {
+          width: 0,
+          height: 3,
+        },
+        shadowOpacity: 0.17,
+        shadowRadius: 3.05,
       }}
       from={{ scale: 1 }}
-      animate={{ scale: selectedForOptions === true ? 0.9 : 1 }}
+      animate={{ scale: scale() }}
     >
       {options && (
         <CheckIcon
