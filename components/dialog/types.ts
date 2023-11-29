@@ -10,7 +10,6 @@ export interface DialogProps {
   actionLabel: string;
   animation?: "fade" | "none" | "slide";
   statusBarTranslucent?: boolean;
-  darkBackground?: boolean;
   styles?: ViewStyle;
   backgroundBlur?: boolean;
 }

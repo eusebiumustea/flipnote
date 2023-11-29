@@ -1,23 +1,34 @@
-import { PropsWithChildren, createContext, useContext, useState } from "react";
-import { Modal, Text, View } from "react-native";
-import { moderateFontScale, useTheme } from "../../tools";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AnimatePresence, MotiView } from "moti";
+import { PropsWithChildren, createContext, useContext, useState } from "react";
+import { ColorValue, Text, TouchableOpacity } from "react-native";
+import { Easing } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { moderateFontScale, useTheme } from "../../tools";
 interface ToastComponentProps {
   message: string | null;
-  show?: boolean;
+  textColor?: ColorValue;
+  button?: {
+    onPress: () => void;
+    title: string;
+    color?: ColorValue;
+  } | null;
+  duration?: number;
 }
 interface ToastContextType {
   ShowToast: (props: ToastComponentProps) => void | null;
 }
-function ToastComponent({ message, show }: ToastComponentProps) {
+function ToastComponent({ message, button, textColor }: ToastComponentProps) {
   const theme = useTheme();
   const { top } = useSafeAreaInsets();
   return (
     <AnimatePresence>
-      {show && (
+      {message && (
         <MotiView
-          transition={{ type: "timing", duration: 160 }}
+          transition={{
+            type: "timing",
+            duration: 350,
+            easing: Easing.inOut(Easing.ease),
+          }}
           style={{
             position: "absolute",
             top: top + 30,
@@ -28,21 +39,42 @@ function ToastComponent({ message, show }: ToastComponentProps) {
             justifyContent: "center",
             elevation: 15,
             zIndex: 999,
+            shadowColor: "#000000",
+            shadowOffset: {
+              width: 0,
+              height: 3,
+            },
+            shadowOpacity: 0.17,
+            shadowRadius: 3.05,
           }}
-          from={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          from={{ translateY: -top, scale: 0 }}
+          animate={{ translateY: 0, scale: 1 }}
+          exit={{ translateY: -top, scale: 0 }}
         >
           <Text
             style={{
               fontSize: moderateFontScale(20),
               fontWeight: "bold",
-              color: theme.onPrimary,
+              color: textColor,
               textAlign: "center",
             }}
           >
             {message}
           </Text>
+          {button && (
+            <TouchableOpacity onPress={button.onPress}>
+              <Text
+                style={{
+                  fontSize: moderateFontScale(16),
+                  color: button.color ? button.color : "#007AFF",
+                  textAlign: "center",
+                  fontFamily: "google-sans",
+                }}
+              >
+                {button.title}
+              </Text>
+            </TouchableOpacity>
+          )}
         </MotiView>
       )}
     </AnimatePresence>
@@ -50,18 +82,37 @@ function ToastComponent({ message, show }: ToastComponentProps) {
 }
 const ToastContext = createContext<ToastContextType>(undefined);
 export function ToastProvider({ children }: PropsWithChildren) {
+  const theme = useTheme();
   const [config, setConfig] = useState<ToastComponentProps>({
-    show: false,
     message: null,
+    button: null,
+    textColor: theme.onPrimary,
   });
-  function ShowToast({ message }: ToastComponentProps) {
-    setConfig({ show: true, message });
-    setTimeout(() => setConfig({ show: false, message: null }), 1200);
+  function ShowToast({
+    message,
+    button,
+    textColor = theme.onPrimary,
+    duration = 1500,
+  }: ToastComponentProps) {
+    setConfig((prev) => ({ ...prev, message, button, textColor }));
+    setTimeout(
+      () =>
+        setConfig((prev) => ({
+          ...prev,
+          message: null,
+          button: null,
+        })),
+      duration
+    );
   }
   return (
     <ToastContext.Provider value={{ ShowToast }}>
+      <ToastComponent
+        textColor={config.textColor}
+        button={config.button}
+        message={config.message}
+      />
       {children}
-      <ToastComponent message={config.message} show={config.show} />
     </ToastContext.Provider>
   );
 }

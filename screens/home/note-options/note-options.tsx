@@ -1,5 +1,5 @@
 import {
-  Modal,
+  Platform,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -12,9 +12,9 @@ import * as Sharing from "expo-sharing";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useKeyboard } from "@react-native-community/hooks";
-import { BlurView } from "expo-blur";
 import JSZip from "jszip";
 import { useRecoilState } from "recoil";
+import { Dialog } from "../../../components";
 import {
   CheckIcon,
   CloseIcon,
@@ -23,7 +23,6 @@ import {
 } from "../../../components/assets";
 import { moderateFontScale, moderateScale, useTheme } from "../../../tools";
 import { notesData } from "../../note";
-import { Dialog } from "../../../components";
 interface NoteOptionsProps {
   onDelete: () => void;
   onClose: () => void;
@@ -42,14 +41,11 @@ export function NoteOptions({
   onClose,
   onTotalSelect,
   totalSelected,
-
   onImport,
   onModalOpen,
   showModal,
   onModalClose,
   selectedNotes,
-  onChangeText,
-  textValue,
 }: NoteOptionsProps) {
   const theme = useTheme();
   const { top } = useSafeAreaInsets();
@@ -85,7 +81,7 @@ export function NoteOptions({
               ? note.title.substring(0, 40)
               : note.text.substring(0, 30)
           }.txt`,
-          `Title: ${note.title} Text: ${note.text}`
+          `${note.title}\n${note.text}`
         );
       });
       zip
@@ -157,6 +153,8 @@ export function NoteOptions({
         onCencel={onModalClose}
         action={Share}
         animation="fade"
+        backgroundBlur={Platform.OS === "ios"}
+        styles={{ width: "90%", borderRadius: 16 }}
       >
         <ScrollView
           contentContainerStyle={{

@@ -1,10 +1,9 @@
+import { useKeyboard } from "@react-native-community/hooks";
 import * as React from "react";
 import { TouchableOpacity } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { moderateScale, useTheme } from "../../../tools";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useKeyboard } from "@react-native-community/hooks";
-import { MotiPressable } from "moti/interactions";
 interface CreateIconProps {
   svgProps?: any;
   onPress: () => void;
@@ -15,7 +14,8 @@ export function CreateIcon({ svgProps, onPress }: CreateIconProps) {
   const { bottom } = useSafeAreaInsets();
   const keyboard = useKeyboard();
   return (
-    <MotiPressable
+    <TouchableOpacity
+      activeOpacity={1}
       onPress={onPress}
       style={{
         width: moderateScale(61),
@@ -47,6 +47,6 @@ export function CreateIcon({ svgProps, onPress }: CreateIconProps) {
           strokeLinejoin="round"
         />
       </Svg>
-    </MotiPressable>
+    </TouchableOpacity>
   );
 }

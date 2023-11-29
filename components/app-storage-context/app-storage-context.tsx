@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PropsWithChildren, useEffect } from "react";
 import { useRecoilState } from "recoil";
-import { notesData } from "../../screens/note";
+import { note, notesData } from "../../screens/note";
 
 export function AppStorageContext({ children }: PropsWithChildren) {
   const [notes, setNotes] = useRecoilState(notesData);
@@ -20,7 +20,7 @@ export function AppStorageContext({ children }: PropsWithChildren) {
     getData("appdata");
   }, []);
   useEffect(() => {
-    const storeData = async (value: any) => {
+    const storeData = async (value: note[]) => {
       try {
         await AsyncStorage.setItem("appdata", JSON.stringify(value));
       } catch (e) {
@@ -28,9 +28,6 @@ export function AppStorageContext({ children }: PropsWithChildren) {
       }
     };
     storeData(notes.data);
-    return () => {
-      storeData(notes.data);
-    };
   }, [notes]);
 
   return children;

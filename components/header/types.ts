@@ -5,4 +5,6 @@ export interface HeaderProps {
   searchValue: string;
   scrollY: Animated.Value;
   extraHeight?: number;
+  onInboxOpen?: () => void;
+  inboxOpened?: boolean;
 }

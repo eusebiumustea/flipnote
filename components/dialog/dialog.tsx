@@ -46,7 +46,7 @@ export function Dialog({
         <View
           style={{
             flex: 1,
-            backgroundColor: theme.onPrimary,
+            backgroundColor: "#000",
             zIndex: -1,
             opacity: 0.6,
           }}

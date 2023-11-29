@@ -1,37 +1,37 @@
+import DateTimePicker, {
+  DateTimePickerAndroid,
+} from "@react-native-community/datetimepicker";
 import { useBackHandler, useKeyboard } from "@react-native-community/hooks";
 import * as Clipboard from "expo-clipboard";
 import * as FileSystem from "expo-file-system";
-import * as Sharing from "expo-sharing";
 import * as Notifications from "expo-notifications";
+import * as Sharing from "expo-sharing";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   Dimensions,
-  Modal,
+  Linking,
   Platform,
   ScrollView,
   Text,
   TextInput,
   View,
-  useColorScheme,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 import { ColorBox, Dialog, useToast } from "../../components";
 import {
+  dateTime,
   moderateFontScale,
   replaceElementAtId,
   useTheme,
   verticalScale,
 } from "../../tools";
+import { cardColors } from "../../tools/colors";
 import { notesData } from "./atom";
 import { CustomizeBar } from "./customize-bar";
 import { NoteScreenHeader } from "./note-screen-header";
 import { InputSelectionProps, ReminderProps, note } from "./types";
-import { cardColors, darkCardColors } from "../../tools/colors";
-import DateTimePicker, {
-  DateTimePickerAndroid,
-} from "@react-native-community/datetimepicker";
 interface ParamsProps {
   id: number;
   edit: boolean;
@@ -70,6 +70,11 @@ export function NotePage({ route, navigation }: any) {
     date: new Date(),
     time: new Date(),
   });
+  useEffect(() => {
+    if (editNote.reminder && new Date(editNote.reminder) < new Date()) {
+      setEditNote((prev) => ({ ...prev, reminder: null }));
+    }
+  }, []);
   const reminderSplit = new Date(
     [
       reminder.date.toJSON().slice(0, 10),
@@ -84,20 +89,29 @@ export function NotePage({ route, navigation }: any) {
     start: 0,
     end: 0,
   });
-  async function registerNotifications() {
-    let { status }: any = await Notifications.getPermissionsAsync();
-    if (status !== "granted") {
-      status = await Notifications.requestPermissionsAsync();
-    }
-    if (status !== "granted") {
-      toast({ message: "Permission denied" });
-      return;
-    }
-  }
+  // async function registerNotifications() {
+  //   let { status }: any = await Notifications.getPermissionsAsync();
+  //   if (status !== "granted") {
+  //     status = await Notifications.requestPermissionsAsync();
+  //   }
+  //   if (status !== "granted") {
+  //     toast({
+  //       message: "Permission denied",
+  //       button: {
+  //         title: "Open settings",
+  //         onPress() {
+  //           Linking.openSettings();
+  //         },
+  //       },
+  //     });
+  //     return;
+  //   }
+  // }
   async function scheduleNotifications() {
     try {
       if (reminderSplit >= new Date()) {
         await Notifications.scheduleNotificationAsync({
+          identifier: item.id.toString(),
           content: {
             title: editNote.title ? editNote.title : "Flipnote",
             body: editNote.text ? editNote.text : null,
@@ -120,13 +134,6 @@ export function NotePage({ route, navigation }: any) {
       }
     } catch (error) {}
   }
-  async function setupNotifications() {
-    if (Platform.OS === "ios") {
-      await registerNotifications();
-    }
-    await scheduleNotifications();
-  }
-  // console.log(editNote.reminder);
   // const [selection, setSelection] = useState({ start: 0, end: 0 });
   const empty = item.text.length === 0 && item.title.length === 0;
   const noteStateIsEmpty =
@@ -184,16 +191,33 @@ export function NotePage({ route, navigation }: any) {
         backgroundBlur={Platform.OS === "ios"}
         animation="fade"
         action={async () => {
-          await setupNotifications();
+          let { status }: any = await Notifications.getPermissionsAsync();
+          if (status !== "granted") {
+            status = await Notifications.requestPermissionsAsync();
+          }
+          if (status !== "granted") {
+            toast({
+              duration: 2000,
+              message: "Permission denied",
+              button: {
+                title: "Open app settings",
+                onPress() {
+                  Linking.openSettings();
+                },
+              },
+              textColor: "red",
+            });
+            setReminderDialog(false);
+            return;
+          }
+          await scheduleNotifications();
           if (reminderSplit >= new Date()) {
             setEditNote((prev) => ({
               ...prev,
               reminder: reminderSplit.getTime(),
             }));
             toast({
-              message: `Reminder set for ${reminder.date.getDate()}.${
-                reminder.date.getMonth() + 1
-              }.${reminder.date.getFullYear()}  ${reminder.time.getHours()}:${reminder.time.getMinutes()}`,
+              message: `Reminder set for ${dateTime(reminderSplit)}`,
             });
           }
           setReminderDialog(false);
@@ -204,8 +228,9 @@ export function NotePage({ route, navigation }: any) {
         visible={reminderDialog}
       >
         {Platform.OS === "ios" && (
-          <>
+          <View style={{ rowGap: 8, height: "100%" }}>
             <DateTimePicker
+              minimumDate={new Date()}
               style={{ height: "50%" }}
               mode="date"
               value={reminder.date}
@@ -215,6 +240,7 @@ export function NotePage({ route, navigation }: any) {
               }}
             />
             <DateTimePicker
+              is24Hour
               style={{ height: "50%" }}
               mode="time"
               value={reminder.time}
@@ -223,7 +249,7 @@ export function NotePage({ route, navigation }: any) {
                 setReminder((prev) => ({ ...prev, time: date }));
               }}
             />
-          </>
+          </View>
         )}
         {Platform.OS === "android" && (
           <>
@@ -250,7 +276,11 @@ export function NotePage({ route, navigation }: any) {
                   fontWeight: "bold",
                   color: theme.onPrimary,
                 }}
-              >{`Hour: ${reminder.time.getHours()}:${reminder.time.getMinutes()}`}</Text>
+              >{`Hour: ${reminder.time.getHours()}:${
+                reminder.time.getMinutes() < 10
+                  ? `0${reminder.time.getMinutes()}`
+                  : reminder.time.getMinutes()
+              }`}</Text>
             </View>
             <Button
               onPress={() => {
@@ -293,9 +323,19 @@ export function NotePage({ route, navigation }: any) {
           }
           if (scheduleDateForNotification > new Date()) {
             toast({
-              message: `Reminder already set for ${scheduleDateForNotification.getDate()}.${
-                scheduleDateForNotification.getMonth() + 1
-              }.${scheduleDateForNotification.getFullYear()}  ${scheduleDateForNotification.getHours()}:${scheduleDateForNotification.getMinutes()}`,
+              button: {
+                title: "Cencel",
+                onPress: async () => {
+                  await Notifications.cancelScheduledNotificationAsync(
+                    item.id.toString()
+                  );
+                  setEditNote((prev) => ({ ...prev, reminder: null }));
+                  toast({ message: "Cenceled" });
+                },
+              },
+              message: `Reminder already set for ${dateTime(
+                scheduleDateForNotification
+              )}`,
             });
             return;
           }
@@ -308,7 +348,9 @@ export function NotePage({ route, navigation }: any) {
         }}
         onClipboard={async () => {
           await Clipboard.setStringAsync(`${editNote.title}\n${editNote.text}`);
-          toast({ message: "Copied" });
+          toast({
+            message: "Copied",
+          });
         }}
         onFavoriteAdd={() =>
           setEditNote((prev) => ({
@@ -319,7 +361,7 @@ export function NotePage({ route, navigation }: any) {
         onBack={handleBack}
         favorite={editNote.isFavorite}
         onShare={async () => {
-          if (empty) {
+          if (noteStateIsEmpty) {
             toast({ message: "Can't share empty content" });
             return;
           }

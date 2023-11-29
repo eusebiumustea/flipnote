@@ -1,14 +1,18 @@
-import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { ReactNode } from "react";
-import { View } from "react-native";
+import { MotiView } from "moti";
+import { PropsWithChildren } from "react";
+import { View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useTheme } from "../../tools";
+import { useTheme, verticalScale } from "../../tools";
 import { BackIcon } from "../assets";
 interface ScreenHeaderProps {
-  children?: ReactNode;
+  onBack: () => void;
+  style?: ViewStyle;
 }
-export function ScreenHeader({ children }: ScreenHeaderProps) {
-  const nav = useNavigation<NavigationProp<any>>();
+export function ScreenHeader({
+  children,
+  onBack,
+  style,
+}: PropsWithChildren<ScreenHeaderProps>) {
   const { top } = useSafeAreaInsets();
   const theme = useTheme();
   return (
@@ -16,22 +20,32 @@ export function ScreenHeader({ children }: ScreenHeaderProps) {
       style={{
         width: "100%",
         columnGap: 10,
-        paddingTop: top,
+        height: verticalScale(90),
         backgroundColor: theme.background,
+        top: 0,
+        paddingTop: top + 10,
+        ...style,
       }}
     >
-      <View
+      <MotiView
         style={{
           flexDirection: "row",
+          justifyContent: "center",
           alignItems: "center",
-          alignSelf: "flex-start",
-          columnGap: 16,
-          padding: 10,
         }}
       >
-        <BackIcon onPress={() => nav.goBack()} />
         {children}
-      </View>
+
+        <View
+          style={{
+            position: "absolute",
+            left: 0,
+            padding: 10,
+          }}
+        >
+          <BackIcon onPress={onBack} />
+        </View>
+      </MotiView>
     </View>
   );
 }

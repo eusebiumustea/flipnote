@@ -15,6 +15,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
       return light;
     }
   }, [colorScheme]);
+
   return (
     <ThemeContext.Provider value={deviceTheme}>
       {children}

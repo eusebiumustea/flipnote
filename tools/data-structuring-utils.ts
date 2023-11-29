@@ -79,3 +79,55 @@ export function recalculateId(array: note[]) {
     };
   });
 }
+export function changeKeyValuesConditionaly<T, K extends keyof T>(
+  array: T[],
+  key: K,
+  conditionOperator: "lower" | "greater" | "equal",
+  conditionValue: T[K] | Date | null,
+  newValue: T[K]
+) {
+  switch (conditionOperator) {
+    case "lower":
+      return array.map((item) => {
+        if (item[key] < conditionValue) {
+          return {
+            ...item,
+            [key]: newValue,
+          };
+        }
+        return item;
+      });
+    case "equal":
+      return array.map((item) => {
+        if (item[key] === conditionValue) {
+          return {
+            ...item,
+            [key]: newValue,
+          };
+        }
+        return item;
+      });
+    case "greater":
+      return array.map((item) => {
+        if (item[key] > conditionValue) {
+          return {
+            ...item,
+            [key]: newValue,
+          };
+        }
+        return item;
+      });
+  }
+}
+export function dateTime(date: Date) {
+  const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+  const month =
+    date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
+  const year = date.getFullYear();
+  const hour = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
+  const min =
+    date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
+  const sec =
+    date.getSeconds() < 10 ? `0${date.getSeconds()}` : date.getSeconds();
+  return `${day}.${month}.${year} ${hour}:${min}:${sec}`;
+}

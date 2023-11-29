@@ -1,11 +1,13 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Profiler } from "react";
 import { enableFreeze } from "react-native-screens";
-import { Home, Inbox, NotePage, notesData } from "../screens";
 import { useRecoilState } from "recoil";
+import { Home, Inbox, NotePage, notesData } from "../screens";
 enableFreeze();
+
 export function AppRouting() {
   const Stack = createNativeStackNavigator();
+
   function HomePageRenderInfo() {
     return (
       <Profiler

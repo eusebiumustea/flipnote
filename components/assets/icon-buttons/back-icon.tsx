@@ -14,8 +14,8 @@ export function BackIcon({ svgProps, onPress, btnProps }: BackIconProps) {
       onPress={onPress}
       activeOpacity={0.5}
       style={{
-        width: 35,
-        height: 35,
+        width: 37,
+        height: 37,
       }}
       {...btnProps}
     >
