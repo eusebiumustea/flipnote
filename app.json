@@ -1,12 +1,17 @@
 {
   "expo": {
     "userInterfaceStyle": "automatic",
-
     "android": {},
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a675bde6-7808-4412-8a6a-a2733a9f2f2f"
+      }
+    },
+    "owner": "eusebiu365"
   }
 }
