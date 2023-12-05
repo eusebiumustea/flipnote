@@ -1,7 +1,32 @@
 {
   "expo": {
+    "name": "Flipnote",
+    "slug": "flipnote",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.jpg",
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#fff",
+          "icon": "./assets/icon.jpg"
+        }
+      ]
+    ],
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.eusebiu.flipnote",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FEFFEF"
+      }
+    },
     "userInterfaceStyle": "automatic",
-    "android": {},
+
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -12,6 +37,22 @@
         "projectId": "a675bde6-7808-4412-8a6a-a2733a9f2f2f"
       }
     },
-    "owner": "eusebiu365"
+    "owner": "eusebiu365",
+    "build": {
+      "preview": {
+        "android": {
+          "buildType": "apk"
+        }
+      },
+      "preview2": {
+        "android": {
+          "gradleCommand": ":app:assembleRelease"
+        }
+      },
+      "preview3": {
+        "developmentClient": true
+      },
+      "production": {}
+    }
   }
 }

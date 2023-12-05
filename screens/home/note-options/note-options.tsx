@@ -141,7 +141,8 @@ export function NoteOptions({
         flexDirection: "row",
         paddingHorizontal: moderateScale(20),
         padding: 10,
-        top,
+        top: 0,
+        paddingTop: top,
       }}
     >
       <Dialog

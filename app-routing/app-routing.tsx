@@ -38,7 +38,7 @@ export function AppRouting() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        animation: "default",
+        animation: "fade",
         gestureEnabled: false,
       }}
       initialRouteName="Home"
@@ -47,7 +47,6 @@ export function AppRouting() {
       <Stack.Screen
         initialParams={{
           id: notes.data.length + 1,
-          edit: false,
         }}
         component={NotePage}
         name="note"

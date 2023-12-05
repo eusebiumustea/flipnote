@@ -2,19 +2,43 @@ import { NavigationContainer } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
-import { useCallback } from "react";
-import { Dimensions, View } from "react-native";
+import { useCallback, useEffect } from "react";
+import { Linking, Platform, View } from "react-native";
 import "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { RecoilRoot } from "recoil";
 import { AppRouting } from "./app-routing";
 import { ToastProvider } from "./components";
-import { StatusBarController, ThemeProvider } from "./tools";
-import { NotificationReceivedProvider } from "./components/notification-received-provider";
 import { AppStorageContext } from "./components/app-storage-context";
+import { StatusBarController, ThemeProvider } from "./tools";
 SplashScreen.preventAutoHideAsync();
 export default function App() {
-  const [fontLoaded] = useFonts({
+  useEffect(() => {
+    async function registerNotifications() {
+      let { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "default",
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: "#FF231F7C",
+          showBadge: true,
+          enableLights: true,
+          lockscreenVisibility:
+            Notifications.AndroidNotificationVisibility.PUBLIC,
+        });
+      }
+      console.log(finalStatus);
+    }
+    registerNotifications();
+  }, []);
+  const [fontLoaded, error] = useFonts({
     "google-sans": require("./assets/fonts/OpenSans-VariableFont_wdthwght.ttf"),
   });
   const onLayoutRootView = useCallback(async () => {
@@ -25,33 +49,27 @@ export default function App() {
   if (!fontLoaded) {
     return null;
   }
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: true,
-      priority: Notifications.AndroidNotificationPriority.MAX,
-    }),
-  });
 
   return (
     <RecoilRoot>
-      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-        <AppStorageContext>
-          <ThemeProvider>
-            <NotificationReceivedProvider>
+      <SafeAreaProvider onLayout={onLayoutRootView}>
+        <ToastProvider>
+          <AppStorageContext>
+            <ThemeProvider>
               <NavigationContainer>
-                <SafeAreaProvider>
-                  <StatusBarController />
-                  <ToastProvider>
-                    <AppRouting />
-                  </ToastProvider>
-                </SafeAreaProvider>
+                <StatusBarController />
+                <AppRouting />
               </NavigationContainer>
-            </NotificationReceivedProvider>
-          </ThemeProvider>
-        </AppStorageContext>
-      </View>
+            </ThemeProvider>
+          </AppStorageContext>
+        </ToastProvider>
+      </SafeAreaProvider>
     </RecoilRoot>
   );
+}
+function toast(arg0: {
+  message: string;
+  button: { title: string; onPress(): void };
+}) {
+  throw new Error("Function not implemented.");
 }

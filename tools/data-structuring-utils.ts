@@ -24,11 +24,19 @@ export function generateUniqueFileId() {
   const random = Math.floor(Math.random() * 10000);
   return `${time}-${random}`;
 }
-export function removeElementAtId(array: note[], removeId: number) {
-  const arrayIndexOfId = array.findIndex((e) => e?.id === removeId);
+// export function removeElementAtId(array: note[], removeId: number) {
+//   const arrayIndexOfId = array.findIndex((e) => e?.id === removeId);
+//   return [
+//     ...array.slice(0, arrayIndexOfId),
+//     ...array.slice(arrayIndexOfId + 1),
+//   ];
+// }
+export function reinjectElementInArray(array: note[], newElement: note) {
+  const prevIndex = array.findLastIndex((e) => e.id < newElement.id);
   return [
-    ...array.slice(0, arrayIndexOfId),
-    ...array.slice(arrayIndexOfId + 1),
+    ...array.slice(0, prevIndex + 1),
+    newElement,
+    ...array.slice(prevIndex + 1),
   ];
 }
 export function replaceElementAtIndex<T>(

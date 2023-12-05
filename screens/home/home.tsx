@@ -27,7 +27,9 @@ import { NoteOptions } from "./note-options/note-options";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
 import { useBackHandler } from "@react-native-community/hooks";
 import { Easing } from "react-native-reanimated";
-export function Home({ navigation }: any) {
+import { useNavigation } from "@react-navigation/native";
+export function Home() {
+  const navigation = useNavigation<any>();
   const [selected, setSelected] = useState<string[]>([]);
   const [password, setPassword] = useState("");
   const [inbox, setInbox] = useState(false);
@@ -240,7 +242,7 @@ export function Home({ navigation }: any) {
                     toggleArrayElement(optionsSelection, item.id).sort()
                   );
                 } else if (optionsSelection.length === 0) {
-                  navigation.push("note", { id: item.id, edit: true });
+                  navigation.push("note", { id: item.id });
                 }
               }}
               item={item}

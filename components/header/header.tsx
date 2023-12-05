@@ -48,13 +48,9 @@ export const Header = React.memo(
           paddingTop: top,
           transform: [
             {
-              translateY: Animated.diffClamp(
-                scrollY,
-                0,
-                verticalScale(130)
-              ).interpolate({
-                inputRange: [0, verticalScale(130)],
-                outputRange: [0, verticalScale(-130)],
+              translateY: Animated.diffClamp(scrollY, 0, 160).interpolate({
+                inputRange: [0, 160],
+                outputRange: [0, -160],
                 extrapolate: "clamp",
               }),
             },
@@ -132,8 +128,8 @@ export const Header = React.memo(
             }}
             onPress={onInboxOpen}
             style={{
-              width: moderateScale(28),
-              height: verticalScale(28),
+              width: moderateScale(30),
+              height: verticalScale(30),
             }}
           >
             <InboxIcon badge={badge} />

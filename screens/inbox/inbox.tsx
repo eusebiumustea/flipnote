@@ -70,7 +70,7 @@ export function Inbox({ onBack, open }: InboxProps) {
             }}
             style={{ backgroundColor: theme.background }}
             from={{
-              translateX: width - moderateScale(28),
+              translateX: width - moderateScale(30),
               translateY: top,
               width: 0,
               height: 0,
@@ -86,7 +86,7 @@ export function Inbox({ onBack, open }: InboxProps) {
               borderRadius: 0,
             }}
             exit={{
-              translateX: width - moderateScale(28),
+              translateX: width - moderateScale(30),
               translateY: top,
               width: 0,
               height: 0,

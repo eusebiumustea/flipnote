@@ -23,27 +23,51 @@ import { ColorBox, Dialog, useToast } from "../../components";
 import {
   dateTime,
   moderateFontScale,
+  recalculateId,
   replaceElementAtId,
   useTheme,
   verticalScale,
+  reinjectElementInArray,
 } from "../../tools";
 import { cardColors } from "../../tools/colors";
 import { notesData } from "./atom";
 import { CustomizeBar } from "./customize-bar";
 import { NoteScreenHeader } from "./note-screen-header";
-import { InputSelectionProps, ReminderProps, note } from "./types";
+import {
+  InputSelectionProps,
+  ReminderProps,
+  TextNoteStyle,
+  note,
+} from "./types";
 interface ParamsProps {
   id: number;
   edit: boolean;
 }
-
+interface RenderContentProps {
+  value?: string;
+  styles?: TextNoteStyle[];
+}
+function RenderContent({ value, styles }: RenderContentProps) {
+  const isStyled = styles.length > 0;
+  const indexOfLast = styles.length - 1;
+  const StyledComponents = [];
+  for (let i = 0; i < styles.length; i++) {}
+  if (!isStyled) {
+    return <Text>{value}</Text>;
+  }
+  return StyledComponents;
+}
 export function NotePage({ route, navigation }: any) {
-  const [showOption, setShowOption] = useState(false);
-
+  useBackHandler(() => {
+    navigation.popToTop();
+    return true;
+  });
   const theme = useTheme();
-  const { id, edit }: ParamsProps = route.params;
+  const { id }: ParamsProps = route.params;
   const [notes, setNotes] = useRecoilState(notesData);
-  const item = useMemo(() => {
+  console.log("data:", notes.data);
+  const edit: boolean = id < notes.data.length + 1;
+  const item: note = useMemo(() => {
     if (!edit) {
       return {
         id,
@@ -56,7 +80,7 @@ export function NotePage({ route, navigation }: any) {
       };
     }
     return notes.data.find((e) => e.id === id);
-  }, [id, edit]);
+  }, []);
   const [editNote, setEditNote] = useState<note>({
     id: item.id,
     title: item.title,
@@ -66,15 +90,16 @@ export function NotePage({ route, navigation }: any) {
     styles: item.styles,
     reminder: item.reminder,
   });
+
   const [reminder, setReminder] = useState<ReminderProps>({
     date: new Date(),
     time: new Date(),
   });
-  useEffect(() => {
-    if (editNote.reminder && new Date(editNote.reminder) < new Date()) {
-      setEditNote((prev) => ({ ...prev, reminder: null }));
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (editNote.reminder && new Date(editNote.reminder) < new Date()) {
+  //     setEditNote((prev) => ({ ...prev, reminder: null }));
+  //   }
+  // }, []);
   const reminderSplit = new Date(
     [
       reminder.date.toJSON().slice(0, 10),
@@ -82,31 +107,14 @@ export function NotePage({ route, navigation }: any) {
       reminder.time.toJSON().slice(11),
     ].join("T")
   );
-  const scheduleDateForNotification: Date =
+  const scheduleDateForNotification: Date | null =
     editNote.reminder && new Date(editNote.reminder);
   const [reminderDialog, setReminderDialog] = useState(false);
   let selection = useRef<InputSelectionProps>({
     start: 0,
     end: 0,
   });
-  // async function registerNotifications() {
-  //   let { status }: any = await Notifications.getPermissionsAsync();
-  //   if (status !== "granted") {
-  //     status = await Notifications.requestPermissionsAsync();
-  //   }
-  //   if (status !== "granted") {
-  //     toast({
-  //       message: "Permission denied",
-  //       button: {
-  //         title: "Open settings",
-  //         onPress() {
-  //           Linking.openSettings();
-  //         },
-  //       },
-  //     });
-  //     return;
-  //   }
-  // }
+
   async function scheduleNotifications() {
     try {
       if (reminderSplit >= new Date()) {
@@ -135,50 +143,81 @@ export function NotePage({ route, navigation }: any) {
     } catch (error) {}
   }
   // const [selection, setSelection] = useState({ start: 0, end: 0 });
-  const empty = item.text.length === 0 && item.title.length === 0;
   const noteStateIsEmpty =
     editNote.text.length === 0 && editNote.title.length === 0;
   const { top } = useSafeAreaInsets();
   const keyboard = useKeyboard();
-  const isEditing = !empty && !noteStateIsEmpty;
-  const isCreating = empty && !noteStateIsEmpty;
+  const isEditing = edit && !noteStateIsEmpty;
+  const isCreating = !edit && !noteStateIsEmpty;
+  const indexOfPrev = notes.data.findLastIndex((e) => e.id < id);
   function handleBack() {
     try {
-      if (isCreating) {
+      // if (isCreating) {
+      //   setNotes((prev) => ({
+      //     ...prev,
+      //     data: [...prev.data, editNote],
+      //   }));
+      // }
+      // if (isEditing) {
+      //   setNotes((prev) => ({
+      //     data: replaceElementAtId(prev.data, item.id, editNote),
+      //   }));
+      // }
+      navigation.popToTop();
+    } catch (error) {}
+  }
+  const included = notes.data.map((e) => e.id).includes(id);
+  console.log("included:", included);
+  useEffect(() => {
+    try {
+      if (noteStateIsEmpty) {
+        setNotes((prev) => ({
+          ...prev,
+          data: prev.data.filter((e) => e.id !== id),
+        }));
+      }
+      if (isCreating && !included) {
         setNotes((prev) => ({
           ...prev,
           data: [...prev.data, editNote],
         }));
       }
-      if (isEditing) {
+      if (isCreating && included) {
         setNotes((prev) => ({
-          data: replaceElementAtId(prev.data, item.id, editNote),
+          ...prev,
+          data: replaceElementAtId(prev.data, id, editNote),
         }));
       }
-      navigation.popToTop();
-    } catch (error) {}
-  }
-  useBackHandler(() => {
-    handleBack();
-    return true;
-  });
+      if (isEditing && included) {
+        setNotes((prev) => ({
+          data: replaceElementAtId(prev.data, id, editNote),
+        }));
+      }
+      if (isEditing && !included) {
+        setNotes((prev) => ({
+          ...prev,
+          data: reinjectElementInArray(prev.data, editNote),
+        }));
+      }
+    } catch (message) {
+      toast({ message });
+    }
+  }, [editNote, included]);
+
+  useEffect(() => {
+    return () =>
+      setNotes((prev) => ({
+        ...prev,
+        data: recalculateId(prev.data),
+      }));
+  }, []);
+
   const toast = useToast();
   const marginBottom =
     Dimensions.get("screen").height -
-    (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height);
-  function renderText(text: string, selection: InputSelectionProps) {
-    let TextComponents = [<Text>{text}</Text>];
-    if (selection.end !== selection.start) {
-      TextComponents = [
-        <Text key={0}>{text.slice(0, selection.start)}</Text>,
-        <Text key={1}>{text.slice(selection.start, selection.end)}</Text>,
-        <Text key={2}>{text.slice(selection.end)}</Text>,
-      ];
-    }
-    console.log(TextComponents);
-    return TextComponents;
-  }
-  console.log(editNote);
+    (keyboard.coordinates.end.screenY || Dimensions.get("screen").height);
+  console.log("editnote:", JSON.stringify(editNote));
+
   return (
     <View
       style={{
@@ -393,7 +432,7 @@ export function NotePage({ route, navigation }: any) {
       />
       <ScrollView
         snapToAlignment="center"
-        keyboardShouldPersistTaps="handled"
+        keyboardShouldPersistTaps="always"
         contentContainerStyle={{
           paddingTop: verticalScale(70) + top,
           padding: 16,
@@ -434,6 +473,7 @@ export function NotePage({ route, navigation }: any) {
           onSelectionChange={(e) => {
             selection.current.start = e.nativeEvent.selection.start;
             selection.current.end = e.nativeEvent.selection.end;
+            console.log(selection.current);
           }}
           placeholderTextColor={theme.placeholder}
           cursorColor={"#FFCB09"}
@@ -452,13 +492,11 @@ export function NotePage({ route, navigation }: any) {
           placeholder="Take the note"
           style={{
             color: "#000",
-            fontSize: moderateFontScale(16),
             marginTop: verticalScale(20),
-            fontFamily: "google-sans",
             paddingBottom: verticalScale(200),
           }}
         >
-          <Text>{editNote.text}</Text>
+          <RenderContent value={editNote.text} styles={editNote.styles} />
         </TextInput>
         {/* <View style={{ height: 100, backgroundColor: "red" }}></View> */}
       </ScrollView>
@@ -470,11 +508,21 @@ export function NotePage({ route, navigation }: any) {
               ...prev,
               styles: [
                 ...prev.styles,
-                { interval: selection.current, style: { fontWeight: "bold" } },
+                {
+                  interval: {
+                    end: selection.current.end,
+                    start: selection.current.start,
+                  },
+                  style: { fontWeight: "bold" },
+                },
               ],
             }));
           }
         }}
+        boldFocused={
+          editNote.styles.findIndex((e) => selection.current === e.interval) !==
+          -1
+        }
         backgroundOptions={
           <>
             {cardColors.map((e, i) => (

@@ -50,7 +50,7 @@ export function CustomizeBar({
   const { width } = useWindowDimensions();
   const paddingTop =
     Dimensions.get("screen").height -
-    (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height);
+    (keyboard.coordinates.end.screenY || Dimensions.get("screen").height);
 
   return (
     <MotiView
