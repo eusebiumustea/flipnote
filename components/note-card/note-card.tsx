@@ -50,6 +50,7 @@ export function NoteCard({
       }}
       from={{ scale: 1 }}
       animate={{ scale: scale() }}
+      exitTransition={{ duration: 0, delay: 350, type: "timing" }}
     >
       {options && (
         <CheckIcon

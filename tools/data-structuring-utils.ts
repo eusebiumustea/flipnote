@@ -6,6 +6,7 @@ export function toggleArrayElement<T>(array: T[], value: T) {
   }
   return removeElementAtIndex(array, indexOfValue);
 }
+
 export function toggleState<T>(initialValue: T, changeValue: T) {
   return (prevState: T) => {
     if (prevState === initialValue) {
@@ -16,6 +17,7 @@ export function toggleState<T>(initialValue: T, changeValue: T) {
     }
   };
 }
+
 export function removeElementAtIndex<T>(array: T[], removeIndex: number) {
   return [...array.slice(0, removeIndex), ...array.slice(removeIndex + 1)];
 }
@@ -87,6 +89,16 @@ export function recalculateId(array: note[]) {
     };
   });
 }
+export function uniqueIdCheck(array: note[]) {
+  let passed = true;
+  array.map((item, i) => {
+    const prevIndex = array.findLastIndex((e) => e.id < item.id);
+    if (prevIndex + 1 < i) {
+      passed = false;
+    }
+  });
+  return passed;
+}
 export function changeKeyValuesConditionaly<T, K extends keyof T>(
   array: T[],
   key: K,
@@ -126,6 +138,13 @@ export function changeKeyValuesConditionaly<T, K extends keyof T>(
         return item;
       });
   }
+}
+export function range(start: number, end: number) {
+  const range = [];
+  for (let i = start; i <= end; i++) {
+    range.push(i + 1);
+  }
+  return range;
 }
 export function dateTime(date: Date) {
   const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();

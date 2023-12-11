@@ -13,11 +13,19 @@ interface ToastComponentProps {
     color?: ColorValue;
   } | null;
   duration?: number;
+  startPositionX?: number;
+  startPositionY?: number;
 }
 interface ToastContextType {
   ShowToast: (props: ToastComponentProps) => void | null;
 }
-function ToastComponent({ message, button, textColor }: ToastComponentProps) {
+function ToastComponent({
+  message,
+  button,
+  textColor,
+  startPositionX,
+  startPositionY,
+}: ToastComponentProps) {
   const theme = useTheme();
   const { top } = useSafeAreaInsets();
   return (
@@ -47,9 +55,17 @@ function ToastComponent({ message, button, textColor }: ToastComponentProps) {
             shadowOpacity: 0.17,
             shadowRadius: 3.05,
           }}
-          from={{ translateY: -top, scale: 0 }}
-          animate={{ translateY: 0, scale: 1 }}
-          exit={{ translateY: -top, scale: 0 }}
+          from={{
+            translateY: -top + startPositionY,
+            translateX: startPositionX,
+            scale: 0,
+          }}
+          animate={{ translateY: 0, translateX: 0, scale: 1 }}
+          exit={{
+            translateY: -top + startPositionY,
+            translateX: startPositionX,
+            scale: 0,
+          }}
         >
           <Text
             style={{
@@ -93,8 +109,17 @@ export function ToastProvider({ children }: PropsWithChildren) {
     button,
     textColor = theme.onPrimary,
     duration = 1500,
+    startPositionX = 0,
+    startPositionY = 0,
   }: ToastComponentProps) {
-    setConfig((prev) => ({ ...prev, message, button, textColor }));
+    setConfig((prev) => ({
+      ...prev,
+      message,
+      button,
+      textColor,
+      startPositionX,
+      startPositionY,
+    }));
     setTimeout(
       () =>
         setConfig((prev) => ({
@@ -111,6 +136,8 @@ export function ToastProvider({ children }: PropsWithChildren) {
         textColor={config.textColor}
         button={config.button}
         message={config.message}
+        startPositionX={config.startPositionX}
+        startPositionY={config.startPositionY}
       />
       {children}
     </ToastContext.Provider>

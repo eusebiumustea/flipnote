@@ -6,3 +6,4 @@ export * from "./loading-dialog";
 export * from "./toast";
 export * from "./color-box";
 export * from "./dialog";
+export * from "./pan-responder";

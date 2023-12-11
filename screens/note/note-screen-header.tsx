@@ -1,5 +1,11 @@
 import { BlurView } from "expo-blur";
-import { Dimensions, Platform, View, useColorScheme } from "react-native";
+import {
+  Dimensions,
+  LayoutChangeEvent,
+  Platform,
+  View,
+  useColorScheme,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   BackIcon,
@@ -58,7 +64,7 @@ export function NoteScreenHeader({
       {Platform.OS === "ios" && (
         <BlurView
           tint={colorScheme}
-          intensity={50}
+          intensity={40}
           style={{
             width: width,
             height: "100%",

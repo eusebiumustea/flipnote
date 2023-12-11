@@ -8,7 +8,7 @@ import "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { RecoilRoot } from "recoil";
 import { AppRouting } from "./app-routing";
-import { ToastProvider } from "./components";
+import { LoadingProvider, ToastProvider } from "./components";
 import { AppStorageContext } from "./components/app-storage-context";
 import { StatusBarController, ThemeProvider } from "./tools";
 SplashScreen.preventAutoHideAsync();
@@ -54,14 +54,16 @@ export default function App() {
     <RecoilRoot>
       <SafeAreaProvider onLayout={onLayoutRootView}>
         <ToastProvider>
-          <AppStorageContext>
-            <ThemeProvider>
-              <NavigationContainer>
-                <StatusBarController />
-                <AppRouting />
-              </NavigationContainer>
-            </ThemeProvider>
-          </AppStorageContext>
+          <LoadingProvider>
+            <AppStorageContext>
+              <ThemeProvider>
+                <NavigationContainer>
+                  <StatusBarController />
+                  <AppRouting />
+                </NavigationContainer>
+              </ThemeProvider>
+            </AppStorageContext>
+          </LoadingProvider>
         </ToastProvider>
       </SafeAreaProvider>
     </RecoilRoot>

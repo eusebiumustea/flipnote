@@ -1,13 +1,26 @@
 import * as React from "react";
-import { TouchableOpacity, ViewProps } from "react-native";
+import {
+  ColorValue,
+  TouchableOpacity,
+  ViewProps,
+  ViewStyle,
+} from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { moderateScale, useTheme, verticalScale } from "../../../tools";
 interface BackIconProps {
   svgProps?: any;
   onPress?: () => void;
   btnProps?: ViewProps;
+  style?: ViewStyle;
+  color?: ColorValue;
 }
-export function BackIcon({ svgProps, onPress, btnProps }: BackIconProps) {
+export function BackIcon({
+  svgProps,
+  onPress,
+  btnProps,
+  style,
+  color,
+}: BackIconProps) {
   const theme = useTheme();
   return (
     <TouchableOpacity
@@ -16,6 +29,7 @@ export function BackIcon({ svgProps, onPress, btnProps }: BackIconProps) {
       style={{
         width: 37,
         height: 37,
+        ...style,
       }}
       {...btnProps}
     >
@@ -29,7 +43,7 @@ export function BackIcon({ svgProps, onPress, btnProps }: BackIconProps) {
       >
         <Path
           d="M9.57 5.93L3.5 12l6.07 6.07M20.5 12H3.67"
-          stroke={theme.onBackground}
+          stroke={!color ? theme.onBackground : color}
           strokeWidth={1.5}
           strokeMiterlimit={10}
           strokeLinecap="round"

@@ -1,7 +1,7 @@
 import { ColorValue, TextStyle } from "react-native";
-interface TextNoteStyle {
-  interval: InputSelectionProps;
-  style: TextStyle;
+export interface TextNoteStyle {
+  interval?: InputSelectionProps;
+  style?: TextStyle;
 }
 export interface ReminderProps {
   date: Date;

@@ -12,6 +12,7 @@ import { InboxIcon, SearchIcon } from "../assets";
 import { HeaderProps } from "./types";
 import { MotiView } from "moti";
 import { MotiPressable } from "moti/interactions";
+import { Easing } from "react-native-reanimated";
 export const Header = React.memo(
   ({
     searchValue,
@@ -107,24 +108,24 @@ export const Header = React.memo(
               textContentType="none"
             />
           </View>
+
           <MotiPressable
             transition={{
               type: "timing",
-              duration: 350,
-              opacity: { duration: 200 },
-              scale: { duration: 300 },
+              duration: 400,
+              easing: Easing.inOut(Easing.ease),
             }}
             from={{
               scale: 1,
-              translateX: moderateScale(-50),
-              translateY: verticalScale(50),
               opacity: 1,
+              translateX: moderateScale(-50),
+              translateY: 70,
             }}
             animate={{
               scale: inboxOpened ? 3 : 1,
-              translateX: inboxOpened ? moderateScale(-50) : 0,
-              translateY: inboxOpened ? verticalScale(50) : 0,
               opacity: inboxOpened ? 0 : 1,
+              translateX: inboxOpened ? moderateScale(-50) : 0,
+              translateY: inboxOpened ? 70 : 0,
             }}
             onPress={onInboxOpen}
             style={{

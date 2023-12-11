@@ -1,44 +1,17 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Profiler } from "react";
 import { enableFreeze } from "react-native-screens";
 import { useRecoilState } from "recoil";
 import { Home, Inbox, NotePage, notesData } from "../screens";
-enableFreeze();
+enableFreeze(true);
 
 export function AppRouting() {
   const Stack = createNativeStackNavigator();
-
-  function HomePageRenderInfo() {
-    return (
-      <Profiler
-        id="render"
-        onRender={(actualDuration, baseDuration, startTime, commitTime) =>
-          console.log(startTime)
-        }
-      >
-        <Home />
-      </Profiler>
-    );
-  }
-  function NotePageRenderInfo({ route }: any) {
-    const { item }: any = route.params;
-    return (
-      <Profiler
-        id="render"
-        onRender={(actualDuration, baseDuration, startTime, commitTime) =>
-          console.log(baseDuration, commitTime)
-        }
-      >
-        <NotePage route={{ params: { item } }} />
-      </Profiler>
-    );
-  }
-  const [notes, setNotes] = useRecoilState(notesData);
+  const [notes] = useRecoilState(notesData);
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        animation: "fade",
+        animation: "default",
         gestureEnabled: false,
       }}
       initialRouteName="Home"

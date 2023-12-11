@@ -1,4 +1,3 @@
-import { useBackHandler } from "@react-native-community/hooks";
 import { BlurView } from "expo-blur";
 import * as Notifications from "expo-notifications";
 import { AnimatePresence, MotiScrollView, MotiView } from "moti";
@@ -6,7 +5,6 @@ import React, { Fragment, useMemo } from "react";
 import {
   Modal,
   Platform,
-  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -15,7 +13,7 @@ import {
 import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
-import { ScreenHeader } from "../../components";
+import { ScreenHeader, Swipe } from "../../components";
 import {
   dateTime,
   moderateFontScale,
@@ -39,10 +37,23 @@ export function Inbox({ onBack, open }: InboxProps) {
   const theme = useTheme();
   const { top, bottom } = useSafeAreaInsets();
   const { height, width } = useWindowDimensions();
+
+  const config =
+    Platform.OS === "ios" &&
+    Swipe({
+      onMove(e, state) {},
+      onRelease: (e, state) => {
+        const x = state.dx;
+        const pageX = e.nativeEvent.pageX;
+        if (x > 0 && pageX < 200) {
+          onBack();
+        }
+      },
+    });
   return (
     <AnimatePresence>
       {open && (
-        <Modal onRequestClose={onBack} transparent statusBarTranslucent>
+        <Modal onRequestClose={onBack} transparent>
           <MotiView
             transition={{
               type: "timing",
@@ -63,12 +74,15 @@ export function Inbox({ onBack, open }: InboxProps) {
           </MotiView>
 
           <MotiView
+            {...config}
             transition={{
               type: "timing",
-              easing: Easing.out(Easing.ease),
+              easing: Easing.inOut(Easing.ease),
               duration: 350,
             }}
-            style={{ backgroundColor: theme.background }}
+            style={{
+              backgroundColor: theme.background,
+            }}
             from={{
               translateX: width - moderateScale(30),
               translateY: top,
@@ -95,6 +109,7 @@ export function Inbox({ onBack, open }: InboxProps) {
             }}
           >
             <ScreenHeader
+              style={{ paddingTop: top, top: 0 }}
               children={
                 <Text
                   style={{
@@ -220,9 +235,6 @@ export function Inbox({ onBack, open }: InboxProps) {
                           fontSize: moderateFontScale(15),
                         }}
                       >
-                        {/* {`${reminder.getDate()}.${
-                          reminder.getMonth() + 1
-                        }.${reminder.getFullYear()} ${reminder.getHours()}:${reminder.getMinutes()}:${reminder.getSeconds()}`} */}
                         {dateTime(reminder)}
                       </Text>
                     </View>

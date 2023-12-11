@@ -1,19 +1,19 @@
+import { useNavigation } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
-import { AnimatePresence, MotiView } from "moti";
+import { MotiView } from "moti";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   FlatList,
+  Platform,
   View,
   useAnimatedValue,
-  useWindowDimensions,
 } from "react-native";
+import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 import { CreateIcon, Header, NoteCard, useToast } from "../../components";
 import {
-  changeKeyValuesConditionaly,
-  dateTime,
   excludeElemnts,
   recalculateId,
   removeArrayKeyDuplicates,
@@ -25,48 +25,36 @@ import { Inbox } from "../inbox";
 import { notesData } from "../note";
 import { NoteOptions } from "./note-options/note-options";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
-import { useBackHandler } from "@react-native-community/hooks";
-import { Easing } from "react-native-reanimated";
-import { useNavigation } from "@react-navigation/native";
 export function Home() {
   const navigation = useNavigation<any>();
   const [selected, setSelected] = useState<string[]>([]);
-  const [password, setPassword] = useState("");
   const [inbox, setInbox] = useState(false);
   const [optionsSelection, setOptionsSelection] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [notes, setNotes] = useRecoilState(notesData);
   const [favorite, setFavorite] = useState(false);
   const [modal, setModal] = useState(false);
-  const [loading, setLoading] = useState(false);
   const theme = useTheme();
   const scrollY = useAnimatedValue(0, { useNativeDriver: true });
   const { top } = useSafeAreaInsets();
   const data = useMemo(() => {
     const searchFiltered = notes.data.filter((e) => {
-      if (e.text && e.title) {
-        return (
-          e.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          e.title.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-      return false; // Excludes elements where e.text or e.title is undefined or null
+      return (
+        e.text.includes(searchQuery.toLowerCase()) ||
+        e.title.includes(searchQuery.toLowerCase())
+      );
     });
-    if (searchQuery.length === 0) {
-      return notes.data;
-    }
-    if (searchQuery.length > 0) {
+    if (searchQuery) {
       return searchFiltered;
     }
-  }, [searchQuery, notes]);
+    return notes.data;
+  }, [searchQuery, notes.data]);
   const filteredData = useMemo(() => {
     const newData = data.filter((e) => selected.includes(e.title));
-
     if (selected.length > 0) {
       return favorite ? newData.filter((e) => e.isFavorite === true) : newData;
-    } else {
-      return favorite ? data.filter((e) => e.isFavorite === true) : data;
     }
+    return favorite ? data.filter((e) => e.isFavorite === true) : data;
   }, [data, selected, favorite]);
   const notesWithoutCopies = useMemo(() => {
     return removeArrayKeyDuplicates(data, "title");
@@ -85,6 +73,9 @@ export function Home() {
     if (notes.data.length === 0) {
       setOptionsSelection([]);
     }
+    if (filteredData.length === 0) {
+      setSelected([]);
+    }
   }, [notes.data, favorite, filteredData]);
   function deleteNotes() {
     const noteCount = optionsSelection.length;
@@ -100,9 +91,11 @@ export function Home() {
           onPress: () => {
             try {
               setNotes((prev) => ({
+                ...prev,
                 data: excludeElemnts(prev.data, optionsSelection),
               }));
               setNotes((prev) => ({
+                ...prev,
                 data: recalculateId(prev.data),
               }));
               optionsSelection.map(async (e) => {
@@ -120,7 +113,6 @@ export function Home() {
     );
   }
   const toast = useToast();
-  const { width, height } = useWindowDimensions();
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <MotiView
@@ -135,7 +127,7 @@ export function Home() {
           backgroundColor: theme.background,
         }}
         from={{ scale: 1 }}
-        animate={{ scale: inbox ? 0.9 : 1 }}
+        animate={{ scale: Platform.OS === "ios" && inbox ? 0.9 : 1 }}
       >
         <Inbox onBack={() => setInbox(false)} open={inbox} />
         {optionsSelection.length === 0 && (
@@ -164,7 +156,7 @@ export function Home() {
                   >
                     <FilterButton
                       onSelected={() => setSelected([])}
-                      selected={selected.length > 0 ? false : true}
+                      selected={selected.length === 0}
                       label="All"
                     />
 
