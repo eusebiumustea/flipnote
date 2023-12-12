@@ -17,7 +17,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
-import { ColorBox, Swipe, useLoading, useToast } from "../../components";
+import { ColorBox, Swipe, useToast } from "../../components";
 import {
   dateTime,
   moderateFontScale,
@@ -53,54 +53,27 @@ function RenderContent({ value, styles }: RenderContentProps) {
   const firstInterval = styles[0]?.interval;
   const lastInterval = styles[indexOfLast]?.interval;
   const StyledComponents = [];
-  for (let i = 0; i < styles.length; i++) {
-    const interval = styles[i]?.interval;
-    const nextInterval = styles[i + 1]?.interval;
-    const locatedFirstly = interval?.end < firstInterval.start;
-    {
-      locatedFirstly &&
-        StyledComponents.unshift(
-          <Text style={styles[i].style}>
-            {value.slice(interval?.start, interval?.end)}
-          </Text>,
-          <Text>{value.slice(interval?.end, nextInterval?.start)}</Text>
-        );
-    }
-    {
-      i !== indexOfLast &&
-        StyledComponents.push(
-          <Text style={styles[i].style}>
-            {value.slice(interval?.start, interval?.end)}
-          </Text>,
-          <Text>{value.slice(interval?.end, nextInterval?.start)}</Text>
-        );
-    }
-    {
-      i === indexOfLast &&
-        StyledComponents.push(
-          <Text style={styles[i].style}>
-            {value.slice(interval?.start, interval?.end)}
-          </Text>
-        );
-    }
-  }
-  if (!isStyled) {
-    return <Text>{value}</Text>;
-  }
+
+  console.log(
+    <Text>{value.slice(0, firstInterval?.start)}</Text>,
+    { StyledComponents },
+    <Text>{value.slice(lastInterval?.end)}</Text>
+  );
   return (
     <>
       <Text>{value.slice(0, styles[0]?.interval.start)}</Text>
-      {StyledComponents}
       <Text>{value.slice(styles[indexOfLast]?.interval.end)}</Text>
     </>
   );
 }
+
 export function NotePage({ route, navigation }: any) {
   const { width, height } = useWindowDimensions();
   useBackHandler(() => {
     navigation.popToTop();
     return true;
   });
+
   const theme = useTheme();
   const { id }: ParamsProps = route.params;
   const [notes, setNotes] = useRecoilState(notesData);
@@ -149,7 +122,7 @@ export function NotePage({ route, navigation }: any) {
     try {
       if (reminderSplit >= new Date()) {
         await Notifications.scheduleNotificationAsync({
-          identifier: item.id.toString(),
+          identifier: id.toString(),
           content: {
             title: editNote.title ? editNote.title : "Flipnote",
             body: editNote.text ? editNote.text : null,
@@ -221,7 +194,6 @@ export function NotePage({ route, navigation }: any) {
         reminder: reminderSplit.getTime(),
       }));
       toast({
-        startPositionY: height / 2,
         message: `Reminder set for ${dateTime(reminderSplit)}`,
       });
     }
@@ -240,9 +212,7 @@ export function NotePage({ route, navigation }: any) {
         button: {
           title: "Cencel",
           onPress: async () => {
-            await Notifications.cancelScheduledNotificationAsync(
-              item.id.toString()
-            );
+            await Notifications.cancelScheduledNotificationAsync(id.toString());
             setEditNote((prev) => ({ ...prev, reminder: null }));
             toast({ message: "Cenceled" });
           },
@@ -312,13 +282,11 @@ export function NotePage({ route, navigation }: any) {
   }, [editNote, included]);
 
   useEffect(() => {
-    return () => {
+    return () =>
       setNotes((prev) => ({
         ...prev,
         data: recalculateId(prev.data),
       }));
-      console.log("recalculated");
-    };
   }, []);
 
   const toast = useToast();
@@ -357,7 +325,7 @@ export function NotePage({ route, navigation }: any) {
       {...config}
       style={{
         flex: 1,
-        backgroundColor: theme.background,
+        // backgroundColor: theme.background,
       }}
     >
       <DateTimePickerDialog
@@ -402,7 +370,7 @@ export function NotePage({ route, navigation }: any) {
           await Clipboard.setStringAsync(`${editNote.title}\n${editNote.text}`);
           toast({
             message: "Copied",
-            startPositionX: moderateScale(70),
+            startPositionX: 80,
             startPositionY: 10,
           });
         }}
@@ -421,7 +389,6 @@ export function NotePage({ route, navigation }: any) {
         scrollEventThrottle={16}
         onScroll={(e) => {
           scrollPosition = e.nativeEvent.contentOffset.y;
-          console.log(scrollPosition);
         }}
         snapToAlignment="center"
         keyboardShouldPersistTaps="always"
@@ -490,7 +457,8 @@ export function NotePage({ route, navigation }: any) {
             paddingBottom: verticalScale(200),
           }}
         >
-          <RenderContent value={editNote.text} styles={editNote.styles} />
+          {/* <RenderContent value={editNote.text} styles={editNote.styles} /> */}
+          <Text>{editNote.text}</Text>
         </TextInput>
         {/* <View style={{ height: 100, backgroundColor: "red" }}></View> */}
       </ScrollView>
@@ -516,16 +484,18 @@ export function NotePage({ route, navigation }: any) {
         boldFocused={boldFocused}
         backgroundOptions={
           <>
-            {cardColors.map((e, i) => (
-              <ColorBox
-                onPress={() =>
-                  setEditNote((prev) => ({ ...prev, background: e }))
-                }
-                bgColor={e}
-                key={i}
-                checked={editNote.background === e}
-              />
-            ))}
+            {cardColors.map((e, i) => {
+              return (
+                <ColorBox
+                  onPress={() =>
+                    setEditNote((prev) => ({ ...prev, background: e }))
+                  }
+                  bgColor={e}
+                  key={i}
+                  checked={editNote.background === e}
+                />
+              );
+            })}
           </>
         }
       />

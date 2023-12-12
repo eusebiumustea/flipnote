@@ -1,6 +1,6 @@
 import { BlurView } from "expo-blur";
 import * as Notifications from "expo-notifications";
-import { AnimatePresence, MotiScrollView, MotiView } from "moti";
+import { AnimatePresence, MotiProps, MotiScrollView, MotiView } from "moti";
 import React, { Fragment, useMemo } from "react";
 import {
   Modal,
@@ -15,7 +15,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 import { ScreenHeader, Swipe } from "../../components";
 import {
+  animationConfig,
   dateTime,
+  deviceIsLowRam,
   moderateFontScale,
   moderateScale,
   replaceElementAtId,
@@ -23,6 +25,7 @@ import {
   verticalScale,
 } from "../../tools";
 import { notesData } from "../note";
+import { MotiPressableProps } from "moti/interactions";
 interface InboxProps {
   onBack: () => void;
   open: boolean;
@@ -37,7 +40,6 @@ export function Inbox({ onBack, open }: InboxProps) {
   const theme = useTheme();
   const { top, bottom } = useSafeAreaInsets();
   const { height, width } = useWindowDimensions();
-
   const config =
     Platform.OS === "ios" &&
     Swipe({
@@ -50,6 +52,56 @@ export function Inbox({ onBack, open }: InboxProps) {
         }
       },
     });
+  const motiConfig = !deviceIsLowRam
+    ? {
+        from: {
+          translateX: width - moderateScale(30),
+          translateY: top,
+          width: 0,
+          height: 0,
+          scale: 0,
+          borderRadius: 100,
+        },
+        animate: {
+          translateX: 0,
+          translateY: 0,
+          width,
+          height,
+          scale: 1,
+          borderRadius: 0,
+        },
+        exit: {
+          translateX: width - moderateScale(30),
+          translateY: top,
+          width: 0,
+          height: 0,
+          scale: 0,
+          borderRadius: 100,
+        },
+      }
+    : {
+        from: {
+          translateX: width - 40,
+          width: 0,
+          height: 0,
+          scale: 0,
+          borderRadius: 100,
+        },
+        animate: {
+          translateX: 0,
+          width,
+          height,
+          scale: 1,
+          borderRadius: 0,
+        },
+        exit: {
+          translateX: width - 40,
+          width: 0,
+          height: 0,
+          scale: 0,
+          borderRadius: 100,
+        },
+      };
   return (
     <AnimatePresence>
       {open && (
@@ -75,51 +127,32 @@ export function Inbox({ onBack, open }: InboxProps) {
 
           <MotiView
             {...config}
-            transition={{
-              type: "timing",
-              easing: Easing.inOut(Easing.ease),
-              duration: 350,
-            }}
+            transition={animationConfig}
             style={{
               backgroundColor: theme.background,
             }}
-            from={{
-              translateX: width - moderateScale(30),
-              translateY: top,
-              width: 0,
-              height: 0,
-              scale: 0,
-              borderRadius: 100,
-            }}
-            animate={{
-              translateX: 0,
-              translateY: 0,
-              width,
-              height,
-              scale: 1,
-              borderRadius: 0,
-            }}
-            exit={{
-              translateX: width - moderateScale(30),
-              translateY: top,
-              width: 0,
-              height: 0,
-              scale: 0,
-              borderRadius: 100,
-            }}
+            {...motiConfig}
           >
             <ScreenHeader
-              style={{ paddingTop: top, top: 0 }}
+              style={{}}
               children={
-                <Text
+                <View
                   style={{
-                    color: theme.onPrimary,
-                    fontWeight: "bold",
-                    fontSize: moderateFontScale(20),
+                    width: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
                 >
-                  Notifications
-                </Text>
+                  <Text
+                    style={{
+                      color: theme.onPrimary,
+                      fontWeight: "bold",
+                      fontSize: moderateFontScale(20),
+                    }}
+                  >
+                    Notifications
+                  </Text>
+                </View>
               }
               onBack={onBack}
             />
@@ -128,7 +161,11 @@ export function Inbox({ onBack, open }: InboxProps) {
               from={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ type: "timing", duration: 300, delay: 300 }}
+              transition={{
+                type: "timing",
+                duration: 200,
+                delay: deviceIsLowRam ? 200 : 300,
+              }}
               contentContainerStyle={{
                 paddingHorizontal: 16,
                 paddingVertical: verticalScale(10),

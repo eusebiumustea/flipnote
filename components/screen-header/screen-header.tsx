@@ -1,6 +1,6 @@
 import { MotiView } from "moti";
 import { PropsWithChildren } from "react";
-import { View, ViewStyle } from "react-native";
+import { Platform, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme, verticalScale } from "../../tools";
 import { BackIcon } from "../assets";
@@ -20,17 +20,16 @@ export function ScreenHeader({
       style={{
         width: "100%",
         columnGap: 10,
-        height: verticalScale(90),
         backgroundColor: theme.background,
         top: 0,
-        paddingTop: top + 10,
+        paddingTop: Platform.OS === "ios" ? top : 10,
         ...style,
       }}
     >
       <MotiView
         style={{
           flexDirection: "row",
-          justifyContent: "center",
+          // justifyContent: "center",
           alignItems: "center",
         }}
       >

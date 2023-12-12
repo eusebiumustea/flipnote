@@ -4,6 +4,7 @@ import { MotiView } from "moti";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
+  Animated,
   FlatList,
   Platform,
   View,
@@ -14,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 import { CreateIcon, Header, NoteCard, useToast } from "../../components";
 import {
+  deviceIsLowRam,
   excludeElemnts,
   recalculateId,
   removeArrayKeyDuplicates,
@@ -37,6 +39,7 @@ export function Home() {
   const theme = useTheme();
   const scrollY = useAnimatedValue(0, { useNativeDriver: true });
   const { top } = useSafeAreaInsets();
+  const [deleteProgress, setDeleteProgress] = useState([]);
   const data = useMemo(() => {
     const searchFiltered = notes.data.filter((e) => {
       return (
@@ -89,21 +92,25 @@ export function Home() {
           text: "Delete permanently",
           style: "destructive",
           onPress: () => {
+            setDeleteProgress(optionsSelection);
             try {
-              setNotes((prev) => ({
-                ...prev,
-                data: excludeElemnts(prev.data, optionsSelection),
-              }));
-              setNotes((prev) => ({
-                ...prev,
-                data: recalculateId(prev.data),
-              }));
-              optionsSelection.map(async (e) => {
-                await Notifications.cancelScheduledNotificationAsync(
-                  e.toString()
-                );
-              });
-              setOptionsSelection([]);
+              setTimeout(() => {
+                setNotes((prev) => ({
+                  ...prev,
+                  data: excludeElemnts(prev.data, optionsSelection),
+                }));
+                setNotes((prev) => ({
+                  ...prev,
+                  data: recalculateId(prev.data),
+                }));
+                optionsSelection.map(async (e) => {
+                  await Notifications.cancelScheduledNotificationAsync(
+                    e.toString()
+                  );
+                });
+                setOptionsSelection([]);
+                setDeleteProgress([]);
+              }, optionsSelection.length * 200);
             } catch (message) {
               toast({ message });
             }
@@ -127,7 +134,7 @@ export function Home() {
           backgroundColor: theme.background,
         }}
         from={{ scale: 1 }}
-        animate={{ scale: Platform.OS === "ios" && inbox ? 0.9 : 1 }}
+        animate={{ scale: !deviceIsLowRam && inbox ? 0.9 : 1 }}
       >
         <Inbox onBack={() => setInbox(false)} open={inbox} />
         {optionsSelection.length === 0 && (
@@ -221,6 +228,7 @@ export function Home() {
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item }) => (
             <NoteCard
+              deletedProgress={deleteProgress.includes(item.id)}
               options={optionsSelection.length > 0}
               selectedForOptions={optionsSelection.includes(item.id)}
               onLongPress={() =>
@@ -249,7 +257,7 @@ export function Home() {
             paddingHorizontal: 16,
             width: "100%",
             rowGap: 12,
-            paddingBottom: 10,
+            paddingBottom: 30,
             paddingTop: verticalScale(115) + top,
           }}
           style={{

@@ -10,6 +10,7 @@ interface NoteCardProps {
   onLongPress: () => void;
   selectedForOptions: boolean;
   options: boolean;
+  deletedProgress: boolean;
 }
 export function NoteCard({
   item,
@@ -18,10 +19,14 @@ export function NoteCard({
   onLongPress,
   selectedForOptions,
   options,
+  deletedProgress,
 }: NoteCardProps) {
   const theme = useTheme();
   const { width } = Dimensions.get("window");
   function scale() {
+    if (deletedProgress) {
+      return 0;
+    }
     if (selectedForOptions) {
       return 0.9;
     }
@@ -29,7 +34,11 @@ export function NoteCard({
   }
   return (
     <MotiPressable
-      transition={{ type: "timing", duration: 120 }}
+      transition={{
+        type: "timing",
+        duration: 160,
+        delay: deletedProgress ? item.id * 160 : 0,
+      }}
       onLongPress={onLongPress}
       onPress={onPress}
       style={{
@@ -48,9 +57,8 @@ export function NoteCard({
         shadowOpacity: 0.17,
         shadowRadius: 3.05,
       }}
-      from={{ scale: 1 }}
+      from={{ scale: 1, opacity: 1 }}
       animate={{ scale: scale() }}
-      exitTransition={{ duration: 0, delay: 350, type: "timing" }}
     >
       {options && (
         <CheckIcon

@@ -1,8 +1,15 @@
 import * as Notifications from "expo-notifications";
+import {
+  MotiPressable,
+  MotiPressableProps,
+  MotiPressableTransitionProp,
+} from "moti/interactions";
 import React, { PropsWithChildren, useEffect, useState } from "react";
-import { Animated, TextInput, TouchableOpacity, View } from "react-native";
+
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
+  animationConfig,
+  deviceIsLowRam,
   moderateFontScale,
   moderateScale,
   useTheme,
@@ -10,9 +17,9 @@ import {
 } from "../../tools";
 import { InboxIcon, SearchIcon } from "../assets";
 import { HeaderProps } from "./types";
-import { MotiView } from "moti";
-import { MotiPressable } from "moti/interactions";
+import { Animated, TextInput, View } from "react-native";
 import { Easing } from "react-native-reanimated";
+import { MotiAnimationProp, MotiFromProp, MotiProps } from "moti";
 export const Header = React.memo(
   ({
     searchValue,
@@ -37,6 +44,21 @@ export const Header = React.memo(
         console.log("removed");
       };
     }, []);
+    const motiConfig: MotiPressableProps = !deviceIsLowRam && {
+      from: {
+        scale: 1,
+        opacity: 1,
+        translateX: moderateScale(-50),
+        translateY: 70,
+      },
+      animate: {
+        scale: inboxOpened ? 3 : 1,
+        opacity: inboxOpened ? 0 : 1,
+        translateX: inboxOpened ? moderateScale(-50) : 0,
+        translateY: inboxOpened ? 70 : 0,
+      },
+    };
+
     return (
       <Animated.View
         style={{
@@ -47,6 +69,7 @@ export const Header = React.memo(
           backgroundColor: theme.background,
           top: 0,
           paddingTop: top,
+
           transform: [
             {
               translateY: Animated.diffClamp(scrollY, 0, 160).interpolate({
@@ -110,23 +133,8 @@ export const Header = React.memo(
           </View>
 
           <MotiPressable
-            transition={{
-              type: "timing",
-              duration: 400,
-              easing: Easing.inOut(Easing.ease),
-            }}
-            from={{
-              scale: 1,
-              opacity: 1,
-              translateX: moderateScale(-50),
-              translateY: 70,
-            }}
-            animate={{
-              scale: inboxOpened ? 3 : 1,
-              opacity: inboxOpened ? 0 : 1,
-              translateX: inboxOpened ? moderateScale(-50) : 0,
-              translateY: inboxOpened ? 70 : 0,
-            }}
+            transition={animationConfig}
+            {...motiConfig}
             onPress={onInboxOpen}
             style={{
               width: moderateScale(30),

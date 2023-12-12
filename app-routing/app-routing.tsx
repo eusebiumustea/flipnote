@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { enableFreeze } from "react-native-screens";
 import { useRecoilState } from "recoil";
 import { Home, Inbox, NotePage, notesData } from "../screens";
+import { Platform } from "react-native";
 enableFreeze(true);
 
 export function AppRouting() {
@@ -11,8 +12,11 @@ export function AppRouting() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        animation: "default",
+        animation: Platform.OS === "android" ? "slide_from_bottom" : "default",
+
         gestureEnabled: false,
+        navigationBarColor: "#000",
+        contentStyle: { elevation: 10 },
       }}
       initialRouteName="Home"
     >

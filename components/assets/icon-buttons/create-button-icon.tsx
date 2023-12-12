@@ -28,7 +28,15 @@ export function CreateIcon({ svgProps, onPress }: CreateIconProps) {
         zIndex: 3,
         bottom: keyboard.keyboardShown ? -keyboard.keyboardHeight : 0,
         right: 0,
-        margin: 25,
+        margin: 30,
+        elevation: 10,
+        shadowColor: "#000000",
+        shadowOffset: {
+          width: 0,
+          height: 3,
+        },
+        shadowOpacity: 0.17,
+        shadowRadius: 3.05,
       }}
     >
       <Svg

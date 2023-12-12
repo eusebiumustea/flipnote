@@ -26,6 +26,7 @@ export const FilterButton = ({
         paddingVertical: 5,
         justifyContent: "center",
         alignItems: "center",
+        flexDirection: "row",
       }}
     >
       <Text

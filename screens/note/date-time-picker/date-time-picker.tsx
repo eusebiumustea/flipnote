@@ -30,7 +30,16 @@ export function DateTimePickerDialog({
       visible={show}
     >
       {Platform.OS === "ios" && (
-        <View style={{ rowGap: 8, height: "100%" }}>
+        <View style={{ rowGap: 0, height: "100%" }}>
+          <Text
+            style={{
+              fontSize: moderateFontScale(15),
+              color: "green",
+              textAlign: "center",
+            }}
+          >
+            Max 200-250 words per notification
+          </Text>
           <DateTimePicker
             minimumDate={new Date()}
             style={{ height: "50%" }}
@@ -51,12 +60,21 @@ export function DateTimePickerDialog({
       )}
       {Platform.OS === "android" && (
         <>
+          <Text
+            style={{
+              fontSize: moderateFontScale(15),
+              color: "green",
+              textAlign: "center",
+            }}
+          >
+            Max 200-250 words per notification
+          </Text>
           <View
             style={{
               alignItems: "center",
               justifyContent: "center",
               width: "100%",
-              paddingBottom: 10,
+              paddingVertical: 10,
             }}
           >
             <Text

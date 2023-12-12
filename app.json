@@ -9,7 +9,7 @@
       [
         "expo-notifications",
         {
-          "color": "#fff",
+          "color": "#FCFAE2",
           "icon": "./assets/icon.jpg"
         }
       ]

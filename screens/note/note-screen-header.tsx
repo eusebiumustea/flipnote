@@ -14,7 +14,7 @@ import {
   ReminderIcon,
   ShareIcon,
 } from "../../components/assets";
-import { useTheme } from "../../tools";
+import { useTheme, verticalScale } from "../../tools";
 
 interface NoteScreenHeaderProps {
   onClipboard: () => void;
@@ -41,7 +41,6 @@ export function NoteScreenHeader({
       style={{
         width: "100%",
         position: "absolute",
-        paddingTop: 12,
         zIndex: 1,
         top: 0,
       }}
@@ -52,12 +51,9 @@ export function NoteScreenHeader({
             width: width,
             height: "100%",
             position: "absolute",
-            padding: 16,
-            paddingTop: 16,
             zIndex: -1,
             backgroundColor: theme.primary,
-            opacity: 0.6,
-            paddingBottom: 32,
+            opacity: 0.7,
           }}
         />
       )}
@@ -69,21 +65,19 @@ export function NoteScreenHeader({
             width: width,
             height: "100%",
             position: "absolute",
-            padding: 16,
-            paddingTop: 16,
             zIndex: -1,
-            paddingBottom: 32,
           }}
         />
       )}
       <View
         style={{
           width: "100%",
-          padding: 16,
+          paddingTop: top + 8,
+          paddingBottom: 6,
+          paddingHorizontal: 8,
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
-          paddingTop: 32,
         }}
       >
         <BackIcon onPress={onBack} />
