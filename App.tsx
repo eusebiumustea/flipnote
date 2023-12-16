@@ -1,4 +1,5 @@
-import { LinkingOptions, NavigationContainer } from "@react-navigation/native";
+// import { LinkingOptions, NavigationContainer } from "@react-navigation/native";
+import "react-native-gesture-handler";
 import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
@@ -11,6 +12,7 @@ import { AppRouting } from "./app-routing";
 import { LoadingProvider, ToastProvider } from "./components";
 import { AppStorageContext } from "./components/app-storage-context";
 import { StatusBarController, ThemeProvider } from "./tools";
+import { NavigationContainer } from "@react-navigation/native";
 SplashScreen.preventAutoHideAsync();
 export default function App() {
   useEffect(() => {
@@ -22,19 +24,6 @@ export default function App() {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
-      if (Platform.OS === "android") {
-        await Notifications.setNotificationChannelAsync("default", {
-          name: "default",
-          importance: Notifications.AndroidImportance.MAX,
-          vibrationPattern: [0, 250, 250, 250],
-          lightColor: "#FF231F7C",
-          showBadge: true,
-          enableLights: true,
-          lockscreenVisibility:
-            Notifications.AndroidNotificationVisibility.PUBLIC,
-        });
-      }
-      console.log(finalStatus);
     }
     registerNotifications();
   }, []);
@@ -49,9 +38,6 @@ export default function App() {
   if (!fontLoaded) {
     return null;
   }
-  type RootParamList = {
-    // Your navigation screens and params here...
-  };
 
   return (
     <RecoilRoot>
@@ -60,58 +46,7 @@ export default function App() {
           <LoadingProvider>
             <AppStorageContext>
               <ThemeProvider>
-                <NavigationContainer
-                  linking={{
-                    prefixes: ["flipnote://"],
-                    async getInitialURL() {
-                      // First, you may want to do the default deep link handling
-                      // Check if app was opened from a deep link
-                      const url = await Linking.getInitialURL();
-
-                      if (url) {
-                        console.log(url);
-                        return url;
-                      }
-
-                      // Handle URL from expo push notifications
-                      const response =
-                        await Notifications.getLastNotificationResponseAsync();
-
-                      return response?.notification.request.content.data.url;
-                    },
-                    subscribe(listener) {
-                      const onReceiveURL = ({ url }: { url: string }) =>
-                        listener(url);
-
-                      // Listen to incoming links from deep linking
-                      const eventListenerSubscription =
-                        Linking.addEventListener("url", onReceiveURL);
-
-                      // Listen to expo push notifications
-                      const subscription =
-                        Notifications.addNotificationResponseReceivedListener(
-                          (response) => {
-                            const url =
-                              response.notification.request.content.data.url;
-
-                            // Any custom logic to see whether the URL needs to be handled
-                            //...
-                            if (url) {
-                              console.log(url);
-                              listener(url);
-                            }
-                            // Let React Navigation handle the URL
-                          }
-                        );
-
-                      return () => {
-                        // Clean up the event listeners
-                        eventListenerSubscription.remove();
-                        subscription.remove();
-                      };
-                    },
-                  }}
-                >
+                <NavigationContainer>
                   <StatusBarController />
                   <AppRouting />
                 </NavigationContainer>

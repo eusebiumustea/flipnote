@@ -131,10 +131,33 @@ export function Inbox({ onBack, open }: InboxProps) {
             style={{
               backgroundColor: theme.background,
             }}
-            {...motiConfig}
+            from={{
+              translateX: width - moderateScale(30),
+              translateY: top,
+              width: 0,
+              height: 0,
+              scale: 0,
+              borderRadius: 100,
+            }}
+            animate={{
+              translateX: 0,
+              translateY: 0,
+              width,
+              height,
+              scale: 1,
+              borderRadius: 0,
+            }}
+            exit={{
+              translateX: width - moderateScale(30),
+              translateY: top,
+              width: 0,
+              height: 0,
+              scale: 0,
+              borderRadius: 100,
+            }}
           >
             <ScreenHeader
-              style={{}}
+              style={{ paddingVertical: 10 }}
               children={
                 <View
                   style={{
@@ -229,7 +252,9 @@ export function Inbox({ onBack, open }: InboxProps) {
                           color: "#000",
                         }}
                       >
-                        {note.title.length > 0 ? note.title : note.text}
+                        {note.title.length > 0
+                          ? note.title.substring(0, 100)
+                          : note.text.substring(0, 100)}
                       </Text>
                     </View>
                     <View
