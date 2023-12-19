@@ -1,8 +1,8 @@
 import { MotiPressable } from "moti/interactions";
-import { Dimensions, Text } from "react-native";
+import { Dimensions, Text, View } from "react-native";
 import { note } from "../../screens/note";
 import { moderateFontScale, useTheme, verticalScale } from "../../tools";
-import { CheckIcon } from "../assets/icon-buttons/check-icon";
+import Checkbox from "expo-checkbox";
 interface NoteCardProps {
   item: note;
   onLayout?: () => void;
@@ -47,7 +47,7 @@ export function NoteCard({
         height: verticalScale(250),
         width: width / 2 - 16,
         padding: 16,
-        // overflow: "hidden",
+
         elevation: 5,
         shadowColor: "#000000",
         shadowOffset: {
@@ -58,37 +58,37 @@ export function NoteCard({
         shadowRadius: 3.05,
       }}
       from={{ scale: 1, opacity: 1 }}
-      animate={{ scale: scale() }}
+      animate={{ scale: scale(), opacity: deletedProgress ? 0 : 1 }}
     >
       {options && (
-        <CheckIcon
-          style={{ position: "absolute", top: 0 }}
-          focused={selectedForOptions}
-          onPress={onPress}
+        <Checkbox
+          style={{ position: "absolute", borderRadius: 100 }}
+          value={selectedForOptions}
         />
       )}
-      {item.title && (
+      <View style={{ flex: 1, overflow: "hidden" }}>
+        {item.title && (
+          <Text
+            style={{
+              color: "#000",
+              fontSize: moderateFontScale(20),
+              fontWeight: "bold",
+              fontFamily: "google-sans",
+            }}
+          >
+            {item.title}
+          </Text>
+        )}
         <Text
           style={{
             color: "#000",
-            fontSize: moderateFontScale(20),
-            fontWeight: "bold",
             fontFamily: "google-sans",
+            fontSize: moderateFontScale(14),
           }}
         >
-          {item.title}
+          {item.text}
         </Text>
-      )}
-      <Text
-        style={{
-          color: "#000",
-          fontFamily: "google-sans",
-          fontSize: moderateFontScale(14),
-          paddingBottom: item.title ? verticalScale(40) : 0,
-        }}
-      >
-        {item.text}
-      </Text>
+      </View>
     </MotiPressable>
   );
 }

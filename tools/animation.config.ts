@@ -12,6 +12,6 @@ export const animationConfig: MotiTransition = !deviceIsLowRam
     }
   : {
       type: "timing",
-      easing: Easing.linear,
+      easing: Easing.ease,
       duration: 200,
     };

@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
 import { MotiView } from "moti";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
   Animated,
@@ -16,7 +16,7 @@ import { useRecoilState } from "recoil";
 import { CreateIcon, Header, NoteCard, useToast } from "../../components";
 import {
   deviceIsLowRam,
-  excludeElemnts,
+  excludeNotes,
   recalculateId,
   removeArrayKeyDuplicates,
   toggleArrayElement,
@@ -27,6 +27,7 @@ import { Inbox } from "../inbox";
 import { notesData } from "../note";
 import { NoteOptions } from "./note-options/note-options";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
+import { useBackHandler } from "@react-native-community/hooks";
 export function Home() {
   const navigation = useNavigation<any>();
   const [selected, setSelected] = useState<string[]>([]);
@@ -97,7 +98,7 @@ export function Home() {
               setTimeout(() => {
                 setNotes((prev) => ({
                   ...prev,
-                  data: excludeElemnts(prev.data, optionsSelection),
+                  data: excludeNotes(prev.data, optionsSelection),
                 }));
                 setNotes((prev) => ({
                   ...prev,
@@ -120,6 +121,14 @@ export function Home() {
     );
   }
   const toast = useToast();
+  const scrollRef = useRef<FlatList>(null);
+  useBackHandler(() => {
+    if (optionsSelection.length > 0) {
+      setOptionsSelection([]);
+      return true;
+    }
+    return false;
+  });
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <MotiView
@@ -218,6 +227,7 @@ export function Home() {
           />
         )}
         <FlatList
+          ref={scrollRef}
           columnWrapperStyle={{
             width: "100%",
             justifyContent: "center",
@@ -225,9 +235,15 @@ export function Home() {
           }}
           numColumns={2}
           data={filteredData}
+          getItemLayout={(data, index) => ({
+            length: verticalScale(250),
+            offset: verticalScale(250) * index * 2,
+            index,
+          })}
           keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <NoteCard
+              key={item.id}
               deletedProgress={deleteProgress.includes(item.id)}
               options={optionsSelection.length > 0}
               selectedForOptions={optionsSelection.includes(item.id)}
@@ -241,7 +257,7 @@ export function Home() {
                   setOptionsSelection(
                     toggleArrayElement(optionsSelection, item.id).sort()
                   );
-                } else if (optionsSelection.length === 0) {
+                } else {
                   navigation.push("note", { id: item.id });
                 }
               }}
@@ -265,7 +281,9 @@ export function Home() {
             backgroundColor: theme.background,
           }}
         />
-        <CreateIcon onPress={() => navigation.push("note")} />
+        {optionsSelection.length === 0 && (
+          <CreateIcon onPress={() => navigation.push("note")} />
+        )}
       </MotiView>
     </View>
   );

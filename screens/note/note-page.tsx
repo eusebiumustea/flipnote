@@ -4,7 +4,7 @@ import * as Clipboard from "expo-clipboard";
 import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
 import * as Sharing from "expo-sharing";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   Dimensions,
   Linking,
@@ -20,6 +20,8 @@ import { useRecoilState } from "recoil";
 import { ColorBox, Swipe, useToast } from "../../components";
 import {
   dateTime,
+  excludeArrayElements,
+  excludeNotes,
   moderateFontScale,
   moderateScale,
   recalculateId,
@@ -29,7 +31,7 @@ import {
   verticalScale,
 } from "../../tools";
 import { cardColors } from "../../tools/colors";
-import { notesData } from "./atom";
+import { notesData } from "./date-time-picker/atom";
 import { CustomizeBar } from "./customize-bar";
 import { DateTimePickerDialog } from "./date-time-picker";
 import { NoteScreenHeader } from "./note-screen-header";
@@ -46,25 +48,6 @@ interface ParamsProps {
 interface RenderContentProps {
   value: string;
   styles: TextNoteStyle[];
-}
-function RenderContent({ value, styles }: RenderContentProps) {
-  const isStyled = styles.length > 0;
-  const indexOfLast = styles.length - 1;
-  const firstInterval = styles[0]?.interval;
-  const lastInterval = styles[indexOfLast]?.interval;
-  const StyledComponents = [];
-
-  console.log(
-    <Text>{value.slice(0, firstInterval?.start)}</Text>,
-    { StyledComponents },
-    <Text>{value.slice(lastInterval?.end)}</Text>
-  );
-  return (
-    <>
-      <Text>{value.slice(0, styles[0]?.interval.start)}</Text>
-      <Text>{value.slice(styles[indexOfLast]?.interval.end)}</Text>
-    </>
-  );
 }
 
 export function NotePage({ route, navigation }: any) {
@@ -107,6 +90,12 @@ export function NotePage({ route, navigation }: any) {
     date: new Date(),
     time: new Date(),
   });
+
+  const [selection, setSelection] = useState<InputSelectionProps>({
+    start: 0,
+    end: 0,
+  });
+  const [reminderDialog, setReminderDialog] = useState(false);
   const reminderSplit: Date = new Date(
     [
       reminder.date.toJSON().slice(0, 10),
@@ -114,9 +103,114 @@ export function NotePage({ route, navigation }: any) {
       reminder.time.toJSON().slice(11),
     ].join("T")
   );
-  const scheduleDateForNotification: Date | null =
+  const noteStateIsEmpty =
+    editNote.text.length === 0 && editNote.title.length === 0;
+  const scheduleDateForNotification =
     editNote.reminder && new Date(editNote.reminder);
-  const [reminderDialog, setReminderDialog] = useState(false);
+  const isEditing = edit && !noteStateIsEmpty;
+  const isCreating = !edit && !noteStateIsEmpty;
+  const included = notes.data.map((e) => e.id).includes(id);
+  useMemo(() => {
+    editNote.styles.map((e, i, arr) => {
+      if (e.interval.end > editNote.text.length) {
+        setEditNote((prev) => ({
+          ...prev,
+          styles: prev.styles.filter((style) => style !== e),
+        }));
+      }
+    });
+  }, [editNote.text]);
+  useEffect(() => {
+    try {
+      if (noteStateIsEmpty) {
+        setNotes((prev) => ({
+          ...prev,
+          data: prev.data.filter((e) => e.id !== id),
+        }));
+      }
+      if (isCreating && !included) {
+        setNotes((prev) => ({
+          ...prev,
+          data: [...prev.data, editNote],
+        }));
+      }
+      if (isCreating && included) {
+        setNotes((prev) => ({
+          ...prev,
+          data: replaceElementAtId(prev.data, id, editNote),
+        }));
+      }
+      if (isEditing && included) {
+        setNotes((prev) => ({
+          ...prev,
+          data: replaceElementAtId(prev.data, id, editNote),
+        }));
+      }
+      if (isEditing && !included) {
+        setNotes((prev) => ({
+          ...prev,
+          data: reinjectElementInArray(prev.data, editNote),
+        }));
+      }
+    } catch (message) {
+      toast({ message });
+    }
+  }, [editNote, included]);
+
+  useEffect(() => {
+    return () =>
+      setNotes((prev) => ({
+        ...prev,
+        data: recalculateId(prev.data),
+      }));
+  }, []);
+  const RenderContent = useMemo(() => {
+    const isStyled = editNote.styles.length > 0;
+    const text = editNote.text;
+    const sortedStyles = editNote.styles.sort(
+      (a, b) => a?.interval?.end - b?.interval?.start
+    );
+    if (isStyled) {
+      console.log(
+        sortedStyles.map((e, i, arr) => {
+          return (
+            <Fragment key={i}>
+              <Text style={e?.style}>
+                {text.slice(e?.interval?.start, e?.interval?.end)}
+              </Text>
+              <Text>
+                {text.slice(e?.interval?.end, arr[i + 1]?.interval?.start)}
+              </Text>
+            </Fragment>
+          );
+        })
+      );
+      return (
+        <>
+          <Text>{text.slice(0, editNote?.styles[0]?.interval?.start)}</Text>
+          {sortedStyles.map((e, i, arr) => {
+            return (
+              <Fragment key={i}>
+                <Text style={e?.style}>
+                  {text.slice(e?.interval?.start, e?.interval?.end)}
+                </Text>
+                <Text>
+                  {text.slice(e?.interval?.end, arr[i + 1]?.interval?.start)}
+                </Text>
+              </Fragment>
+            );
+          })}
+
+          {/* <Text>
+              {text.slice(
+                editNote.styles[editNote.styles.length - 1]?.interval?.end
+              )}
+            </Text> */}
+        </>
+      );
+    }
+    return <Text>{editNote.text}</Text>;
+  }, [editNote.styles]);
 
   async function scheduleNotifications() {
     try {
@@ -232,62 +326,11 @@ export function NotePage({ route, navigation }: any) {
     }
     setReminderDialog(true);
   }
-  const [selection, setSelection] = useState<InputSelectionProps>({
-    start: 0,
-    end: 0,
-  });
-  const noteStateIsEmpty =
-    editNote.text.length === 0 && editNote.title.length === 0;
+
   const { top } = useSafeAreaInsets();
   const keyboard = useKeyboard();
-  const isEditing = edit && !noteStateIsEmpty;
-  const isCreating = !edit && !noteStateIsEmpty;
-  const included = notes.data.map((e) => e.id).includes(id);
-  let scrollPosition = useRef<number>(0).current;
-  useEffect(() => {
-    try {
-      if (noteStateIsEmpty) {
-        setNotes((prev) => ({
-          ...prev,
-          data: prev.data.filter((e) => e.id !== id),
-        }));
-      }
-      if (isCreating && !included) {
-        setNotes((prev) => ({
-          ...prev,
-          data: [...prev.data, editNote],
-        }));
-      }
-      if (isCreating && included) {
-        setNotes((prev) => ({
-          ...prev,
-          data: replaceElementAtId(prev.data, id, editNote),
-        }));
-      }
-      if (isEditing && included) {
-        setNotes((prev) => ({
-          ...prev,
-          data: replaceElementAtId(prev.data, id, editNote),
-        }));
-      }
-      if (isEditing && !included) {
-        setNotes((prev) => ({
-          ...prev,
-          data: reinjectElementInArray(prev.data, editNote),
-        }));
-      }
-    } catch (message) {
-      toast({ message });
-    }
-  }, [editNote, included]);
 
-  useEffect(() => {
-    return () =>
-      setNotes((prev) => ({
-        ...prev,
-        data: recalculateId(prev.data),
-      }));
-  }, []);
+  let scrollPosition = useRef<number>(0).current;
 
   const toast = useToast();
   const marginBottom =
@@ -298,13 +341,13 @@ export function NotePage({ route, navigation }: any) {
   const boldFocused: boolean =
     editNote.styles.findIndex(
       (e) =>
-        e.interval.end === selection.end ||
-        (e.interval.start === selection.start && e.style.fontWeight)
-    ) > -1 && selection.end !== selection.start;
+        e?.interval?.end === selection?.end ||
+        (e?.interval.start === selection.start && e?.style?.fontWeight)
+    ) > -1 && selection?.end !== selection?.start;
   const boldIndex = editNote.styles.findIndex(
     (e) =>
-      e.interval.end === selection.end ||
-      (e.interval.start === selection.start && e.style.fontWeight)
+      e?.interval?.end === selection.end ||
+      (e?.interval?.start === selection.start && e.style.fontWeight)
   );
 
   const config =
@@ -343,6 +386,7 @@ export function NotePage({ route, navigation }: any) {
               is24Hour: true,
               mode: "time",
               value: reminder.time,
+              positiveButton: { label: "Finish" },
               onError(arg) {
                 toast({ message: arg.message });
               },
@@ -457,8 +501,7 @@ export function NotePage({ route, navigation }: any) {
             paddingBottom: verticalScale(200),
           }}
         >
-          {/* <RenderContent value={editNote.text} styles={editNote.styles} /> */}
-          <Text>{editNote.text}</Text>
+          {RenderContent}
         </TextInput>
         {/* <View style={{ height: 100, backgroundColor: "red" }}></View> */}
       </ScrollView>

@@ -16,6 +16,5 @@ export * from "./heart-icon";
 export * from "./delete-icon";
 export * from "./close-icon";
 export * from "./export-icon";
-export * from "./check-icon";
 export * from "./background-icon";
 export * from "./reminder-icon";

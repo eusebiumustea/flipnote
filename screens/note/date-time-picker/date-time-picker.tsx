@@ -101,6 +101,7 @@ export function DateTimePickerDialog({
                 value: date,
                 display: "spinner",
                 onChange: onChangeDateAndroid,
+                positiveButton: { label: "Next" },
               });
             }}
           >

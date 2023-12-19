@@ -5,6 +5,7 @@ import React, { Fragment, useMemo } from "react";
 import {
   Modal,
   Platform,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -52,106 +53,71 @@ export function Inbox({ onBack, open }: InboxProps) {
         }
       },
     });
-  const motiConfig = !deviceIsLowRam
-    ? {
-        from: {
-          translateX: width - moderateScale(30),
-          translateY: top,
-          width: 0,
-          height: 0,
-          scale: 0,
-          borderRadius: 100,
-        },
-        animate: {
-          translateX: 0,
-          translateY: 0,
-          width,
-          height,
-          scale: 1,
-          borderRadius: 0,
-        },
-        exit: {
-          translateX: width - moderateScale(30),
-          translateY: top,
-          width: 0,
-          height: 0,
-          scale: 0,
-          borderRadius: 100,
-        },
-      }
-    : {
-        from: {
-          translateX: width - 40,
-          width: 0,
-          height: 0,
-          scale: 0,
-          borderRadius: 100,
-        },
-        animate: {
-          translateX: 0,
-          width,
-          height,
-          scale: 1,
-          borderRadius: 0,
-        },
-        exit: {
-          translateX: width - 40,
-          width: 0,
-          height: 0,
-          scale: 0,
-          borderRadius: 100,
-        },
-      };
+
   return (
     <AnimatePresence>
       {open && (
         <Modal onRequestClose={onBack} transparent>
-          <MotiView
-            transition={{
-              type: "timing",
-              duration: 250,
-            }}
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              flex: 1,
-              width: "100%",
-              height: "100%",
-              zIndex: -2,
-              position: "absolute",
-            }}
-          >
-            <BlurView tint="dark" style={{ flex: 1 }} />
-          </MotiView>
-
+          {!deviceIsLowRam && (
+            <MotiView
+              transition={{
+                type: "timing",
+                duration: 200,
+              }}
+              from={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{
+                flex: 1,
+                width: "100%",
+                height: "100%",
+                zIndex: -2,
+                position: "absolute",
+              }}
+            >
+              <BlurView tint="dark" style={{ flex: 1 }} />
+            </MotiView>
+          )}
+          {deviceIsLowRam && (
+            <MotiView
+              transition={{
+                type: "timing",
+                duration: 200,
+              }}
+              from={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              style={{
+                width: "100%",
+                height: "100%",
+                zIndex: -2,
+                position: "absolute",
+                backgroundColor: "#000",
+              }}
+            />
+          )}
           <MotiView
             {...config}
             transition={animationConfig}
             style={{
               backgroundColor: theme.background,
+              flex: 1,
             }}
             from={{
-              translateX: width - moderateScale(30),
-              translateY: top,
-              width: 0,
-              height: 0,
+              translateX: width / 2 - moderateScale(30),
+              translateY: -height / 2 + top + 30,
               scale: 0,
               borderRadius: 100,
             }}
             animate={{
               translateX: 0,
               translateY: 0,
-              width,
-              height,
               scale: 1,
               borderRadius: 0,
             }}
             exit={{
-              translateX: width - moderateScale(30),
-              translateY: top,
-              width: 0,
-              height: 0,
+              translateX: width / 2 - moderateScale(30),
+              translateY: -height / 2 + top + 30,
               scale: 0,
               borderRadius: 100,
             }}
@@ -179,16 +145,7 @@ export function Inbox({ onBack, open }: InboxProps) {
               }
               onBack={onBack}
             />
-            <MotiScrollView
-              exitTransition={{ delay: 0, duration: 0 }}
-              from={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                type: "timing",
-                duration: 200,
-                delay: deviceIsLowRam ? 200 : 300,
-              }}
+            <ScrollView
               contentContainerStyle={{
                 paddingHorizontal: 16,
                 paddingVertical: verticalScale(10),
@@ -226,6 +183,7 @@ export function Inbox({ onBack, open }: InboxProps) {
               )}
               {upcomingNotifications.map((note, i) => {
                 const reminder = new Date(note.reminder);
+
                 return (
                   <Fragment key={i}>
                     <View
@@ -252,9 +210,7 @@ export function Inbox({ onBack, open }: InboxProps) {
                           color: "#000",
                         }}
                       >
-                        {note.title.length > 0
-                          ? note.title.substring(0, 100)
-                          : note.text.substring(0, 100)}
+                        {note.title.length > 0 ? note.title : note.text}
                       </Text>
                     </View>
                     <View
@@ -303,7 +259,7 @@ export function Inbox({ onBack, open }: InboxProps) {
                   </Fragment>
                 );
               })}
-            </MotiScrollView>
+            </ScrollView>
           </MotiView>
         </Modal>
       )}

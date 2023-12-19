@@ -3,6 +3,7 @@ import {
   ColorValue,
   Dimensions,
   GestureResponderEvent,
+  Platform,
   ScrollView,
   View,
   useWindowDimensions,
@@ -49,8 +50,11 @@ export function CustomizeBar({
   //   keyboard.coordinates.end.screenY === Dimensions.get("screen").height;
   const { width } = useWindowDimensions();
   const paddingTop =
-    Dimensions.get("screen").height -
-    (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height);
+    Platform.OS === "android"
+      ? Dimensions.get("screen").height -
+        (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height)
+      : Dimensions.get("screen").height -
+        (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
 
   return (
     <MotiView

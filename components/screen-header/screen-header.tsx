@@ -4,6 +4,7 @@ import { Platform, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme, verticalScale } from "../../tools";
 import { BackIcon } from "../assets";
+import { BlurView } from "expo-blur";
 interface ScreenHeaderProps {
   onBack: () => void;
   style?: ViewStyle;
@@ -29,7 +30,6 @@ export function ScreenHeader({
       <MotiView
         style={{
           flexDirection: "row",
-          // justifyContent: "center",
           alignItems: "center",
         }}
       >

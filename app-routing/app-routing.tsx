@@ -1,22 +1,48 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import {
+  CardStyleInterpolators,
+  createStackNavigator,
+} from "@react-navigation/stack";
 import { enableFreeze } from "react-native-screens";
 import { useRecoilState } from "recoil";
 import { Home, Inbox, NotePage, notesData } from "../screens";
 import { Platform } from "react-native";
+import { Easing } from "react-native-reanimated";
+import { BlurView } from "expo-blur";
 enableFreeze(true);
 
 export function AppRouting() {
-  const Stack = createNativeStackNavigator();
+  const Stack = createStackNavigator();
   const [notes] = useRecoilState(notesData);
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        animation: Platform.OS === "android" ? "slide_from_bottom" : "default",
-
+        freezeOnBlur: true,
+        transitionSpec: {
+          open: {
+            animation: "timing",
+            config: { duration: 350, easing: Easing.inOut(Easing.ease) },
+          },
+          close: {
+            animation: "timing",
+            config: { duration: 350, easing: Easing.inOut(Easing.ease) },
+          },
+        },
+        cardOverlayEnabled: true,
+        cardStyleInterpolator: ({ current, layouts }) => ({
+          cardStyle: {
+            // opacity: current.progress,
+            transform: [
+              {
+                translateX: current.progress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [layouts.screen.width, 0],
+                }),
+              },
+            ],
+          },
+        }),
         gestureEnabled: false,
-        navigationBarColor: "#000",
-        contentStyle: { elevation: 10 },
       }}
       initialRouteName="Home"
     >

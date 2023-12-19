@@ -15,14 +15,10 @@ import { useKeyboard } from "@react-native-community/hooks";
 import JSZip from "jszip";
 import { useRecoilState } from "recoil";
 import { Dialog } from "../../../components";
-import {
-  CheckIcon,
-  CloseIcon,
-  DeleteIcon,
-  ExportIcon,
-} from "../../../components/assets";
+import { CloseIcon, DeleteIcon, ExportIcon } from "../../../components/assets";
 import { moderateFontScale, moderateScale, useTheme } from "../../../tools";
 import { notesData } from "../../note";
+import Checkbox from "expo-checkbox";
 interface NoteOptionsProps {
   onDelete: () => void;
   onClose: () => void;
@@ -226,10 +222,10 @@ export function NoteOptions({
           style={{ flexDirection: "row", alignItems: "center" }}
           onPress={onTotalSelect}
         >
-          <CheckIcon
-            fill={theme.onPrimary}
-            onPress={onTotalSelect}
-            focused={totalSelected}
+          <Checkbox
+            onValueChange={onTotalSelect}
+            style={{ borderRadius: 100 }}
+            value={totalSelected}
           />
           <Text
             numberOfLines={2}

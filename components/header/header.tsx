@@ -49,13 +49,13 @@ export const Header = React.memo(
         scale: 1,
         opacity: 1,
         translateX: moderateScale(-50),
-        translateY: 70,
+        translateY: 50,
       },
       animate: {
-        scale: inboxOpened ? 3 : 1,
+        scale: inboxOpened ? 2 : 1,
         opacity: inboxOpened ? 0 : 1,
         translateX: inboxOpened ? moderateScale(-50) : 0,
-        translateY: inboxOpened ? 70 : 0,
+        translateY: inboxOpened ? 50 : 0,
       },
     };
 

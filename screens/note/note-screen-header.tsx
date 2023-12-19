@@ -1,11 +1,5 @@
 import { BlurView } from "expo-blur";
-import {
-  Dimensions,
-  LayoutChangeEvent,
-  Platform,
-  View,
-  useColorScheme,
-} from "react-native";
+import { Dimensions, Platform, View, useColorScheme } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   BackIcon,
@@ -14,7 +8,7 @@ import {
   ReminderIcon,
   ShareIcon,
 } from "../../components/assets";
-import { useTheme, verticalScale } from "../../tools";
+import { useTheme } from "../../tools";
 
 interface NoteScreenHeaderProps {
   onClipboard: () => void;
