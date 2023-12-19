@@ -77,8 +77,11 @@ export function removeArrayKeyDuplicates<T, K extends keyof T>(
   }, []);
 }
 
-export function excludeElemnts(array: note[], elementsToRemove: number[]) {
+export function excludeNotes(array: note[], elementsToRemove: number[]) {
   return array.filter((e: note) => !elementsToRemove.includes(e.id));
+}
+export function excludeArrayElements<T>(array: T[], itemsToRemove: T[]) {
+  return array.filter((e: T) => !itemsToRemove.includes(e));
 }
 export function recalculateId(array: note[]) {
   return array.map((item) => {
