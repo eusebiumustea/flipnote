@@ -24,6 +24,7 @@ import {
   excludeNotes,
   moderateFontScale,
   moderateScale,
+  range,
   recalculateId,
   reinjectElementInArray,
   replaceElementAtId,
@@ -331,23 +332,39 @@ export function NotePage({ route, navigation }: any) {
   const keyboard = useKeyboard();
 
   let scrollPosition = useRef<number>(0).current;
-
+  console.log();
   const toast = useToast();
   const marginBottom =
-    Dimensions.get("screen").height -
-    (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height);
+    Platform.OS === "android"
+      ? Dimensions.get("screen").height -
+        (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height)
+      : Dimensions.get("screen").height -
+        (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
 
   console.log("editnote:", JSON.stringify(editNote));
-  const boldFocused: boolean =
+  // const boldFocused: boolean =
+  //   editNote.styles.findIndex(
+  //     (e) =>
+  //       e?.interval?.end === selection?.end ||
+  //       (e?.interval.start === selection.start && e?.style?.fontWeight)
+  //   ) > -1 && selection?.end !== selection?.start;
+  const boldFocused =
+    selection.end !== selection.start &&
     editNote.styles.findIndex(
       (e) =>
-        e?.interval?.end === selection?.end ||
-        (e?.interval.start === selection.start && e?.style?.fontWeight)
-    ) > -1 && selection?.end !== selection?.start;
+        (selection.start < e.interval.start &&
+          selection.end > e.interval.end) ||
+        range(e.interval.start, e.interval.end).includes(selection.end) ||
+        (range(e.interval.start, e.interval.end).includes(selection.start) &&
+          e?.style?.fontWeight)
+    ) > -1;
   const boldIndex = editNote.styles.findIndex(
     (e) =>
-      e?.interval?.end === selection.end ||
-      (e?.interval?.start === selection.start && e.style.fontWeight)
+      range(e.interval.start, e.interval.end).includes(selection.end) ||
+      range(e.interval.start, e.interval.end).includes(selection.start) ||
+      (selection.start < e.interval.start &&
+        selection.end > e.interval.end &&
+        e?.style?.fontWeight)
   );
 
   const config =
@@ -362,7 +379,7 @@ export function NotePage({ route, navigation }: any) {
         }
       },
     });
-
+  console.log(boldFocused);
   return (
     <View
       {...config}
@@ -493,7 +510,7 @@ export function NotePage({ route, navigation }: any) {
           keyboardType="default"
           multiline
           scrollEnabled={false}
-          selectionColor={"#FFF3C7"}
+          // selectionColor={"#FFF3C7"}
           placeholder="Take the note"
           style={{
             color: "#000",

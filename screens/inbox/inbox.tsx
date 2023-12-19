@@ -105,7 +105,7 @@ export function Inbox({ onBack, open }: InboxProps) {
             }}
             from={{
               translateX: width / 2 - moderateScale(30),
-              translateY: -height / 2 + top + 30,
+              translateY: -height / 2 + top + 50,
               scale: 0,
               borderRadius: 100,
             }}
@@ -117,7 +117,7 @@ export function Inbox({ onBack, open }: InboxProps) {
             }}
             exit={{
               translateX: width / 2 - moderateScale(30),
-              translateY: -height / 2 + top + 30,
+              translateY: -height / 2 + top + 50,
               scale: 0,
               borderRadius: 100,
             }}
@@ -150,6 +150,7 @@ export function Inbox({ onBack, open }: InboxProps) {
                 paddingHorizontal: 16,
                 paddingVertical: verticalScale(10),
                 rowGap: 8,
+                paddingBottom: 30,
               }}
               style={{
                 backgroundColor: theme.background,

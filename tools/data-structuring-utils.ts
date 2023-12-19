@@ -143,9 +143,9 @@ export function changeKeyValuesConditionaly<T, K extends keyof T>(
   }
 }
 export function range(start: number, end: number) {
-  const range = [];
+  const range: number[] = [];
   for (let i = start; i <= end; i++) {
-    range.push(i + 1);
+    range.push(i);
   }
   return range;
 }

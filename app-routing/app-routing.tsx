@@ -21,11 +21,11 @@ export function AppRouting() {
         transitionSpec: {
           open: {
             animation: "timing",
-            config: { duration: 350, easing: Easing.inOut(Easing.ease) },
+            config: { duration: 180, easing: Easing.inOut(Easing.ease) },
           },
           close: {
             animation: "timing",
-            config: { duration: 350, easing: Easing.inOut(Easing.ease) },
+            config: { duration: 180, easing: Easing.inOut(Easing.ease) },
           },
         },
         cardOverlayEnabled: true,
