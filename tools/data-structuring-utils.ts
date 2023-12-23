@@ -1,4 +1,4 @@
-import { note } from "../screens/note";
+import { TextNoteStyle, note } from "../screens/note";
 export function toggleArrayElement<T>(array: T[], value: T) {
   const indexOfValue = array.indexOf(value);
   if (indexOfValue === -1) {
@@ -7,12 +7,16 @@ export function toggleArrayElement<T>(array: T[], value: T) {
   return removeElementAtIndex(array, indexOfValue);
 }
 
-export function toggleState<T>(initialValue: T, changeValue: T) {
+export function toggleState<T>(
+  initialValue: T,
+  changeValue: T,
+  additionalFunction?: () => void
+) {
   return (prevState: T) => {
-    if (prevState === initialValue) {
+    if (prevState !== changeValue) {
+      additionalFunction && additionalFunction();
       return changeValue;
-    }
-    if (prevState === changeValue) {
+    } else {
       return initialValue;
     }
   };
@@ -51,6 +55,10 @@ export function replaceElementAtIndex<T>(
     newElement,
     ...array.slice(replaceIndex + 1),
   ];
+}
+export function removeObjectKey<T, K extends keyof T>(obj: T, removeKey: K) {
+  const { [removeKey]: removedKey, ...newObj } = obj;
+  return newObj;
 }
 export function replaceElementAtId(
   array: note[],

@@ -34,7 +34,7 @@ export const FilterButton = ({
         style={{
           fontSize: moderateFontScale(12),
           color: selected ? theme.primary : theme.onPrimary,
-          fontFamily: "google-sans",
+          fontFamily: "OpenSans",
         }}
       >
         {label.length > 40 ? `${label.slice(0, 40)}...` : label}
@@ -66,7 +66,7 @@ export function FilterFavoritesButton({
       <Text
         style={{
           fontSize: moderateFontScale(12),
-          fontFamily: "google-sans",
+          fontFamily: "OpenSans",
           color: theme.onPrimary,
         }}
       >

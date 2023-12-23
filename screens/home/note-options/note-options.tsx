@@ -167,7 +167,7 @@ export function NoteOptions({
               style={{
                 textAlign: "center",
                 fontSize: moderateFontScale(16),
-                fontFamily: "google-sans",
+                fontFamily: "OpenSans",
                 color: "#000",
                 backgroundColor: e.background,
                 borderRadius: 6,
@@ -189,7 +189,7 @@ export function NoteOptions({
               width: "100%",
               borderWidth: 1,
               color: theme.onPrimary,
-              fontFamily: "google-sans",
+              fontFamily: "OpenSans",
               paddingLeft: 10,
               backgroundColor: theme.backgroundSearch,
               marginBottom: 10,
@@ -231,7 +231,7 @@ export function NoteOptions({
             numberOfLines={2}
             style={{
               color: theme.onPrimary,
-              fontFamily: "google-sans",
+              fontFamily: "OpenSans",
             }}
           >
             Select all

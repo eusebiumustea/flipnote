@@ -73,7 +73,7 @@ export function NoteCard({
               color: "#000",
               fontSize: moderateFontScale(20),
               fontWeight: "bold",
-              fontFamily: "google-sans",
+              fontFamily: "OpenSans",
             }}
           >
             {item.title}
@@ -82,7 +82,7 @@ export function NoteCard({
         <Text
           style={{
             color: "#000",
-            fontFamily: "google-sans",
+            fontFamily: "OpenSans",
             fontSize: moderateFontScale(14),
           }}
         >

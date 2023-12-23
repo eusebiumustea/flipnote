@@ -5856,6 +5856,11 @@ react-is@^18.0.0:
   resolved "https://registry.npmjs.org/react-is/-/react-is-18.2.0.tgz"
   integrity sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==
 
+react-native-fast-text@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-fast-text/-/react-native-fast-text-0.1.1.tgz#99931bc9763c737896d7ee2466276f81d06743bf"
+  integrity sha512-Kgwf8oEbCB7w4FtcSxrfY/FdAvXllrcHOXkDgWiUj7vXjSlqqC5Oj3HsvcwYaLCvfsx00tyvgt+UmyT4NLemXA==
+
 react-native-gesture-handler@~2.12.0:
   version "2.12.1"
   resolved "https://registry.npmjs.org/react-native-gesture-handler/-/react-native-gesture-handler-2.12.1.tgz"
@@ -5986,6 +5991,11 @@ readline@^1.3.0:
   version "1.3.0"
   resolved "https://registry.npmjs.org/readline/-/readline-1.3.0.tgz"
   integrity sha512-k2d6ACCkiNYz222Fs/iNze30rRJ1iIicW7JuX/7/cozvih6YCkFZH+J6mAFDVgv0dRBaAyr4jDqC95R2y4IADg==
+
+reanimated-color-picker@^2.4.2:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/reanimated-color-picker/-/reanimated-color-picker-2.4.2.tgz#c335ce70b65859f2d13b33de50c78ac245872f35"
+  integrity sha512-UNw1jEEOjY2m6F/sI7/nZQwT+yl7kSxao9wJtdkHUsrmm66QRqWKku76/hZGXyl+wzdKk4yLmXMPaEaLq69GBg==
 
 recast@^0.21.0:
   version "0.21.5"

@@ -105,21 +105,21 @@ export function Inbox({ onBack, open }: InboxProps) {
             }}
             from={{
               translateX: width / 2 - moderateScale(30),
-              translateY: -height / 2 + top + 50,
+              translateY: -height / 2 + top + 30,
+
               scale: 0,
-              borderRadius: 100,
             }}
             animate={{
               translateX: 0,
               translateY: 0,
+
               scale: 1,
-              borderRadius: 0,
             }}
             exit={{
               translateX: width / 2 - moderateScale(30),
-              translateY: -height / 2 + top + 50,
+              translateY: -height / 2 + top + 30,
+
               scale: 0,
-              borderRadius: 100,
             }}
           >
             <ScreenHeader
@@ -164,7 +164,7 @@ export function Inbox({ onBack, open }: InboxProps) {
                       color: theme.onPrimary,
                       fontSize: moderateFontScale(17),
                       textAlign: "center",
-                      fontFamily: "google-sans",
+                      fontFamily: "OpenSans",
                       paddingTop: 16,
                     }}
                   >
@@ -240,7 +240,7 @@ export function Inbox({ onBack, open }: InboxProps) {
                           style={{
                             color: "red",
                             fontSize: moderateFontScale(16),
-                            fontFamily: "google-sans",
+                            fontFamily: "OpenSans",
                             fontWeight: "bold",
                           }}
                         >

@@ -1,15 +1,9 @@
+import { useBackHandler } from "@react-native-community/hooks";
 import { useNavigation } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
 import { MotiView } from "moti";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Alert,
-  Animated,
-  FlatList,
-  Platform,
-  View,
-  useAnimatedValue,
-} from "react-native";
+import { Alert, FlatList, View, useAnimatedValue } from "react-native";
 import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
@@ -27,7 +21,6 @@ import { Inbox } from "../inbox";
 import { notesData } from "../note";
 import { NoteOptions } from "./note-options/note-options";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
-import { useBackHandler } from "@react-native-community/hooks";
 export function Home() {
   const navigation = useNavigation<any>();
   const [selected, setSelected] = useState<string[]>([]);
@@ -281,6 +274,7 @@ export function Home() {
             backgroundColor: theme.background,
           }}
         />
+
         {optionsSelection.length === 0 && (
           <CreateIcon onPress={() => navigation.push("note")} />
         )}

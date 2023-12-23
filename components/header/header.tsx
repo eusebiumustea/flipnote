@@ -17,7 +17,7 @@ import {
 } from "../../tools";
 import { InboxIcon, SearchIcon } from "../assets";
 import { HeaderProps } from "./types";
-import { Animated, TextInput, View } from "react-native";
+import { Animated, Pressable, TextInput, View } from "react-native";
 import { Easing } from "react-native-reanimated";
 import { MotiAnimationProp, MotiFromProp, MotiProps } from "moti";
 export const Header = React.memo(
@@ -122,7 +122,7 @@ export const Header = React.memo(
                 borderRadius: moderateScale(15),
                 color: theme.onBackgroundSearch,
                 paddingHorizontal: moderateScale(40),
-                fontFamily: "google-sans",
+                fontFamily: "OpenSans",
               }}
               placeholder="Search for notes"
               onChangeText={onSearch}
@@ -132,9 +132,7 @@ export const Header = React.memo(
             />
           </View>
 
-          <MotiPressable
-            transition={animationConfig}
-            {...motiConfig}
+          <Pressable
             onPress={onInboxOpen}
             style={{
               width: moderateScale(30),
@@ -142,7 +140,7 @@ export const Header = React.memo(
             }}
           >
             <InboxIcon badge={badge} />
-          </MotiPressable>
+          </Pressable>
         </View>
 
         {children}

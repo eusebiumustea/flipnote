@@ -15,6 +15,7 @@ interface ToastComponentProps {
   duration?: number;
   startPositionX?: number;
   startPositionY?: number;
+  fade?: boolean;
 }
 interface ToastContextType {
   ShowToast: (props: ToastComponentProps) => void | null;
@@ -25,6 +26,7 @@ function ToastComponent({
   textColor,
   startPositionX,
   startPositionY,
+  fade,
 }: ToastComponentProps) {
   const theme = useTheme();
   const { top } = useSafeAreaInsets();
@@ -59,12 +61,19 @@ function ToastComponent({
             translateY: -top + startPositionY,
             translateX: startPositionX,
             scale: 0,
+            opacity: fade ? 0 : undefined,
           }}
-          animate={{ translateY: 0, translateX: 0, scale: 1 }}
+          animate={{
+            translateY: 0,
+            translateX: 0,
+            scale: 1,
+            opacity: fade ? 1 : undefined,
+          }}
           exit={{
             translateY: -top + startPositionY,
             translateX: startPositionX,
             scale: 0,
+            opacity: fade ? 0 : undefined,
           }}
         >
           <Text
@@ -84,7 +93,7 @@ function ToastComponent({
                   fontSize: moderateFontScale(16),
                   color: button.color ? button.color : "#007AFF",
                   textAlign: "center",
-                  fontFamily: "google-sans",
+                  fontFamily: "OpenSans",
                 }}
               >
                 {button.title}
@@ -111,6 +120,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
     duration = 1500,
     startPositionX = 0,
     startPositionY = 0,
+    fade = false,
   }: ToastComponentProps) {
     setConfig((prev) => ({
       ...prev,
@@ -119,6 +129,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
       textColor,
       startPositionX,
       startPositionY,
+      fade,
     }));
     setTimeout(
       () =>
@@ -138,6 +149,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
         message={config.message}
         startPositionX={config.startPositionX}
         startPositionY={config.startPositionY}
+        fade={config.fade}
       />
       {children}
     </ToastContext.Provider>

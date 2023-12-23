@@ -115,7 +115,7 @@ export function Dialog({
               <Text
                 style={{
                   fontSize: moderateFontScale(15),
-                  fontFamily: "google-sans",
+                  fontFamily: "OpenSans",
                   fontWeight: "bold",
                   color: theme.onPrimary,
                 }}
@@ -127,7 +127,7 @@ export function Dialog({
               <Text
                 style={{
                   fontSize: moderateFontScale(15),
-                  fontFamily: "google-sans",
+                  fontFamily: "OpenSans",
                   fontWeight: "bold",
                   color: theme.onPrimary,
                 }}

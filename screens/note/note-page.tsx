@@ -6,12 +6,15 @@ import * as Notifications from "expo-notifications";
 import * as Sharing from "expo-sharing";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Button,
   Dimensions,
   Linking,
   Platform,
+  Pressable,
   ScrollView,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
   useWindowDimensions,
 } from "react-native";
@@ -27,10 +30,25 @@ import {
   range,
   recalculateId,
   reinjectElementInArray,
+  removeObjectKey,
   replaceElementAtId,
+  replaceElementAtIndex,
   useTheme,
   verticalScale,
 } from "../../tools";
+import ColorPicker, {
+  Panel1,
+  Swatches,
+  Preview,
+  OpacitySlider,
+  HueSlider,
+  Panel2,
+  Panel3,
+  Panel4,
+  Panel5,
+  SaturationSlider,
+  BrightnessSlider,
+} from "reanimated-color-picker";
 import { cardColors } from "../../tools/colors";
 import { notesData } from "./date-time-picker/atom";
 import { CustomizeBar } from "./customize-bar";
@@ -42,6 +60,7 @@ import {
   TextNoteStyle,
   note,
 } from "./types";
+import { fontNames } from "../../constants";
 interface ParamsProps {
   id: number;
   edit: boolean;
@@ -96,6 +115,11 @@ export function NotePage({ route, navigation }: any) {
     start: 0,
     end: 0,
   });
+  // let selection = useRef({
+  //   start: 0,
+  //   end: 0,
+  // }).current;
+  console.log(selection);
   const [reminderDialog, setReminderDialog] = useState(false);
   const reminderSplit: Date = new Date(
     [
@@ -111,16 +135,7 @@ export function NotePage({ route, navigation }: any) {
   const isEditing = edit && !noteStateIsEmpty;
   const isCreating = !edit && !noteStateIsEmpty;
   const included = notes.data.map((e) => e.id).includes(id);
-  useMemo(() => {
-    editNote.styles.map((e, i, arr) => {
-      if (e.interval.end > editNote.text.length) {
-        setEditNote((prev) => ({
-          ...prev,
-          styles: prev.styles.filter((style) => style !== e),
-        }));
-      }
-    });
-  }, [editNote.text]);
+
   useEffect(() => {
     try {
       if (noteStateIsEmpty) {
@@ -172,20 +187,6 @@ export function NotePage({ route, navigation }: any) {
       (a, b) => a?.interval?.end - b?.interval?.start
     );
     if (isStyled) {
-      console.log(
-        sortedStyles.map((e, i, arr) => {
-          return (
-            <Fragment key={i}>
-              <Text style={e?.style}>
-                {text.slice(e?.interval?.start, e?.interval?.end)}
-              </Text>
-              <Text>
-                {text.slice(e?.interval?.end, arr[i + 1]?.interval?.start)}
-              </Text>
-            </Fragment>
-          );
-        })
-      );
       return (
         <>
           <Text>{text.slice(0, editNote?.styles[0]?.interval?.start)}</Text>
@@ -203,16 +204,63 @@ export function NotePage({ route, navigation }: any) {
           })}
 
           {/* <Text>
-              {text.slice(
-                editNote.styles[editNote.styles.length - 1]?.interval?.end
-              )}
-            </Text> */}
+            {text.slice(
+              editNote.styles[editNote.styles.length - 1]?.interval?.end
+            )}
+          </Text> */}
         </>
       );
     }
     return <Text>{editNote.text}</Text>;
   }, [editNote.styles]);
+  useMemo(() => {
+    editNote.styles.map((e, i, arr) => {
+      if (e.interval.end + 1 > selection.end) {
+        setEditNote((prev) => ({
+          ...prev,
+          styles: prev.styles.filter((style) => style !== e),
+        }));
+      }
+    });
+  }, [editNote.text]);
+  const currentFocused =
+    selection.end !== selection.start &&
+    editNote.styles.find(
+      (e) =>
+        (selection.start < e.interval.start &&
+          selection.end > e.interval.end) ||
+        range(e.interval.start, e.interval.end).includes(selection.end) ||
+        (range(e.interval.start, e.interval.end).includes(selection.start) &&
+          Object.keys(e.style).length > 0)
+    );
+  console.log("currentFocused:", currentFocused);
+  const currentIndex = editNote.styles.findIndex(
+    (e) =>
+      (selection.start < e.interval.start && selection.end > e.interval.end) ||
+      range(e.interval.start, e.interval.end).includes(selection.end) ||
+      (range(e.interval.start, e.interval.end).includes(selection.start) &&
+        Object.keys(e.style).length > 0)
+  );
+  function font(fontName: string) {
+    const weight = currentFocused?.style?.fontWeight;
+    const italic = currentFocused?.style?.fontStyle;
+    if (weight && !italic) {
+      console.log("only weight");
 
+      return fontName + "-bold";
+    }
+    if (italic && !weight) {
+      console.log("only italic");
+
+      return fontName + "-italic";
+    }
+    if (italic && weight) {
+      console.log("both");
+
+      return fontName + "-bold-italic";
+    }
+    return fontName;
+  }
   async function scheduleNotifications() {
     try {
       if (reminderSplit >= new Date()) {
@@ -246,6 +294,7 @@ export function NotePage({ route, navigation }: any) {
         message: "Can't share empty content",
         startPositionX: moderateScale(170),
         startPositionY: 10,
+        fade: true,
       });
       return;
     }
@@ -332,7 +381,6 @@ export function NotePage({ route, navigation }: any) {
   const keyboard = useKeyboard();
 
   let scrollPosition = useRef<number>(0).current;
-  console.log();
   const toast = useToast();
   const marginBottom =
     Platform.OS === "android"
@@ -342,30 +390,6 @@ export function NotePage({ route, navigation }: any) {
         (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
 
   console.log("editnote:", JSON.stringify(editNote));
-  // const boldFocused: boolean =
-  //   editNote.styles.findIndex(
-  //     (e) =>
-  //       e?.interval?.end === selection?.end ||
-  //       (e?.interval.start === selection.start && e?.style?.fontWeight)
-  //   ) > -1 && selection?.end !== selection?.start;
-  const boldFocused =
-    selection.end !== selection.start &&
-    editNote.styles.findIndex(
-      (e) =>
-        (selection.start < e.interval.start &&
-          selection.end > e.interval.end) ||
-        range(e.interval.start, e.interval.end).includes(selection.end) ||
-        (range(e.interval.start, e.interval.end).includes(selection.start) &&
-          e?.style?.fontWeight)
-    ) > -1;
-  const boldIndex = editNote.styles.findIndex(
-    (e) =>
-      range(e.interval.start, e.interval.end).includes(selection.end) ||
-      range(e.interval.start, e.interval.end).includes(selection.start) ||
-      (selection.start < e.interval.start &&
-        selection.end > e.interval.end &&
-        e?.style?.fontWeight)
-  );
 
   const config =
     Platform.OS === "ios" &&
@@ -379,10 +403,9 @@ export function NotePage({ route, navigation }: any) {
         }
       },
     });
-  console.log(boldFocused);
+  const fontFamilyFocused = currentFocused?.style?.fontFamily;
   return (
     <View
-      {...config}
       style={{
         flex: 1,
         // backgroundColor: theme.background,
@@ -433,6 +456,7 @@ export function NotePage({ route, navigation }: any) {
             message: "Copied",
             startPositionX: 80,
             startPositionY: 10,
+            fade: true,
           });
         }}
         onFavoriteAdd={() =>
@@ -447,6 +471,7 @@ export function NotePage({ route, navigation }: any) {
       />
 
       <ScrollView
+        {...config}
         scrollEventThrottle={16}
         onScroll={(e) => {
           scrollPosition = e.nativeEvent.contentOffset.y;
@@ -473,7 +498,7 @@ export function NotePage({ route, navigation }: any) {
           }
           underlineColorAndroid="transparent"
           cursorColor={"#FFCB09"}
-          keyboardType="default"
+          keyboardType="visible-password"
           selectTextOnFocus={false}
           multiline
           scrollEnabled={false}
@@ -483,23 +508,26 @@ export function NotePage({ route, navigation }: any) {
             color: "#000",
             fontSize: moderateFontScale(28),
             fontWeight: "bold",
-            fontFamily: "google-sans",
+            fontFamily: "OpenSans",
           }}
         >
           <Text>{editNote.title}</Text>
         </TextInput>
-
         <TextInput
           onSelectionChange={(e) => {
+            const start = e.nativeEvent.selection.start;
+            const end = e.nativeEvent.selection.end;
             setSelection({
-              start: e.nativeEvent.selection.start,
-              end: e.nativeEvent.selection.end,
+              start,
+              end,
             });
-            console.log(selection);
+            // selection = { start, end };
           }}
           placeholderTextColor={theme.placeholder}
           cursorColor={"#FFCB09"}
           selectTextOnFocus={false}
+          autoCapitalize="none"
+          autoCorrect={false}
           onChangeText={(editedText) =>
             setEditNote((prev) => ({
               ...prev,
@@ -509,11 +537,9 @@ export function NotePage({ route, navigation }: any) {
           underlineColorAndroid="transparent"
           keyboardType="default"
           multiline
-          scrollEnabled={false}
           // selectionColor={"#FFF3C7"}
           placeholder="Take the note"
           style={{
-            color: "#000",
             marginTop: verticalScale(20),
             paddingBottom: verticalScale(200),
           }}
@@ -523,9 +549,50 @@ export function NotePage({ route, navigation }: any) {
         {/* <View style={{ height: 100, backgroundColor: "red" }}></View> */}
       </ScrollView>
       <CustomizeBar
-        onItalic={() => console.log(selection)}
+        italicFocused={currentFocused?.style?.fontStyle !== undefined}
+        onItalic={() => {
+          if (!currentFocused && selection.end !== selection.start) {
+            setEditNote((prev) => ({
+              ...prev,
+              styles: [
+                ...prev.styles,
+                { interval: selection, style: { fontStyle: "italic" } },
+              ],
+            }));
+          }
+          if (
+            currentFocused &&
+            currentFocused?.style?.fontStyle === undefined &&
+            Object.keys(currentFocused.style).length >= 1
+          ) {
+            setEditNote((prev) => ({
+              ...prev,
+              styles: replaceElementAtIndex(prev.styles, currentIndex, {
+                ...currentFocused,
+                style: { ...currentFocused.style, fontStyle: "italic" },
+              }),
+            }));
+          }
+
+          if (
+            currentFocused &&
+            currentFocused?.style?.fontStyle !== undefined &&
+            Object.keys(currentFocused.style).length >= 1
+          ) {
+            setEditNote((prev) => ({
+              ...prev,
+              styles:
+                Object.keys(currentFocused.style).length > 1
+                  ? replaceElementAtIndex(prev.styles, currentIndex, {
+                      ...currentFocused,
+                      style: removeObjectKey(currentFocused.style, "fontStyle"),
+                    })
+                  : prev.styles.filter((e) => e !== currentFocused),
+            }));
+          }
+        }}
         onBold={() => {
-          if (!boldFocused && selection.end !== selection.start) {
+          if (!currentFocused && selection.end !== selection.start) {
             setEditNote((prev) => ({
               ...prev,
               styles: [
@@ -534,14 +601,222 @@ export function NotePage({ route, navigation }: any) {
               ],
             }));
           }
-          if (boldFocused) {
+          if (
+            currentFocused &&
+            currentFocused?.style?.fontWeight === undefined &&
+            Object.keys(currentFocused.style).length >= 1 &&
+            selection.end !== selection.start
+          ) {
             setEditNote((prev) => ({
               ...prev,
-              styles: prev.styles.filter((e) => e !== prev.styles[boldIndex]),
+              styles: replaceElementAtIndex(prev.styles, currentIndex, {
+                ...currentFocused,
+                style: { ...currentFocused.style, fontWeight: "bold" },
+              }),
+            }));
+          }
+
+          if (
+            currentFocused &&
+            currentFocused?.style?.fontWeight !== undefined &&
+            Object.keys(currentFocused.style).length >= 1
+          ) {
+            setEditNote((prev) => ({
+              ...prev,
+              styles:
+                Object.keys(currentFocused.style).length === 1
+                  ? prev.styles.filter((e) => e !== currentFocused)
+                  : replaceElementAtIndex(prev.styles, currentIndex, {
+                      ...currentFocused,
+                      style: removeObjectKey(
+                        currentFocused.style,
+                        "fontWeight"
+                      ),
+                    }),
             }));
           }
         }}
-        boldFocused={boldFocused}
+        boldFocused={currentFocused?.style?.fontWeight !== undefined}
+        onUnderline={() => {
+          if (!currentFocused && selection.end !== selection.start) {
+            setEditNote((prev) => ({
+              ...prev,
+              styles: [
+                ...prev.styles,
+                {
+                  interval: selection,
+                  style: { textDecorationLine: "underline" },
+                },
+              ],
+            }));
+          }
+          if (
+            currentFocused &&
+            currentFocused?.style?.textDecorationLine === undefined &&
+            Object.keys(currentFocused.style).length >= 1 &&
+            selection.end !== selection.start
+          ) {
+            setEditNote((prev) => ({
+              ...prev,
+              styles: replaceElementAtIndex(prev.styles, currentIndex, {
+                ...currentFocused,
+                style: {
+                  ...currentFocused.style,
+                  textDecorationLine: "underline",
+                },
+              }),
+            }));
+          }
+
+          if (
+            currentFocused &&
+            currentFocused?.style?.textDecorationLine !== undefined &&
+            Object.keys(currentFocused.style).length >= 1
+          ) {
+            setEditNote((prev) => ({
+              ...prev,
+              styles:
+                Object.keys(currentFocused.style).length === 1
+                  ? prev.styles.filter((e) => e !== currentFocused)
+                  : replaceElementAtIndex(prev.styles, currentIndex, {
+                      ...currentFocused,
+                      style: removeObjectKey(
+                        currentFocused.style,
+                        "textDecorationLine"
+                      ),
+                    }),
+            }));
+          }
+        }}
+        underLinedFocused={
+          currentFocused?.style?.textDecorationLine !== undefined
+        }
+        onFontColor={() => {
+          if (!currentFocused && selection.end !== selection.start) {
+            setEditNote((prev) => ({
+              ...prev,
+              styles: [
+                ...prev.styles,
+                {
+                  interval: selection,
+                  style: { color: "#0213f5" },
+                },
+              ],
+            }));
+          }
+          if (
+            currentFocused &&
+            currentFocused?.style?.color === undefined &&
+            Object.keys(currentFocused.style).length >= 1
+          ) {
+            setEditNote((prev) => ({
+              ...prev,
+              styles: replaceElementAtIndex(prev.styles, currentIndex, {
+                ...currentFocused,
+                style: {
+                  ...currentFocused.style,
+                  color: "#0213f5",
+                },
+              }),
+            }));
+          }
+        }}
+        fontColorOptions={
+          <ColorPicker
+            style={{
+              rowGap: 10,
+              width: width - 60,
+            }}
+            thumbShape="circle"
+            onComplete={({ hex }) => {
+              if (!currentFocused && selection.end !== selection.start) {
+                setEditNote((prev) => ({
+                  ...prev,
+                  styles: [
+                    ...prev.styles,
+                    {
+                      interval: selection,
+                      style: { color: hex },
+                    },
+                  ],
+                }));
+              }
+              if (
+                currentFocused &&
+                currentFocused?.style?.color === undefined &&
+                Object.keys(currentFocused.style).length >= 1
+              ) {
+                setEditNote((prev) => ({
+                  ...prev,
+                  styles: replaceElementAtIndex(prev.styles, currentIndex, {
+                    ...currentFocused,
+                    style: {
+                      ...currentFocused.style,
+                      color: hex,
+                    },
+                  }),
+                }));
+              }
+
+              if (
+                currentFocused &&
+                currentFocused?.style?.color !== undefined &&
+                Object.keys(currentFocused.style).length >= 1
+              ) {
+                setEditNote((prev) => ({
+                  ...prev,
+                  styles: replaceElementAtIndex(prev.styles, currentIndex, {
+                    ...currentFocused,
+                    style: { ...currentFocused.style, color: hex },
+                  }),
+                }));
+              }
+            }}
+            value={
+              currentFocused && currentFocused?.style?.color
+                ? (currentFocused?.style?.color as string)
+                : "#0213f5"
+            }
+          >
+            <HueSlider boundedThumb />
+            <SaturationSlider boundedThumb />
+            <BrightnessSlider boundedThumb />
+            {currentFocused?.style?.color !== undefined && (
+              <Pressable
+                onPress={() => {
+                  if (
+                    currentFocused &&
+                    currentFocused?.style?.color !== undefined &&
+                    Object.keys(currentFocused.style).length >= 1
+                  ) {
+                    setEditNote((prev) => ({
+                      ...prev,
+                      styles:
+                        Object.keys(currentFocused.style).length === 1
+                          ? prev.styles.filter((e) => e !== currentFocused)
+                          : replaceElementAtIndex(prev.styles, currentIndex, {
+                              ...currentFocused,
+                              style: removeObjectKey(
+                                currentFocused.style,
+                                "color"
+                              ),
+                            }),
+                    }));
+                  }
+                }}
+                style={{
+                  alignSelf: "flex-start",
+                  backgroundColor: theme.primary,
+                  padding: 5,
+                  borderRadius: 20,
+                }}
+              >
+                <Text style={{ color: theme.onPrimary }}>Reset</Text>
+              </Pressable>
+            )}
+          </ColorPicker>
+        }
+        focused={selection.end !== selection.start}
         backgroundOptions={
           <>
             {cardColors.map((e, i) => {
@@ -554,6 +829,166 @@ export function NotePage({ route, navigation }: any) {
                   key={i}
                   checked={editNote.background === e}
                 />
+              );
+            })}
+          </>
+        }
+        fontOptions={
+          <>
+            <Pressable
+              onPress={() => {
+                if (
+                  currentFocused &&
+                  currentFocused?.style?.fontFamily !== undefined &&
+                  Object.keys(currentFocused.style).length >= 1
+                ) {
+                  setEditNote((prev) => ({
+                    ...prev,
+                    styles:
+                      Object.keys(currentFocused.style).length === 1
+                        ? prev.styles.filter((e) => e !== currentFocused)
+                        : replaceElementAtIndex(prev.styles, currentIndex, {
+                            ...currentFocused,
+                            style: removeObjectKey(
+                              currentFocused.style,
+                              "fontFamily"
+                            ),
+                          }),
+                  }));
+                }
+              }}
+              style={{
+                borderRadius: 16,
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "column",
+              }}
+            >
+              <Text
+                style={{
+                  color: theme.primary,
+                  fontSize: moderateFontScale(16),
+                }}
+              >
+                {"Default"}
+              </Text>
+              {!fontFamilyFocused && (
+                <View
+                  style={{
+                    width: "100%",
+                    height: 3,
+                    backgroundColor: theme.primary,
+                  }}
+                />
+              )}
+            </Pressable>
+            {fontNames.map((e, i) => {
+              return (
+                <Pressable
+                  onPress={() => {
+                    if (!currentFocused && selection.end !== selection.start) {
+                      setEditNote((prev) => ({
+                        ...prev,
+                        styles: [
+                          ...prev.styles,
+                          {
+                            interval: selection,
+                            style: { fontFamily: e },
+                          },
+                        ],
+                      }));
+                    }
+                    if (currentFocused?.style?.fontFamily === e) {
+                      return;
+                    }
+                    if (
+                      currentFocused &&
+                      currentFocused?.style?.fontFamily !== undefined &&
+                      Object.keys(currentFocused.style).length >= 1
+                    ) {
+                      setEditNote((prev) => ({
+                        ...prev,
+                        styles: replaceElementAtIndex(
+                          prev.styles,
+                          currentIndex,
+                          {
+                            ...currentFocused,
+                            style: {
+                              ...currentFocused.style,
+                              fontFamily: e,
+                            },
+                          }
+                        ),
+                      }));
+                    }
+                    if (
+                      currentFocused &&
+                      currentFocused?.style?.fontFamily === undefined &&
+                      Object.keys(currentFocused.style).length >= 1
+                    ) {
+                      setEditNote((prev) => ({
+                        ...prev,
+                        styles: replaceElementAtIndex(
+                          prev.styles,
+                          currentIndex,
+                          {
+                            ...currentFocused,
+                            style: {
+                              ...currentFocused.style,
+                              fontFamily: e,
+                            },
+                          }
+                        ),
+                      }));
+                    }
+
+                    // if (
+                    //   currentFocused &&
+                    //   currentFocused?.style?.fontFamily !== undefined &&
+                    //   Object.keys(currentFocused.style).length >= 1
+                    // ) {
+                    //   setEditNote((prev) => ({
+                    //     ...prev,
+                    //     styles:
+                    //       Object.keys(currentFocused.style).length === 1
+                    //         ? prev.styles.filter((e) => e !== currentFocused)
+                    //         : replaceElementAtIndex(prev.styles, currentIndex, {
+                    //             ...currentFocused,
+                    //             style: removeObjectKey(
+                    //               currentFocused.style,
+                    //               "fontFamily"
+                    //             ),
+                    //           }),
+                    //   }));
+                    // }
+                  }}
+                  style={{
+                    borderRadius: 16,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "column",
+                  }}
+                  key={i}
+                >
+                  <Text
+                    style={{
+                      color: theme.primary,
+                      fontFamily: e,
+                      fontSize: moderateFontScale(18),
+                    }}
+                  >
+                    {e}
+                  </Text>
+                  {fontFamilyFocused === e && (
+                    <View
+                      style={{
+                        width: "100%",
+                        height: 3,
+                        backgroundColor: theme.primary,
+                      }}
+                    />
+                  )}
+                </Pressable>
               );
             })}
           </>

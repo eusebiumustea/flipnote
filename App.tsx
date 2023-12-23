@@ -28,7 +28,14 @@ export default function App() {
     registerNotifications();
   }, []);
   const [fontLoaded, error] = useFonts({
-    "google-sans": require("./assets/fonts/OpenSans-VariableFont_wdthwght.ttf"),
+    OpenSans: require("./assets/fonts/OpenSans-VariableFont_wdthwght.ttf"),
+    "OpenSans-bold": require("./assets/fonts/OpenSans-Bold.ttf"),
+    "OpenSans-italic": require("./assets/fonts/OpenSans-Italic.ttf"),
+    "OpenSans-bold-italic": require("./assets/fonts/OpenSans-BoldItalic.ttf"),
+    Tinos: require("./assets/fonts/Tinos-Regular.ttf"),
+    "Tinos-bold": require("./assets/fonts/Tinos-Bold.ttf"),
+    "Tinos-italic": require("./assets/fonts/Tinos-Italic.ttf"),
+    "Tinos-bold-italic": require("./assets/fonts/Tinos-BoldItalic.ttf"),
   });
   const onLayoutRootView = useCallback(async () => {
     if (fontLoaded) {
@@ -57,10 +64,4 @@ export default function App() {
       </SafeAreaProvider>
     </RecoilRoot>
   );
-}
-function toast(arg0: {
-  message: string;
-  button: { title: string; onPress(): void };
-}) {
-  throw new Error("Function not implemented.");
 }

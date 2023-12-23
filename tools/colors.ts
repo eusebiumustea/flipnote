@@ -69,6 +69,17 @@ export const cardColors = [
   "#FDE9E2", // Light peach
   "#D9F1F8", // Light sky blue green
   "#F2FDE9", // Light apricot
+  "#000",
+  "#2f3031", // Dark gray
+  "#454c50", // Darker gray
+  "#5b5d5f", // Darkest gray
+  "#3d4e5b", // Dark blue
+  "#2a4a41", // Dark mint green
+  "#544c39", // Dark cream yellow
+  "#5a5a5b", // Dark lavender
+  "#433d5f", // Dark peach
+  "#323a41", // Dark sky blue green
+  "#493d38", // Dark apricot
 ];
 export const darkCardColors = [
   "#000",
