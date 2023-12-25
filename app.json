@@ -9,7 +9,6 @@
       [
         "expo-notifications",
         {
-          "color": "#FCFAE2",
           "icon": "./assets/icon.jpg"
         }
       ]

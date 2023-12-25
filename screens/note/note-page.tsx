@@ -135,7 +135,6 @@ export function NotePage({ route, navigation }: any) {
   const isEditing = edit && !noteStateIsEmpty;
   const isCreating = !edit && !noteStateIsEmpty;
   const included = notes.data.map((e) => e.id).includes(id);
-
   useEffect(() => {
     try {
       if (noteStateIsEmpty) {
@@ -191,14 +190,14 @@ export function NotePage({ route, navigation }: any) {
         <>
           <Text>{text.slice(0, editNote?.styles[0]?.interval?.start)}</Text>
           {sortedStyles.map((e, i, arr) => {
+            const start = e?.interval?.start;
+            const end = e?.interval?.end;
+            const nextStart = arr[i + 1]?.interval?.start;
+            const style = e?.style;
             return (
               <Fragment key={i}>
-                <Text style={e?.style}>
-                  {text.slice(e?.interval?.start, e?.interval?.end)}
-                </Text>
-                <Text>
-                  {text.slice(e?.interval?.end, arr[i + 1]?.interval?.start)}
-                </Text>
+                <Text style={style}> {text.slice(start, end)} </Text>
+                <Text> {text.slice(end, nextStart)}</Text>
               </Fragment>
             );
           })}
@@ -652,7 +651,7 @@ export function NotePage({ route, navigation }: any) {
           }
           if (
             currentFocused &&
-            currentFocused?.style?.textDecorationLine === undefined &&
+            currentFocused.style.textDecorationLine === undefined &&
             Object.keys(currentFocused.style).length >= 1 &&
             selection.end !== selection.start
           ) {
@@ -670,7 +669,7 @@ export function NotePage({ route, navigation }: any) {
 
           if (
             currentFocused &&
-            currentFocused?.style?.textDecorationLine !== undefined &&
+            currentFocused.style.textDecorationLine !== undefined &&
             Object.keys(currentFocused.style).length >= 1
           ) {
             setEditNote((prev) => ({
