@@ -196,7 +196,7 @@ export function NotePage({ route, navigation }: any) {
             const style = e?.style;
             return (
               <Fragment key={i}>
-                <Text style={style}> {text.slice(start, end)} </Text>
+                <Text style={style}> {text.slice(start, end)}</Text>
                 <Text> {text.slice(end, nextStart)}</Text>
               </Fragment>
             );
