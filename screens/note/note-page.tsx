@@ -28,6 +28,7 @@ import {
   recalculateId,
   reinjectElementInArray,
   replaceElementAtId,
+  replaceElementAtIndex,
   useTheme,
   verticalScale,
 } from "../../tools";
@@ -84,7 +85,8 @@ export function NotePage({ route, navigation }: any) {
     styles: item.styles,
     reminder: item.reminder,
   });
-
+  const [pastText, setPastText] = useState("");
+  useMemo(() => {}, [editNote.text]);
   const [reminder, setReminder] = useState<ReminderProps>({
     date: new Date(),
     time: new Date(),
@@ -183,7 +185,30 @@ export function NotePage({ route, navigation }: any) {
     }
     return <Text>{editNote.text}</Text>;
   }, [editNote.styles, editNote.text]);
-
+  useEffect(() => {
+    if (editNote.text.length === 0) {
+      setEditNote((prev) => ({ ...prev, styles: [] }));
+    }
+    editNote.styles.map((style, i) => {
+      if (style.interval.start <= style.interval.end) {
+        setEditNote((prev) => ({
+          ...prev,
+          styles: prev.styles.filter((e) => e !== style),
+        }));
+      }
+      if (
+        range(style.interval.start, style.interval.end).includes(selection.end)
+      ) {
+        setEditNote((prev) => ({
+          ...prev,
+          styles: replaceElementAtIndex(prev.styles, i, {
+            ...style,
+            interval: { ...style.interval, end: selection.end - 1 },
+          }),
+        }));
+      }
+    });
+  }, [editNote.text]);
   const currentFocused =
     selection.end !== selection.start &&
     editNote.styles.find(
@@ -375,6 +400,7 @@ export function NotePage({ route, navigation }: any) {
       currentIndex
     );
   }
+
   return (
     <View
       style={{
