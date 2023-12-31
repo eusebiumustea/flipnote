@@ -12,13 +12,13 @@ import * as Sharing from "expo-sharing";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useKeyboard } from "@react-native-community/hooks";
+import Checkbox from "expo-checkbox";
 import JSZip from "jszip";
 import { useRecoilState } from "recoil";
 import { Dialog } from "../../../components";
 import { CloseIcon, DeleteIcon, ExportIcon } from "../../../components/assets";
 import { moderateFontScale, moderateScale, useTheme } from "../../../tools";
 import { notesData } from "../../note";
-import Checkbox from "expo-checkbox";
 interface NoteOptionsProps {
   onDelete: () => void;
   onClose: () => void;
@@ -172,6 +172,8 @@ export function NoteOptions({
                 backgroundColor: e.background,
                 borderRadius: 6,
                 padding: 5,
+                borderWidth: 1,
+                borderColor: "green",
               }}
             >
               {e.title.length > 0

@@ -28,11 +28,11 @@ export const light = {
   ],
 };
 export const dark = {
-  background: "#000",
+  background: "#121212",
   onBackground: "#F0F0F0",
   backgroundSearch: "#0D0D0D",
   onBackgroundSearch: "#A0A0A0",
-  primary: "#121212",
+  primary: "#000",
   onPrimary: "#fff",
   text: "#E5E5E5",
   placeholder: "#A0A0A0",

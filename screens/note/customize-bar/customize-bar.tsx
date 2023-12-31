@@ -1,29 +1,23 @@
 import { useKeyboard } from "@react-native-community/hooks";
+import { AnimatePresence, MotiScrollView, MotiView } from "moti";
+import { PropsWithChildren, ReactNode, useEffect, useState } from "react";
 import {
   ColorValue,
   Dimensions,
-  GestureResponderEvent,
   Platform,
   ScrollView,
-  View,
   useWindowDimensions,
 } from "react-native";
 import {
   BackgroundIcon,
   BoldIcon,
-  CenterAlignIcon,
   FontColorIcon,
   ItalicIcon,
-  JustifyAlignIcon,
-  LeftAlignIcon,
-  RightAlignIcon,
   TextIcon,
   UnderlineIcon,
 } from "../../../components/assets";
 import { toggleState, useTheme } from "../../../tools";
-import { AnimatePresence, MotiScrollView, MotiView } from "moti";
-import { PropsWithChildren, ReactNode, useMemo, useState } from "react";
-import { useToast } from "../../../components";
+import { InputSelectionProps } from "../types";
 interface CustomizeBarProps {
   boldFocused?: boolean;
   italicFocused?: boolean;
@@ -34,12 +28,9 @@ interface CustomizeBarProps {
   backgroundOptions?: PropsWithChildren<ReactNode>;
   fontOptions?: PropsWithChildren<ReactNode>;
   fontColorOptions?: PropsWithChildren<ReactNode>;
-  justifyAligned?: boolean;
-  centerAligned?: boolean;
-  leftAligned?: boolean;
-  rightAligned?: boolean;
-  focused?: boolean;
   onFontColor?: () => void;
+  selection?: InputSelectionProps;
+  focusedColor?: ColorValue | string;
 }
 export function CustomizeBar({
   backgroundOptions,
@@ -49,28 +40,15 @@ export function CustomizeBar({
   boldFocused,
   underLinedFocused,
   fontOptions,
-  justifyAligned,
-  rightAligned,
-  leftAligned,
-  centerAligned,
   onUnderline,
-  focused,
   fontColorOptions,
   onFontColor,
+  selection,
+  focusedColor,
 }: CustomizeBarProps) {
   const [showOption, setShowOption] = useState<string | null>(null);
   const theme = useTheme();
   const keyboard = useKeyboard();
-  const toast = useToast();
-  const handlePress = (e: GestureResponderEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    console.log("bold");
-  };
-
-  // const isHidden =
-  //   !keyboard.coordinates.end.screenY ||
-  //   keyboard.coordinates.end.screenY === Dimensions.get("screen").height;
   const { width } = useWindowDimensions();
   const paddingTop =
     Platform.OS === "android"
@@ -86,21 +64,25 @@ export function CustomizeBar({
         return 60;
     }
   }
-
-  function selectionWarn(additionalText?: string) {
-    toast({ message: `Select text ${additionalText}`, duration: 2000 });
-  }
+  useEffect(() => {
+    if (selection.end === selection.start && showOption) {
+      setShowOption(null);
+    }
+  }, [selection]);
   return (
     <MotiView
-      transition={{ type: "timing", duration: 300 }}
+      transition={{
+        type: "timing",
+        duration: 300,
+      }}
       style={{
         width: width - 30,
         borderRadius: 16,
         backgroundColor: theme.customizeBarColor,
         position: "absolute",
-        bottom: 0,
+        bottom: 20,
         alignSelf: "center",
-        marginBottom: paddingTop + 20,
+        marginBottom: paddingTop,
       }}
       from={{ paddingTop: 0 }}
       animate={{
@@ -225,18 +207,19 @@ export function CustomizeBar({
         <UnderlineIcon active={underLinedFocused} onPress={onUnderline} />
         <TextIcon
           onPress={() => {
-            setShowOption(toggleState(null, "font"));
+            if (selection.end !== selection.start) {
+              setShowOption(toggleState(null, "font"));
+            }
           }}
         />
         <FontColorIcon
+          color={focusedColor}
           onPress={() => {
-            setShowOption(toggleState(null, "font-color", onFontColor));
+            if (selection.end !== selection.start) {
+              setShowOption(toggleState(null, "font-color", onFontColor));
+            }
           }}
         />
-        {/* <JustifyAlignIcon active={justifyAligned} onPress={handlePress} />
-        <LeftAlignIcon active={leftAligned} onPress={handlePress} />
-        <CenterAlignIcon active={centerAligned} onPress={handlePress} />
-        <RightAlignIcon active={rightAligned} onPress={handlePress} /> */}
         <BackgroundIcon
           onPress={() => setShowOption(toggleState(null, "background"))}
         />

@@ -1,6 +1,6 @@
 import { BlurView } from "expo-blur";
 import * as Notifications from "expo-notifications";
-import { AnimatePresence, MotiProps, MotiScrollView, MotiView } from "moti";
+import { AnimatePresence, MotiView } from "moti";
 import React, { Fragment, useMemo } from "react";
 import {
   Modal,
@@ -11,7 +11,6 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 import { ScreenHeader, Swipe } from "../../components";
@@ -26,7 +25,6 @@ import {
   verticalScale,
 } from "../../tools";
 import { notesData } from "../note";
-import { MotiPressableProps } from "moti/interactions";
 interface InboxProps {
   onBack: () => void;
   open: boolean;
@@ -62,7 +60,7 @@ export function Inbox({ onBack, open }: InboxProps) {
             <MotiView
               transition={{
                 type: "timing",
-                duration: 200,
+                duration: 350,
               }}
               from={{ opacity: 0 }}
               animate={{ opacity: 1 }}

@@ -1,19 +1,25 @@
 import * as React from "react";
-import { TouchableOpacity, ViewProps } from "react-native";
+import { TouchableOpacity, ViewProps, ViewStyle } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { moderateScale, useTheme, verticalScale } from "../../../tools";
 interface CloseIconProps {
   svgProps?: any;
   onPress?: () => void;
   btnProps?: ViewProps;
+  style?: ViewStyle;
 }
-export function CloseIcon({ svgProps, onPress, btnProps }: CloseIconProps) {
+export function CloseIcon({
+  svgProps,
+  onPress,
+  btnProps,
+  style,
+}: CloseIconProps) {
   const theme = useTheme();
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.2}
-      style={{ width: 25, height: 25 }}
+      style={{ width: 25, height: 25, ...style }}
       {...btnProps}
     >
       <Svg

@@ -38,7 +38,7 @@ export function DateTimePickerDialog({
               textAlign: "center",
             }}
           >
-            Max 200-250 words per notification
+            Limited up to 250 words per notification
           </Text>
           <DateTimePicker
             minimumDate={new Date()}
@@ -67,7 +67,7 @@ export function DateTimePickerDialog({
               textAlign: "center",
             }}
           >
-            Max 200-250 words per notification
+            Limited up to 250 words per notification
           </Text>
           <View
             style={{

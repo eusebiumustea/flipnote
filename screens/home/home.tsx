@@ -3,7 +3,13 @@ import { useNavigation } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
 import { MotiView } from "moti";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, FlatList, View, useAnimatedValue } from "react-native";
+import {
+  Alert,
+  FlatList,
+  View,
+  useAnimatedValue,
+  useWindowDimensions,
+} from "react-native";
 import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
@@ -21,6 +27,7 @@ import { Inbox } from "../inbox";
 import { notesData } from "../note";
 import { NoteOptions } from "./note-options/note-options";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
+
 export function Home() {
   const navigation = useNavigation<any>();
   const [selected, setSelected] = useState<string[]>([]);
@@ -122,8 +129,16 @@ export function Home() {
     }
     return false;
   });
+  const { width, height } = useWindowDimensions();
+  console.log(JSON.stringify(notes.data));
   return (
-    <View style={{ flex: 1, backgroundColor: theme.background }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: theme.background,
+        justifyContent: "center",
+      }}
+    >
       <MotiView
         transition={{
           type: "timing",
@@ -219,6 +234,7 @@ export function Home() {
             onClose={() => setOptionsSelection([])}
           />
         )}
+
         <FlatList
           ref={scrollRef}
           columnWrapperStyle={{
@@ -228,15 +244,9 @@ export function Home() {
           }}
           numColumns={2}
           data={filteredData}
-          getItemLayout={(data, index) => ({
-            length: verticalScale(250),
-            offset: verticalScale(250) * index * 2,
-            index,
-          })}
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item, index }) => (
             <NoteCard
-              key={item.id}
               deletedProgress={deleteProgress.includes(item.id)}
               options={optionsSelection.length > 0}
               selectedForOptions={optionsSelection.includes(item.id)}

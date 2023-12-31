@@ -23,7 +23,7 @@ export function FontColorIcon({
         height={"100%"}
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 32 38"
-        fill="none"
+        stroke={color}
         x="0px"
         y="0px"
         {...svgProps}

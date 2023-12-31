@@ -6,68 +6,47 @@ import * as Notifications from "expo-notifications";
 import * as Sharing from "expo-sharing";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Button,
   Dimensions,
   Linking,
   Platform,
-  Pressable,
   ScrollView,
   Text,
   TextInput,
-  TouchableOpacity,
+  TextStyle,
   View,
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
-import { ColorBox, Swipe, useToast } from "../../components";
+import { Swipe, useToast } from "../../components";
+import { fontNames } from "../../constants";
 import {
   dateTime,
-  excludeArrayElements,
-  excludeNotes,
   moderateFontScale,
   moderateScale,
   range,
   recalculateId,
   reinjectElementInArray,
-  removeObjectKey,
   replaceElementAtId,
-  replaceElementAtIndex,
   useTheme,
   verticalScale,
 } from "../../tools";
-import ColorPicker, {
-  Panel1,
-  Swatches,
-  Preview,
-  OpacitySlider,
-  HueSlider,
-  Panel2,
-  Panel3,
-  Panel4,
-  Panel5,
-  SaturationSlider,
-  BrightnessSlider,
-} from "reanimated-color-picker";
 import { cardColors } from "../../tools/colors";
-import { notesData } from "./date-time-picker/atom";
-import { CustomizeBar } from "./customize-bar";
-import { DateTimePickerDialog } from "./date-time-picker";
-import { NoteScreenHeader } from "./note-screen-header";
 import {
-  InputSelectionProps,
-  ReminderProps,
-  TextNoteStyle,
-  note,
-} from "./types";
-import { fontNames } from "../../constants";
+  BackgroundOptions,
+  ColorOptions,
+  CustomizeBar,
+  FontOptions,
+} from "./customize-bar";
+import { DateTimePickerDialog } from "./date-time-picker";
+import { notesData } from "./date-time-picker/atom";
+import { HistoryChanges } from "./history-changes";
+import { NoteScreenHeader } from "./note-screen-header";
+import { StyleEvent, onFontColor } from "./style-events";
+import { InputSelectionProps, ReminderProps, note } from "./types";
 interface ParamsProps {
   id: number;
   edit: boolean;
-}
-interface RenderContentProps {
-  value: string;
-  styles: TextNoteStyle[];
 }
 
 export function NotePage({ route, navigation }: any) {
@@ -179,49 +158,32 @@ export function NotePage({ route, navigation }: any) {
         data: recalculateId(prev.data),
       }));
   }, []);
-  const RenderContent = useMemo(() => {
+
+  const Content = useMemo(() => {
     const isStyled = editNote.styles.length > 0;
     const text = editNote.text;
-    const sortedStyles = editNote.styles.sort(
-      (a, b) => a?.interval?.end - b?.interval?.start
-    );
     if (isStyled) {
       return (
         <>
-          <Text>{text.slice(0, editNote?.styles[0]?.interval?.start)}</Text>
-          {sortedStyles.map((e, i, arr) => {
+          <Text>{text.slice(0, editNote.styles[0]?.interval?.start)}</Text>
+          {editNote.styles.map((e, i, arr) => {
             const start = e?.interval?.start;
             const end = e?.interval?.end;
             const nextStart = arr[i + 1]?.interval?.start;
             const style = e?.style;
             return (
               <Fragment key={i}>
-                <Text style={style}> {text.slice(start, end)}</Text>
-                <Text> {text.slice(end, nextStart)}</Text>
+                <Text style={style}>{text.slice(start, end)}</Text>
+                <Text>{text.slice(end, nextStart)}</Text>
               </Fragment>
             );
           })}
-
-          {/* <Text>
-            {text.slice(
-              editNote.styles[editNote.styles.length - 1]?.interval?.end
-            )}
-          </Text> */}
         </>
       );
     }
     return <Text>{editNote.text}</Text>;
-  }, [editNote.styles]);
-  useMemo(() => {
-    editNote.styles.map((e, i, arr) => {
-      if (e.interval.end + 1 > selection.end) {
-        setEditNote((prev) => ({
-          ...prev,
-          styles: prev.styles.filter((style) => style !== e),
-        }));
-      }
-    });
-  }, [editNote.text]);
+  }, [editNote.styles, editNote.text]);
+
   const currentFocused =
     selection.end !== selection.start &&
     editNote.styles.find(
@@ -241,8 +203,8 @@ export function NotePage({ route, navigation }: any) {
         Object.keys(e.style).length > 0)
   );
   function font(fontName: string) {
-    const weight = currentFocused?.style?.fontWeight;
-    const italic = currentFocused?.style?.fontStyle;
+    const weight = currentFocused?.style?.fontWeight === "bold";
+    const italic = currentFocused?.style?.fontStyle === "italic";
     if (weight && !italic) {
       console.log("only weight");
 
@@ -390,10 +352,9 @@ export function NotePage({ route, navigation }: any) {
 
   console.log("editnote:", JSON.stringify(editNote));
 
-  const config =
+  const gestureConfig =
     Platform.OS === "ios" &&
     Swipe({
-      onMove(e, state) {},
       onRelease: (e, state) => {
         const x = state.dx;
         const pageX = e.nativeEvent.pageX;
@@ -403,11 +364,21 @@ export function NotePage({ route, navigation }: any) {
       },
     });
   const fontFamilyFocused = currentFocused?.style?.fontFamily;
+  const [changes, setShowChanges] = useState(false);
+  function setStyleEvent(key: keyof TextStyle, value: string) {
+    return StyleEvent(
+      currentFocused,
+      key,
+      value,
+      selection,
+      setEditNote,
+      currentIndex
+    );
+  }
   return (
     <View
       style={{
         flex: 1,
-        // backgroundColor: theme.background,
       }}
     >
       <DateTimePickerDialog
@@ -445,6 +416,8 @@ export function NotePage({ route, navigation }: any) {
       />
 
       <NoteScreenHeader
+        historyShown={editNote.styles.length > 0}
+        onHistoryOpen={() => setShowChanges(true)}
         onReminderOpen={openReminder}
         onClipboard={async () => {
           if (noteStateIsEmpty) {
@@ -468,9 +441,16 @@ export function NotePage({ route, navigation }: any) {
         favorite={editNote.isFavorite}
         onShare={Share}
       />
-
+      <HistoryChanges
+        background={editNote.background}
+        text={editNote.text}
+        setEditNote={setEditNote}
+        styles={editNote.styles}
+        opened={changes}
+        onClose={() => setShowChanges(false)}
+      />
       <ScrollView
-        {...config}
+        {...gestureConfig}
         scrollEventThrottle={16}
         onScroll={(e) => {
           scrollPosition = e.nativeEvent.contentOffset.y;
@@ -497,7 +477,6 @@ export function NotePage({ route, navigation }: any) {
           }
           underlineColorAndroid="transparent"
           cursorColor={"#FFCB09"}
-          keyboardType="visible-password"
           selectTextOnFocus={false}
           multiline
           scrollEnabled={false}
@@ -520,477 +499,72 @@ export function NotePage({ route, navigation }: any) {
               start,
               end,
             });
-            // selection = { start, end };
           }}
           placeholderTextColor={theme.placeholder}
           cursorColor={"#FFCB09"}
           selectTextOnFocus={false}
           autoCapitalize="none"
           autoCorrect={false}
-          onChangeText={(editedText) =>
+          spellCheck={false}
+          inputMode="text"
+          keyboardType="default"
+          onChangeText={(text) =>
             setEditNote((prev) => ({
               ...prev,
-              text: editedText,
+              text,
             }))
           }
           underlineColorAndroid="transparent"
-          keyboardType="default"
           multiline
           // selectionColor={"#FFF3C7"}
           placeholder="Take the note"
           style={{
             marginTop: verticalScale(20),
             paddingBottom: verticalScale(200),
+            backgroundColor: editNote.background,
           }}
         >
-          {RenderContent}
+          {Content}
         </TextInput>
-        {/* <View style={{ height: 100, backgroundColor: "red" }}></View> */}
       </ScrollView>
       <CustomizeBar
-        italicFocused={currentFocused?.style?.fontStyle !== undefined}
-        onItalic={() => {
-          if (!currentFocused && selection.end !== selection.start) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles: [
-                ...prev.styles,
-                { interval: selection, style: { fontStyle: "italic" } },
-              ],
-            }));
-          }
-          if (
-            currentFocused &&
-            currentFocused?.style?.fontStyle === undefined &&
-            Object.keys(currentFocused.style).length >= 1
-          ) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles: replaceElementAtIndex(prev.styles, currentIndex, {
-                ...currentFocused,
-                style: { ...currentFocused.style, fontStyle: "italic" },
-              }),
-            }));
-          }
-
-          if (
-            currentFocused &&
-            currentFocused?.style?.fontStyle !== undefined &&
-            Object.keys(currentFocused.style).length >= 1
-          ) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles:
-                Object.keys(currentFocused.style).length > 1
-                  ? replaceElementAtIndex(prev.styles, currentIndex, {
-                      ...currentFocused,
-                      style: removeObjectKey(currentFocused.style, "fontStyle"),
-                    })
-                  : prev.styles.filter((e) => e !== currentFocused),
-            }));
-          }
-        }}
-        onBold={() => {
-          if (!currentFocused && selection.end !== selection.start) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles: [
-                ...prev.styles,
-                { interval: selection, style: { fontWeight: "bold" } },
-              ],
-            }));
-          }
-          if (
-            currentFocused &&
-            currentFocused?.style?.fontWeight === undefined &&
-            Object.keys(currentFocused.style).length >= 1 &&
-            selection.end !== selection.start
-          ) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles: replaceElementAtIndex(prev.styles, currentIndex, {
-                ...currentFocused,
-                style: { ...currentFocused.style, fontWeight: "bold" },
-              }),
-            }));
-          }
-
-          if (
-            currentFocused &&
-            currentFocused?.style?.fontWeight !== undefined &&
-            Object.keys(currentFocused.style).length >= 1
-          ) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles:
-                Object.keys(currentFocused.style).length === 1
-                  ? prev.styles.filter((e) => e !== currentFocused)
-                  : replaceElementAtIndex(prev.styles, currentIndex, {
-                      ...currentFocused,
-                      style: removeObjectKey(
-                        currentFocused.style,
-                        "fontWeight"
-                      ),
-                    }),
-            }));
-          }
-        }}
-        boldFocused={currentFocused?.style?.fontWeight !== undefined}
-        onUnderline={() => {
-          if (!currentFocused && selection.end !== selection.start) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles: [
-                ...prev.styles,
-                {
-                  interval: selection,
-                  style: { textDecorationLine: "underline" },
-                },
-              ],
-            }));
-          }
-          if (
-            currentFocused &&
-            currentFocused.style.textDecorationLine === undefined &&
-            Object.keys(currentFocused.style).length >= 1 &&
-            selection.end !== selection.start
-          ) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles: replaceElementAtIndex(prev.styles, currentIndex, {
-                ...currentFocused,
-                style: {
-                  ...currentFocused.style,
-                  textDecorationLine: "underline",
-                },
-              }),
-            }));
-          }
-
-          if (
-            currentFocused &&
-            currentFocused.style.textDecorationLine !== undefined &&
-            Object.keys(currentFocused.style).length >= 1
-          ) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles:
-                Object.keys(currentFocused.style).length === 1
-                  ? prev.styles.filter((e) => e !== currentFocused)
-                  : replaceElementAtIndex(prev.styles, currentIndex, {
-                      ...currentFocused,
-                      style: removeObjectKey(
-                        currentFocused.style,
-                        "textDecorationLine"
-                      ),
-                    }),
-            }));
-          }
-        }}
+        focusedColor={currentFocused?.style?.color}
+        selection={selection}
+        italicFocused={currentFocused?.style?.fontStyle === "italic"}
+        onItalic={() => setStyleEvent("fontStyle", "italic")}
+        onBold={() => setStyleEvent("fontWeight", "bold")}
+        boldFocused={currentFocused?.style?.fontWeight === "bold"}
+        onUnderline={() => setStyleEvent("textDecorationLine", "underline")}
         underLinedFocused={
-          currentFocused?.style?.textDecorationLine !== undefined
+          currentFocused?.style?.textDecorationLine === "underline"
         }
-        onFontColor={() => {
-          if (!currentFocused && selection.end !== selection.start) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles: [
-                ...prev.styles,
-                {
-                  interval: selection,
-                  style: { color: "#0213f5" },
-                },
-              ],
-            }));
-          }
-          if (
-            currentFocused &&
-            currentFocused?.style?.color === undefined &&
-            Object.keys(currentFocused.style).length >= 1
-          ) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles: replaceElementAtIndex(prev.styles, currentIndex, {
-                ...currentFocused,
-                style: {
-                  ...currentFocused.style,
-                  color: "#0213f5",
-                },
-              }),
-            }));
-          }
-        }}
+        onFontColor={() =>
+          onFontColor(currentFocused, selection, setEditNote, currentIndex)
+        }
         fontColorOptions={
-          <ColorPicker
-            style={{
-              rowGap: 10,
-              width: width - 60,
-            }}
-            thumbShape="circle"
-            onComplete={({ hex }) => {
-              if (!currentFocused && selection.end !== selection.start) {
-                setEditNote((prev) => ({
-                  ...prev,
-                  styles: [
-                    ...prev.styles,
-                    {
-                      interval: selection,
-                      style: { color: hex },
-                    },
-                  ],
-                }));
-              }
-              if (
-                currentFocused &&
-                currentFocused?.style?.color === undefined &&
-                Object.keys(currentFocused.style).length >= 1
-              ) {
-                setEditNote((prev) => ({
-                  ...prev,
-                  styles: replaceElementAtIndex(prev.styles, currentIndex, {
-                    ...currentFocused,
-                    style: {
-                      ...currentFocused.style,
-                      color: hex,
-                    },
-                  }),
-                }));
-              }
-
-              if (
-                currentFocused &&
-                currentFocused?.style?.color !== undefined &&
-                Object.keys(currentFocused.style).length >= 1
-              ) {
-                setEditNote((prev) => ({
-                  ...prev,
-                  styles: replaceElementAtIndex(prev.styles, currentIndex, {
-                    ...currentFocused,
-                    style: { ...currentFocused.style, color: hex },
-                  }),
-                }));
-              }
-            }}
-            value={
-              currentFocused && currentFocused?.style?.color
-                ? (currentFocused?.style?.color as string)
-                : "#0213f5"
-            }
-          >
-            <HueSlider boundedThumb />
-            <SaturationSlider boundedThumb />
-            <BrightnessSlider boundedThumb />
-            {currentFocused?.style?.color !== undefined && (
-              <Pressable
-                onPress={() => {
-                  if (
-                    currentFocused &&
-                    currentFocused?.style?.color !== undefined &&
-                    Object.keys(currentFocused.style).length >= 1
-                  ) {
-                    setEditNote((prev) => ({
-                      ...prev,
-                      styles:
-                        Object.keys(currentFocused.style).length === 1
-                          ? prev.styles.filter((e) => e !== currentFocused)
-                          : replaceElementAtIndex(prev.styles, currentIndex, {
-                              ...currentFocused,
-                              style: removeObjectKey(
-                                currentFocused.style,
-                                "color"
-                              ),
-                            }),
-                    }));
-                  }
-                }}
-                style={{
-                  alignSelf: "flex-start",
-                  backgroundColor: theme.primary,
-                  padding: 5,
-                  borderRadius: 20,
-                }}
-              >
-                <Text style={{ color: theme.onPrimary }}>Reset</Text>
-              </Pressable>
-            )}
-          </ColorPicker>
+          <ColorOptions
+            selection={selection}
+            currentFocused={currentFocused}
+            currentIndex={currentIndex}
+            setEditNote={setEditNote}
+          />
         }
-        focused={selection.end !== selection.start}
         backgroundOptions={
-          <>
-            {cardColors.map((e, i) => {
-              return (
-                <ColorBox
-                  onPress={() =>
-                    setEditNote((prev) => ({ ...prev, background: e }))
-                  }
-                  bgColor={e}
-                  key={i}
-                  checked={editNote.background === e}
-                />
-              );
-            })}
-          </>
+          <BackgroundOptions
+            colors={cardColors}
+            editNote={editNote}
+            setEditNote={setEditNote}
+          />
         }
         fontOptions={
-          <>
-            <Pressable
-              onPress={() => {
-                if (
-                  currentFocused &&
-                  currentFocused?.style?.fontFamily !== undefined &&
-                  Object.keys(currentFocused.style).length >= 1
-                ) {
-                  setEditNote((prev) => ({
-                    ...prev,
-                    styles:
-                      Object.keys(currentFocused.style).length === 1
-                        ? prev.styles.filter((e) => e !== currentFocused)
-                        : replaceElementAtIndex(prev.styles, currentIndex, {
-                            ...currentFocused,
-                            style: removeObjectKey(
-                              currentFocused.style,
-                              "fontFamily"
-                            ),
-                          }),
-                  }));
-                }
-              }}
-              style={{
-                borderRadius: 16,
-                justifyContent: "center",
-                alignItems: "center",
-                flexDirection: "column",
-              }}
-            >
-              <Text
-                style={{
-                  color: theme.primary,
-                  fontSize: moderateFontScale(16),
-                }}
-              >
-                {"Default"}
-              </Text>
-              {!fontFamilyFocused && (
-                <View
-                  style={{
-                    width: "100%",
-                    height: 3,
-                    backgroundColor: theme.primary,
-                  }}
-                />
-              )}
-            </Pressable>
-            {fontNames.map((e, i) => {
-              return (
-                <Pressable
-                  onPress={() => {
-                    if (!currentFocused && selection.end !== selection.start) {
-                      setEditNote((prev) => ({
-                        ...prev,
-                        styles: [
-                          ...prev.styles,
-                          {
-                            interval: selection,
-                            style: { fontFamily: e },
-                          },
-                        ],
-                      }));
-                    }
-                    if (currentFocused?.style?.fontFamily === e) {
-                      return;
-                    }
-                    if (
-                      currentFocused &&
-                      currentFocused?.style?.fontFamily !== undefined &&
-                      Object.keys(currentFocused.style).length >= 1
-                    ) {
-                      setEditNote((prev) => ({
-                        ...prev,
-                        styles: replaceElementAtIndex(
-                          prev.styles,
-                          currentIndex,
-                          {
-                            ...currentFocused,
-                            style: {
-                              ...currentFocused.style,
-                              fontFamily: e,
-                            },
-                          }
-                        ),
-                      }));
-                    }
-                    if (
-                      currentFocused &&
-                      currentFocused?.style?.fontFamily === undefined &&
-                      Object.keys(currentFocused.style).length >= 1
-                    ) {
-                      setEditNote((prev) => ({
-                        ...prev,
-                        styles: replaceElementAtIndex(
-                          prev.styles,
-                          currentIndex,
-                          {
-                            ...currentFocused,
-                            style: {
-                              ...currentFocused.style,
-                              fontFamily: e,
-                            },
-                          }
-                        ),
-                      }));
-                    }
-
-                    // if (
-                    //   currentFocused &&
-                    //   currentFocused?.style?.fontFamily !== undefined &&
-                    //   Object.keys(currentFocused.style).length >= 1
-                    // ) {
-                    //   setEditNote((prev) => ({
-                    //     ...prev,
-                    //     styles:
-                    //       Object.keys(currentFocused.style).length === 1
-                    //         ? prev.styles.filter((e) => e !== currentFocused)
-                    //         : replaceElementAtIndex(prev.styles, currentIndex, {
-                    //             ...currentFocused,
-                    //             style: removeObjectKey(
-                    //               currentFocused.style,
-                    //               "fontFamily"
-                    //             ),
-                    //           }),
-                    //   }));
-                    // }
-                  }}
-                  style={{
-                    borderRadius: 16,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    flexDirection: "column",
-                  }}
-                  key={i}
-                >
-                  <Text
-                    style={{
-                      color: theme.primary,
-                      fontFamily: e,
-                      fontSize: moderateFontScale(18),
-                    }}
-                  >
-                    {e}
-                  </Text>
-                  {fontFamilyFocused === e && (
-                    <View
-                      style={{
-                        width: "100%",
-                        height: 3,
-                        backgroundColor: theme.primary,
-                      }}
-                    />
-                  )}
-                </Pressable>
-              );
-            })}
-          </>
+          <FontOptions
+            selection={selection}
+            fonts={fontNames}
+            setEditNote={setEditNote}
+            fontFamilyFocused={fontFamilyFocused}
+            currentIndex={currentIndex}
+            currentFocused={currentFocused}
+          />
         }
       />
     </View>

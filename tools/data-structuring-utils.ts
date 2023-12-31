@@ -21,7 +21,17 @@ export function toggleState<T>(
     }
   };
 }
+export function toggleObjectKeyValue<O, K extends keyof O>(
+  object: O,
+  key: K,
+  value: any
+) {
+  if (Object.keys(object).includes(key.toString())) {
+    return removeObjectKey(object, key);
+  }
 
+  return { ...object, [key]: value };
+}
 export function removeElementAtIndex<T>(array: T[], removeIndex: number) {
   return [...array.slice(0, removeIndex), ...array.slice(removeIndex + 1)];
 }
@@ -156,6 +166,9 @@ export function range(start: number, end: number) {
     range.push(i);
   }
   return range;
+}
+export function sortStyles(styles: TextNoteStyle[]) {
+  return styles.sort((a, b) => a?.interval?.end - b?.interval?.start);
 }
 export function dateTime(date: Date) {
   const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();

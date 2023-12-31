@@ -3,6 +3,7 @@ import { Dimensions, Platform, View, useColorScheme } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   BackIcon,
+  ChangesIcon,
   ClipboardIcon,
   HeartIcon,
   ReminderIcon,
@@ -17,6 +18,8 @@ interface NoteScreenHeaderProps {
   onShare: () => void;
   onReminderOpen?: () => void;
   favorite?: boolean;
+  onHistoryOpen?: () => void;
+  historyShown: boolean;
 }
 export function NoteScreenHeader({
   onClipboard,
@@ -25,6 +28,8 @@ export function NoteScreenHeader({
   onShare,
   favorite,
   onReminderOpen,
+  onHistoryOpen,
+  historyShown,
 }: NoteScreenHeaderProps) {
   const { top } = useSafeAreaInsets();
   const { width } = Dimensions.get("window");
@@ -79,10 +84,11 @@ export function NoteScreenHeader({
           style={{
             flexDirection: "row",
             alignItems: "center",
-            columnGap: 16,
+            columnGap: 14,
             zIndex: 1,
           }}
         >
+          {historyShown && <ChangesIcon onPress={onHistoryOpen} />}
           <ReminderIcon onPress={onReminderOpen} />
           <ClipboardIcon onPress={onClipboard} />
           <HeartIcon onPress={onFavoriteAdd} focused={favorite} />

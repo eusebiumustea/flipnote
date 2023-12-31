@@ -1,13 +1,9 @@
-import {
-  CardStyleInterpolators,
-  createStackNavigator,
-} from "@react-navigation/stack";
+import { createStackNavigator } from "@react-navigation/stack";
+import { Easing } from "react-native-reanimated";
 import { enableFreeze } from "react-native-screens";
 import { useRecoilState } from "recoil";
 import { Home, Inbox, NotePage, notesData } from "../screens";
-import { Platform } from "react-native";
-import { Easing } from "react-native-reanimated";
-import { BlurView } from "expo-blur";
+import { NotePageRework } from "../screens/note/note-page-reworked";
 enableFreeze(true);
 
 export function AppRouting() {
@@ -31,7 +27,7 @@ export function AppRouting() {
         cardOverlayEnabled: true,
         cardStyleInterpolator: ({ current, layouts }) => ({
           cardStyle: {
-            // opacity: current.progress,
+            opacity: current.progress,
             transform: [
               {
                 translateX: current.progress.interpolate({
