@@ -1,7 +1,8 @@
 import { TouchableOpacity } from "react-native";
-import { moderateScale, useTheme, verticalScale } from "../../tools";
+import { moderateScale, verticalScale } from "../../tools";
 import { ColorBoxProps } from "./types";
 import Svg, { Path } from "react-native-svg";
+import { useTheme } from "../../hooks";
 
 export function ColorBox({
   bgColor,

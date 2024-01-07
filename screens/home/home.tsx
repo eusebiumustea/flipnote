@@ -1,7 +1,6 @@
 import { useBackHandler } from "@react-native-community/hooks";
 import { useNavigation } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
-import { MotiView } from "moti";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
@@ -10,23 +9,21 @@ import {
   useAnimatedValue,
   useWindowDimensions,
 } from "react-native";
-import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 import { CreateIcon, Header, NoteCard, useToast } from "../../components";
 import {
-  deviceIsLowRam,
   excludeNotes,
   recalculateId,
   removeArrayKeyDuplicates,
   toggleArrayElement,
-  useTheme,
   verticalScale,
 } from "../../tools";
 import { Inbox } from "../inbox";
 import { notesData } from "../note";
 import { NoteOptions } from "./note-options/note-options";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
+import { useTheme } from "../../hooks";
 
 export function Home() {
   const navigation = useNavigation<any>();
@@ -130,7 +127,6 @@ export function Home() {
     return false;
   });
   const { width, height } = useWindowDimensions();
-  console.log(JSON.stringify(notes.data));
   return (
     <View
       style={{
@@ -139,156 +135,140 @@ export function Home() {
         justifyContent: "center",
       }}
     >
-      <MotiView
-        transition={{
-          type: "timing",
-          duration: 350,
-          easing: Easing.inOut(Easing.ease),
+      <Inbox onBack={() => setInbox(false)} open={inbox} />
+      {optionsSelection.length === 0 && (
+        <Header
+          children={
+            <FlatList
+              style={{
+                width: "100%",
+                flexGrow: 0,
+              }}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingHorizontal: 14,
+                columnGap: 12,
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+              horizontal
+              ListHeaderComponent={() => (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    columnGap: 12,
+                    alignItems: "center",
+                  }}
+                >
+                  <FilterButton
+                    onSelected={() => setSelected([])}
+                    selected={selected.length === 0}
+                    label="All"
+                  />
+
+                  {filteredData.filter((e) => e.isFavorite === true).length >
+                    0 && (
+                    <FilterFavoritesButton
+                      selected={favorite}
+                      onSelected={() => setFavorite((prev) => !prev)}
+                    />
+                  )}
+                </View>
+              )}
+              data={notesWithoutCopies}
+              keyExtractor={(_, index) => index.toString()}
+              renderItem={({ item }) => (
+                <FilterButton
+                  key={item}
+                  onSelected={() =>
+                    setSelected(toggleArrayElement(selected, item))
+                  }
+                  selected={selected.includes(item)}
+                  label={item}
+                />
+              )}
+            />
+          }
+          onInboxOpen={() => setInbox(true)}
+          scrollY={scrollY}
+          searchValue={searchQuery}
+          onSearch={setSearchQuery}
+          extraHeight={optionsSelection.length === 0 && verticalScale(40)}
+        />
+      )}
+
+      {optionsSelection.length > 0 && (
+        <NoteOptions
+          selectedNotes={optionsSelection}
+          onModalOpen={() => setModal(true)}
+          onModalClose={() => setModal(false)}
+          showModal={modal}
+          totalSelected={optionsSelection.length === filteredData.length}
+          onTotalSelect={() => {
+            if (optionsSelection.length === filteredData.length) {
+              setOptionsSelection([]);
+            } else {
+              setOptionsSelection(filteredData.map((e) => e.id).sort());
+            }
+          }}
+          onDelete={deleteNotes}
+          onClose={() => setOptionsSelection([])}
+        />
+      )}
+
+      <FlatList
+        ref={scrollRef}
+        columnWrapperStyle={{
+          width: "100%",
+          justifyContent: "center",
+          gap: 12,
+        }}
+        numColumns={2}
+        data={filteredData}
+        keyExtractor={(_, index) => index.toString()}
+        renderItem={({ item, index }) => (
+          <NoteCard
+            deletedProgress={deleteProgress.includes(item.id)}
+            options={optionsSelection.length > 0}
+            selectedForOptions={optionsSelection.includes(item.id)}
+            onLongPress={() =>
+              setOptionsSelection(
+                toggleArrayElement(optionsSelection, item.id).sort()
+              )
+            }
+            onPress={() => {
+              if (optionsSelection.length > 0) {
+                setOptionsSelection(
+                  toggleArrayElement(optionsSelection, item.id).sort()
+                );
+              } else {
+                navigation.push("note", { id: item.id });
+              }
+            }}
+            item={item}
+          />
+        )}
+        scrollEventThrottle={16}
+        onScroll={(e) =>
+          scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y))
+        }
+        contentContainerStyle={{
+          backgroundColor: theme.background,
+          paddingHorizontal: 16,
+          width: "100%",
+          rowGap: 12,
+          paddingBottom: 30,
+          paddingTop: verticalScale(115) + top,
         }}
         style={{
           flex: 1,
-          flexDirection: "column",
           backgroundColor: theme.background,
         }}
-        from={{ scale: 1 }}
-        animate={{ scale: !deviceIsLowRam && inbox ? 0.9 : 1 }}
-      >
-        <Inbox onBack={() => setInbox(false)} open={inbox} />
-        {optionsSelection.length === 0 && (
-          <Header
-            children={
-              <FlatList
-                style={{
-                  width: "100%",
-                  flexGrow: 0,
-                }}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{
-                  paddingHorizontal: 14,
-                  columnGap: 12,
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-                horizontal
-                ListHeaderComponent={() => (
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      columnGap: 12,
-                      alignItems: "center",
-                    }}
-                  >
-                    <FilterButton
-                      onSelected={() => setSelected([])}
-                      selected={selected.length === 0}
-                      label="All"
-                    />
+      />
 
-                    {filteredData.filter((e) => e.isFavorite === true).length >
-                      0 && (
-                      <FilterFavoritesButton
-                        selected={favorite}
-                        onSelected={() => setFavorite((prev) => !prev)}
-                      />
-                    )}
-                  </View>
-                )}
-                data={notesWithoutCopies}
-                keyExtractor={(_, index) => index.toString()}
-                renderItem={({ item }) => (
-                  <FilterButton
-                    key={item}
-                    onSelected={() =>
-                      setSelected(toggleArrayElement(selected, item))
-                    }
-                    selected={selected.includes(item)}
-                    label={item}
-                  />
-                )}
-              />
-            }
-            inboxOpened={inbox}
-            onInboxOpen={() => setInbox(true)}
-            scrollY={scrollY}
-            searchValue={searchQuery}
-            onSearch={setSearchQuery}
-            extraHeight={optionsSelection.length === 0 && verticalScale(40)}
-          />
-        )}
-
-        {optionsSelection.length > 0 && (
-          <NoteOptions
-            selectedNotes={optionsSelection}
-            onModalOpen={() => setModal(true)}
-            onModalClose={() => setModal(false)}
-            showModal={modal}
-            totalSelected={optionsSelection.length === filteredData.length}
-            onTotalSelect={() => {
-              if (optionsSelection.length === filteredData.length) {
-                setOptionsSelection([]);
-              } else {
-                setOptionsSelection(filteredData.map((e) => e.id).sort());
-              }
-            }}
-            onDelete={deleteNotes}
-            onClose={() => setOptionsSelection([])}
-          />
-        )}
-
-        <FlatList
-          ref={scrollRef}
-          columnWrapperStyle={{
-            width: "100%",
-            justifyContent: "center",
-            gap: 12,
-          }}
-          numColumns={2}
-          data={filteredData}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item, index }) => (
-            <NoteCard
-              deletedProgress={deleteProgress.includes(item.id)}
-              options={optionsSelection.length > 0}
-              selectedForOptions={optionsSelection.includes(item.id)}
-              onLongPress={() =>
-                setOptionsSelection(
-                  toggleArrayElement(optionsSelection, item.id).sort()
-                )
-              }
-              onPress={() => {
-                if (optionsSelection.length > 0) {
-                  setOptionsSelection(
-                    toggleArrayElement(optionsSelection, item.id).sort()
-                  );
-                } else {
-                  navigation.push("note", { id: item.id });
-                }
-              }}
-              item={item}
-            />
-          )}
-          scrollEventThrottle={16}
-          onScroll={(e) =>
-            scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y))
-          }
-          contentContainerStyle={{
-            backgroundColor: theme.background,
-            paddingHorizontal: 16,
-            width: "100%",
-            rowGap: 12,
-            paddingBottom: 30,
-            paddingTop: verticalScale(115) + top,
-          }}
-          style={{
-            flex: 1,
-            backgroundColor: theme.background,
-          }}
-        />
-
-        {optionsSelection.length === 0 && (
-          <CreateIcon onPress={() => navigation.push("note")} />
-        )}
-      </MotiView>
+      {optionsSelection.length === 0 && (
+        <CreateIcon onPress={() => navigation.push("note")} />
+      )}
     </View>
   );
 }

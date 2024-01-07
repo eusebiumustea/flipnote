@@ -1,25 +1,12 @@
 import * as Notifications from "expo-notifications";
-import {
-  MotiPressable,
-  MotiPressableProps,
-  MotiPressableTransitionProp,
-} from "moti/interactions";
 import React, { PropsWithChildren, useEffect, useState } from "react";
 
+import { Animated, Pressable, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  animationConfig,
-  deviceIsLowRam,
-  moderateFontScale,
-  moderateScale,
-  useTheme,
-  verticalScale,
-} from "../../tools";
+import { moderateFontScale, moderateScale, verticalScale } from "../../tools";
 import { InboxIcon, SearchIcon } from "../assets";
 import { HeaderProps } from "./types";
-import { Animated, Pressable, TextInput, View } from "react-native";
-import { Easing } from "react-native-reanimated";
-import { MotiAnimationProp, MotiFromProp, MotiProps } from "moti";
+import { useTheme } from "../../hooks";
 export const Header = React.memo(
   ({
     searchValue,
@@ -28,7 +15,6 @@ export const Header = React.memo(
     children,
     extraHeight = 0,
     onInboxOpen,
-    inboxOpened,
   }: PropsWithChildren<HeaderProps>) => {
     const theme = useTheme();
     const { top } = useSafeAreaInsets();
@@ -38,26 +24,10 @@ export const Header = React.memo(
         setBadge(true);
         setTimeout(() => setBadge(false), 10000);
       });
-
       return () => {
         listen.remove();
-        console.log("removed");
       };
     }, []);
-    const motiConfig: MotiPressableProps = !deviceIsLowRam && {
-      from: {
-        scale: 1,
-        opacity: 1,
-        translateX: moderateScale(-50),
-        translateY: 50,
-      },
-      animate: {
-        scale: inboxOpened ? 2 : 1,
-        opacity: inboxOpened ? 0 : 1,
-        translateX: inboxOpened ? moderateScale(-50) : 0,
-        translateY: inboxOpened ? 50 : 0,
-      },
-    };
 
     return (
       <Animated.View

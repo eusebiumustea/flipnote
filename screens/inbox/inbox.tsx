@@ -5,6 +5,7 @@ import React, { Fragment, useMemo } from "react";
 import {
   Modal,
   Platform,
+  Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -14,14 +15,13 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 import { ScreenHeader, Swipe } from "../../components";
+import { useTheme } from "../../hooks";
 import {
-  animationConfig,
   dateTime,
   deviceIsLowRam,
   moderateFontScale,
   moderateScale,
   replaceElementAtId,
-  useTheme,
   verticalScale,
 } from "../../tools";
 import { notesData } from "../note";
@@ -96,27 +96,24 @@ export function Inbox({ onBack, open }: InboxProps) {
           )}
           <MotiView
             {...config}
-            transition={animationConfig}
+            transition={{ type: "timing" }}
             style={{
               backgroundColor: theme.background,
               flex: 1,
             }}
             from={{
               translateX: width / 2 - moderateScale(30),
-              translateY: -height / 2 + top + 30,
-
+              translateY: -height / 2 + top,
               scale: 0,
             }}
             animate={{
               translateX: 0,
               translateY: 0,
-
               scale: 1,
             }}
             exit={{
               translateX: width / 2 - moderateScale(30),
-              translateY: -height / 2 + top + 30,
-
+              translateY: -height / 2 + top,
               scale: 0,
             }}
           >
@@ -185,7 +182,7 @@ export function Inbox({ onBack, open }: InboxProps) {
 
                 return (
                   <Fragment key={i}>
-                    <View
+                    <Pressable
                       style={{
                         width: "100%",
                         borderRadius: 16,
@@ -211,7 +208,7 @@ export function Inbox({ onBack, open }: InboxProps) {
                       >
                         {note.title.length > 0 ? note.title : note.text}
                       </Text>
-                    </View>
+                    </Pressable>
                     <View
                       style={{
                         flexDirection: "row",

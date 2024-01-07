@@ -1,7 +1,6 @@
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { useBackHandler, useKeyboard } from "@react-native-community/hooks";
 import * as Clipboard from "expo-clipboard";
-import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
 import * as Sharing from "expo-sharing";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
@@ -13,10 +12,10 @@ import {
   Text,
   TextInput,
   TextStyle,
-  View,
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { captureRef } from "react-native-view-shot";
 import { useRecoilState } from "recoil";
 import { Swipe, useToast } from "../../components";
 import { fontNames } from "../../constants";
@@ -27,9 +26,9 @@ import {
   range,
   recalculateId,
   reinjectElementInArray,
+  removeEmptySpace,
   replaceElementAtId,
   replaceElementAtIndex,
-  useTheme,
   verticalScale,
 } from "../../tools";
 import { cardColors } from "../../tools/colors";
@@ -38,13 +37,17 @@ import {
   ColorOptions,
   CustomizeBar,
   FontOptions,
+  FontSizeOptions,
 } from "./customize-bar";
 import { DateTimePickerDialog } from "./date-time-picker";
 import { notesData } from "./date-time-picker/atom";
 import { HistoryChanges } from "./history-changes";
 import { NoteScreenHeader } from "./note-screen-header";
 import { StyleEvent, onFontColor } from "./style-events";
-import { InputSelectionProps, ReminderProps, note } from "./types";
+import { InputSelectionProps, OptionProps, ReminderProps, note } from "./types";
+import { useEditNoteContent, useNoteContent, useTheme } from "../../hooks";
+import { useNoitication } from "../../hooks/use-notification-handler";
+import { useNoteManager } from "../../hooks/use-note-manager";
 interface ParamsProps {
   id: number;
   edit: boolean;
@@ -85,8 +88,8 @@ export function NotePage({ route, navigation }: any) {
     styles: item.styles,
     reminder: item.reminder,
   });
-  const [pastText, setPastText] = useState("");
-  useMemo(() => {}, [editNote.text]);
+  const noteStateIsEmpty =
+    editNote.text.length === 0 && editNote.title.length === 0;
   const [reminder, setReminder] = useState<ReminderProps>({
     date: new Date(),
     time: new Date(),
@@ -96,62 +99,12 @@ export function NotePage({ route, navigation }: any) {
     start: 0,
     end: 0,
   });
-  // let selection = useRef({
-  //   start: 0,
-  //   end: 0,
-  // }).current;
-  console.log(selection);
   const [reminderDialog, setReminderDialog] = useState(false);
-  const reminderSplit: Date = new Date(
-    [
-      reminder.date.toJSON().slice(0, 10),
-
-      reminder.time.toJSON().slice(11),
-    ].join("T")
-  );
-  const noteStateIsEmpty =
-    editNote.text.length === 0 && editNote.title.length === 0;
   const scheduleDateForNotification =
     editNote.reminder && new Date(editNote.reminder);
-  const isEditing = edit && !noteStateIsEmpty;
-  const isCreating = !edit && !noteStateIsEmpty;
-  const included = notes.data.map((e) => e.id).includes(id);
-  useEffect(() => {
-    try {
-      if (noteStateIsEmpty) {
-        setNotes((prev) => ({
-          ...prev,
-          data: prev.data.filter((e) => e.id !== id),
-        }));
-      }
-      if (isCreating && !included) {
-        setNotes((prev) => ({
-          ...prev,
-          data: [...prev.data, editNote],
-        }));
-      }
-      if (isCreating && included) {
-        setNotes((prev) => ({
-          ...prev,
-          data: replaceElementAtId(prev.data, id, editNote),
-        }));
-      }
-      if (isEditing && included) {
-        setNotes((prev) => ({
-          ...prev,
-          data: replaceElementAtId(prev.data, id, editNote),
-        }));
-      }
-      if (isEditing && !included) {
-        setNotes((prev) => ({
-          ...prev,
-          data: reinjectElementInArray(prev.data, editNote),
-        }));
-      }
-    } catch (message) {
-      toast({ message });
-    }
-  }, [editNote, included]);
+
+  const textSelected = selection.end !== selection.start;
+  console.log(notes.data);
 
   useEffect(() => {
     return () =>
@@ -160,175 +113,45 @@ export function NotePage({ route, navigation }: any) {
         data: recalculateId(prev.data),
       }));
   }, []);
-
-  const Content = useMemo(() => {
-    const isStyled = editNote.styles.length > 0;
-    const text = editNote.text;
-    if (isStyled) {
-      return (
-        <>
-          <Text>{text.slice(0, editNote.styles[0]?.interval?.start)}</Text>
-          {editNote.styles.map((e, i, arr) => {
-            const start = e?.interval?.start;
-            const end = e?.interval?.end;
-            const nextStart = arr[i + 1]?.interval?.start;
-            const style = e?.style;
-            return (
-              <Fragment key={i}>
-                <Text style={style}>{text.slice(start, end)}</Text>
-                <Text>{text.slice(end, nextStart)}</Text>
-              </Fragment>
-            );
-          })}
-        </>
-      );
-    }
-    return <Text>{editNote.text}</Text>;
-  }, [editNote.styles, editNote.text]);
-  useEffect(() => {
-    if (editNote.text.length === 0) {
-      setEditNote((prev) => ({ ...prev, styles: [] }));
-    }
-    editNote.styles.map((style, i) => {
-      if (style.interval.start <= style.interval.end) {
-        setEditNote((prev) => ({
-          ...prev,
-          styles: prev.styles.filter((e) => e !== style),
-        }));
-      }
-      if (
-        range(style.interval.start, style.interval.end).includes(selection.end)
-      ) {
-        setEditNote((prev) => ({
-          ...prev,
-          styles: replaceElementAtIndex(prev.styles, i, {
-            ...style,
-            interval: { ...style.interval, end: selection.end - 1 },
-          }),
-        }));
-      }
-    });
-  }, [editNote.text]);
+  useNoteManager(setNotes, editNote, notes.data, id);
+  const Content = useEditNoteContent(editNote.styles, editNote.text);
   const currentFocused =
-    selection.end !== selection.start &&
+    textSelected &&
     editNote.styles.find(
       (e) =>
         (selection.start < e.interval.start &&
           selection.end > e.interval.end) ||
-        range(e.interval.start, e.interval.end).includes(selection.end) ||
-        (range(e.interval.start, e.interval.end).includes(selection.start) &&
+        range(e.interval.start, e.interval.end).includes(selection.start + 1) ||
+        (range(e.interval.start, e.interval.end).includes(selection.end - 1) &&
           Object.keys(e.style).length > 0)
     );
+
   console.log("currentFocused:", currentFocused);
-  const currentIndex = editNote.styles.findIndex(
-    (e) =>
-      (selection.start < e.interval.start && selection.end > e.interval.end) ||
-      range(e.interval.start, e.interval.end).includes(selection.end) ||
-      (range(e.interval.start, e.interval.end).includes(selection.start) &&
-        Object.keys(e.style).length > 0)
-  );
-  function font(fontName: string) {
-    const weight = currentFocused?.style?.fontWeight === "bold";
-    const italic = currentFocused?.style?.fontStyle === "italic";
-    if (weight && !italic) {
-      console.log("only weight");
+  const currentIndex = editNote.styles.indexOf(currentFocused);
 
-      return fontName + "-bold";
-    }
-    if (italic && !weight) {
-      console.log("only italic");
+  // function font(fontName: string) {
+  //   const weight = currentFocused?.style?.fontWeight === "bold";
+  //   const italic = currentFocused?.style?.fontStyle === "italic";
+  //   if (weight && !italic) {
+  //     console.log("only weight");
 
-      return fontName + "-italic";
-    }
-    if (italic && weight) {
-      console.log("both");
+  //     return fontName + "-bold";
+  //   }
+  //   if (italic && !weight) {
+  //     console.log("only italic");
 
-      return fontName + "-bold-italic";
-    }
-    return fontName;
-  }
-  async function scheduleNotifications() {
-    try {
-      if (reminderSplit >= new Date()) {
-        await Notifications.scheduleNotificationAsync({
-          identifier: id.toString(),
-          content: {
-            title: editNote.title ? editNote.title : "Flipnote",
-            body: editNote.text ? editNote.text : null,
-            sound: true,
-          },
-          trigger: {
-            date: reminderSplit,
-          },
-        });
-      }
-      if (reminderSplit < new Date()) {
-        await Notifications.scheduleNotificationAsync({
-          content: {
-            title: editNote.title ? editNote.title : "Flipnote",
-            body: editNote.text ? editNote.text : null,
-            sound: true,
-          },
-          trigger: null,
-        });
-      }
-    } catch (error) {}
-  }
-  async function Share() {
-    if (noteStateIsEmpty) {
-      toast({
-        message: "Can't share empty content",
-        startPositionX: moderateScale(170),
-        startPositionY: 10,
-        fade: true,
-      });
-      return;
-    }
-    try {
-      await FileSystem.writeAsStringAsync(
-        `${FileSystem.documentDirectory}${editNote.title.substring(0, 40)}.txt`,
-        `${editNote.title}\n${editNote.text}`
-      );
-      await Sharing.shareAsync(
-        `${FileSystem.documentDirectory}${editNote.title.substring(0, 40)}.txt`,
-        { mimeType: "text/plain" }
-      );
-      await FileSystem.deleteAsync(
-        `${FileSystem.documentDirectory}${editNote.title.substring(0, 40)}.txt`
-      );
-    } catch (error) {
-      toast({ message: error });
-    }
-  }
-  async function setupReminder() {
-    let { status: newStatus } = await Notifications.getPermissionsAsync();
-    if (newStatus !== "granted") {
-      toast({
-        duration: 2000,
-        message: "Permission denied",
-        button: {
-          title: "Open app settings",
-          onPress() {
-            Linking.openSettings();
-          },
-        },
-        textColor: "red",
-      });
-      setReminderDialog(false);
-      return;
-    }
-    await scheduleNotifications();
-    if (reminderSplit >= new Date()) {
-      setEditNote((prev) => ({
-        ...prev,
-        reminder: reminderSplit.getTime(),
-      }));
-      toast({
-        message: `Reminder set for ${dateTime(reminderSplit)}`,
-      });
-    }
-    setReminderDialog(false);
-  }
+  //     return fontName + "-italic";
+  //   }
+  //   if (italic && weight) {
+  //     console.log("both");
+
+  //     return fontName + "-bold-italic";
+  //   }
+  //   return fontName;
+  // }
+
+  const [imageUri, setImageUri] = useState<string>("");
+  const imageRef = useRef<ScrollView>();
   function openReminder() {
     if (noteStateIsEmpty) {
       toast({
@@ -363,11 +186,46 @@ export function NotePage({ route, navigation }: any) {
     setReminderDialog(true);
   }
 
-  const { top } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const keyboard = useKeyboard();
-
-  let scrollPosition = useRef<number>(0).current;
   const toast = useToast();
+
+  async function Share() {
+    if (noteStateIsEmpty) {
+      toast({
+        message: "Can't share empty content",
+        startPositionX: moderateScale(170),
+        startPositionY: 10,
+        fade: true,
+      });
+      return;
+    }
+    try {
+      await captureRef(imageRef, {
+        format: "jpg",
+        snapshotContentContainer: true,
+        handleGLSurfaceViewOnAndroid: true,
+        result: "tmpfile",
+        useRenderInContext: true,
+      }).then(async (uri) => {
+        await Sharing.shareAsync(uri);
+      });
+      // await Sharing.shareAsync(imageUri, { mimeType: "image/jpg" });
+      // await FileSystem.writeAsStringAsync(
+      //   `${FileSystem.documentDirectory}${editNote.title.substring(0, 40)}.txt`,
+      //   `${editNote.title}\n${editNote.text}`
+      // );
+      // await Sharing.shareAsync(
+      //   `${FileSystem.documentDirectory}${editNote.title.substring(0, 40)}.txt`,
+      //   { mimeType: "text/plain" }
+      // );
+      // await FileSystem.deleteAsync(
+      //   `${FileSystem.documentDirectory}${editNote.title.substring(0, 40)}.txt`
+      // );
+    } catch (_) {
+      toast({ message: "Error" });
+    }
+  }
   const marginBottom =
     Platform.OS === "android"
       ? Dimensions.get("screen").height -
@@ -400,15 +258,30 @@ export function NotePage({ route, navigation }: any) {
       currentIndex
     );
   }
-
+  const optionsProps: OptionProps = {
+    selection,
+    currentFocused,
+    currentIndex,
+    setEditNote,
+    colors: cardColors,
+    editNote,
+    fontFamilyFocused,
+    fonts: fontNames,
+  };
+  const notification = useNoitication();
   return (
-    <View
-      style={{
-        flex: 1,
-      }}
-    >
+    <>
       <DateTimePickerDialog
-        action={setupReminder}
+        action={() => {
+          notification(
+            editNote.title ? editNote.title : "Flipnote",
+            editNote.text ? editNote.text : null,
+            id,
+            reminder,
+            setEditNote
+          );
+          setReminderDialog(false);
+        }}
         onChangeTime={(_, date) =>
           setReminder((prev) => ({ ...prev, time: date }))
         }
@@ -476,16 +349,16 @@ export function NotePage({ route, navigation }: any) {
         onClose={() => setShowChanges(false)}
       />
       <ScrollView
+        ref={imageRef}
         {...gestureConfig}
         scrollEventThrottle={16}
-        onScroll={(e) => {
-          scrollPosition = e.nativeEvent.contentOffset.y;
-        }}
-        snapToAlignment="center"
+        collapsable={false}
         keyboardShouldPersistTaps="always"
         contentContainerStyle={{
           paddingTop: verticalScale(70) + top,
           padding: 16,
+          // backgroundColor: editNote.background,
+          height: "auto",
         }}
         style={{
           flex: 1,
@@ -503,16 +376,17 @@ export function NotePage({ route, navigation }: any) {
           }
           underlineColorAndroid="transparent"
           cursorColor={"#FFCB09"}
-          selectTextOnFocus={false}
+          selectTextOnFocus={true}
+          onSelectionChange={(e) => console.log(e.nativeEvent.selection)}
           multiline
           scrollEnabled={false}
-          selectionColor={"#FFF3C7"}
           placeholder="Title"
           style={{
             color: "#000",
             fontSize: moderateFontScale(28),
             fontWeight: "bold",
             fontFamily: "OpenSans",
+            backgroundColor: editNote.background,
           }}
         >
           <Text>{editNote.title}</Text>
@@ -534,12 +408,59 @@ export function NotePage({ route, navigation }: any) {
           spellCheck={false}
           inputMode="text"
           keyboardType="default"
-          onChangeText={(text) =>
+          onChangeText={(text) => {
+            editNote.styles.map((style, i) => {
+              // if (
+              //   text.length <= editNote.text.length &&
+              //   selection.end - 1 === style.interval.end
+              // ) {
+              //   setEditNote((prev) => ({
+              //     ...prev,
+              //     styles: replaceElementAtIndex(prev.styles, i, {
+              //       ...style,
+              //       interval: {
+              //         ...style.interval,
+              //         end: style.interval.end - 1,
+              //       },
+              //     }),
+              //   }));
+              // }
+              if (
+                selection.end - 1 < style.interval.start &&
+                text.length > editNote.text.length
+              ) {
+                setEditNote((prev) => ({
+                  ...prev,
+                  styles: replaceElementAtIndex(prev.styles, i, {
+                    ...style,
+                    interval: {
+                      start: style.interval.start + 1,
+                      end: style.interval.end + 1,
+                    },
+                  }),
+                }));
+              }
+              if (
+                selection.end - 1 < style.interval.start &&
+                text.length < editNote.text.length
+              ) {
+                setEditNote((prev) => ({
+                  ...prev,
+                  styles: replaceElementAtIndex(prev.styles, i, {
+                    ...style,
+                    interval: {
+                      start: style.interval.start - 1,
+                      end: style.interval.end - 1,
+                    },
+                  }),
+                }));
+              }
+            });
             setEditNote((prev) => ({
               ...prev,
               text,
-            }))
-          }
+            }));
+          }}
           underlineColorAndroid="transparent"
           multiline
           // selectionColor={"#FFF3C7"}
@@ -567,32 +488,11 @@ export function NotePage({ route, navigation }: any) {
         onFontColor={() =>
           onFontColor(currentFocused, selection, setEditNote, currentIndex)
         }
-        fontColorOptions={
-          <ColorOptions
-            selection={selection}
-            currentFocused={currentFocused}
-            currentIndex={currentIndex}
-            setEditNote={setEditNote}
-          />
-        }
-        backgroundOptions={
-          <BackgroundOptions
-            colors={cardColors}
-            editNote={editNote}
-            setEditNote={setEditNote}
-          />
-        }
-        fontOptions={
-          <FontOptions
-            selection={selection}
-            fonts={fontNames}
-            setEditNote={setEditNote}
-            fontFamilyFocused={fontFamilyFocused}
-            currentIndex={currentIndex}
-            currentFocused={currentFocused}
-          />
-        }
+        fontSizeOptions={<FontSizeOptions {...optionsProps} />}
+        fontColorOptions={<ColorOptions {...optionsProps} />}
+        backgroundOptions={<BackgroundOptions {...optionsProps} />}
+        fontOptions={<FontOptions {...optionsProps} />}
       />
-    </View>
+    </>
   );
 }

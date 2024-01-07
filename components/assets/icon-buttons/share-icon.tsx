@@ -1,13 +1,11 @@
 import * as React from "react";
-import { TouchableOpacity, ViewProps } from "react-native";
+import { TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
-import { moderateScale, useTheme, verticalScale } from "../../../tools";
-interface ShareIconProps {
-  svgProps?: any;
-  onPress?: () => void;
-  btnProps?: ViewProps;
-}
-export function ShareIcon({ svgProps, onPress, btnProps }: ShareIconProps) {
+import { moderateScale, verticalScale } from "../../../tools";
+import { IconButtonBase } from "./types";
+import { useTheme } from "../../../hooks";
+
+export function ShareIcon({ svgProps, onPress, btnProps }: IconButtonBase) {
   const theme = useTheme();
   return (
     <TouchableOpacity

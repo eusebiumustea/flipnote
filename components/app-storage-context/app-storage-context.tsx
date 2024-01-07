@@ -47,14 +47,14 @@ export function AppStorageContext({ children }: PropsWithChildren) {
   });
   useEffect(() => {
     async function getData(key: string) {
-      loading(true);
       try {
+        loading(true);
         const res = await AsyncStorage.getItem(key);
         const notes = JSON.parse(res);
         if (notes) {
           setNotes({ data: recalculateId(notes) });
-          loading(false);
         }
+        loading(false);
       } catch (e) {
         console.log(e);
       }

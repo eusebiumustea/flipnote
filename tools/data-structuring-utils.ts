@@ -66,6 +66,10 @@ export function replaceElementAtIndex<T>(
     ...array.slice(replaceIndex + 1),
   ];
 }
+export function removeElement<T>(array: T[], removeElement: T) {
+  const removeIndex = array.indexOf(removeElement);
+  return [...array.slice(0, removeIndex), ...array.slice(removeIndex + 1)];
+}
 export function removeObjectKey<T, K extends keyof T>(obj: T, removeKey: K) {
   const { [removeKey]: removedKey, ...newObj } = obj;
   return newObj;
@@ -168,7 +172,7 @@ export function range(start: number, end: number) {
   return range;
 }
 export function sortStyles(styles: TextNoteStyle[]) {
-  return styles.sort((a, b) => a?.interval?.end - b?.interval?.start);
+  return styles.sort((a, b) => a?.interval?.start - b?.interval?.start);
 }
 export function dateTime(date: Date) {
   const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
@@ -181,4 +185,14 @@ export function dateTime(date: Date) {
   const sec =
     date.getSeconds() < 10 ? `0${date.getSeconds()}` : date.getSeconds();
   return `${day}.${month}.${year} ${hour}:${min}:${sec}`;
+}
+export function removeEmptySpace(value: string) {
+  return value.replace(/\s+/g, " ").replace(/\n/g, "");
+}
+export function getFileExtension(file: string) {
+  if (file.slice(0, file.lastIndexOf(".") + 1) + "json" === file) {
+    return ".json";
+  } else {
+    return ".txt";
+  }
 }

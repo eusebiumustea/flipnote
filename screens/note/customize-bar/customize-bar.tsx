@@ -1,6 +1,6 @@
 import { useKeyboard } from "@react-native-community/hooks";
-import { AnimatePresence, MotiScrollView, MotiView } from "moti";
-import { PropsWithChildren, ReactNode, useEffect, useState } from "react";
+import { MotiView } from "moti";
+import { PropsWithChildren, ReactNode, useMemo, useState } from "react";
 import {
   ColorValue,
   Dimensions,
@@ -12,12 +12,15 @@ import {
   BackgroundIcon,
   BoldIcon,
   FontColorIcon,
+  FormatSizeIcon,
   ItalicIcon,
   TextIcon,
   UnderlineIcon,
 } from "../../../components/assets";
-import { toggleState, useTheme } from "../../../tools";
+import { toggleState } from "../../../tools";
 import { InputSelectionProps } from "../types";
+import { OptionContainer } from "./option-container";
+import { useTheme } from "../../../hooks";
 interface CustomizeBarProps {
   boldFocused?: boolean;
   italicFocused?: boolean;
@@ -29,6 +32,7 @@ interface CustomizeBarProps {
   fontOptions?: PropsWithChildren<ReactNode>;
   fontColorOptions?: PropsWithChildren<ReactNode>;
   onFontColor?: () => void;
+  fontSizeOptions?: PropsWithChildren<ReactNode>;
   selection?: InputSelectionProps;
   focusedColor?: ColorValue | string;
 }
@@ -45,6 +49,7 @@ export function CustomizeBar({
   onFontColor,
   selection,
   focusedColor,
+  fontSizeOptions,
 }: CustomizeBarProps) {
   const [showOption, setShowOption] = useState<string | null>(null);
   const theme = useTheme();
@@ -60,11 +65,13 @@ export function CustomizeBar({
     switch (showOption) {
       case "font-color":
         return 160;
+      case "font-size":
+        return 100;
       default:
         return 60;
     }
   }
-  useEffect(() => {
+  useMemo(() => {
     if (selection.end === selection.start && showOption) {
       setShowOption(null);
     }
@@ -76,131 +83,56 @@ export function CustomizeBar({
         duration: 300,
       }}
       style={{
-        width: width - 30,
         borderRadius: 16,
         backgroundColor: theme.customizeBarColor,
         position: "absolute",
         bottom: 20,
         alignSelf: "center",
         marginBottom: paddingTop,
+        width: width - 60,
       }}
       from={{ paddingTop: 0 }}
       animate={{
         paddingTop: showOption ? optionSizeAdjust() : 0,
       }}
     >
-      <AnimatePresence>
-        {showOption === "background" && (
-          <MotiScrollView
-            horizontal
-            keyboardShouldPersistTaps="always"
-            keyboardDismissMode="interactive"
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ type: "timing", delay: 180, duration: 120 }}
-            exit={{ opacity: 0 }}
-            exitTransition={{ delay: 0 }}
-            contentContainerStyle={{
-              flexDirection: "row",
-              alignItems: "center",
-              columnGap: 15,
-              padding: 15,
-            }}
-            style={{
-              width: "100%",
-              height: 60,
-              backgroundColor: theme.customizeBarColor,
-              position: "absolute",
-              borderTopLeftRadius: 16,
-              borderTopRightRadius: 16,
-              top: 0,
-            }}
-          >
-            {backgroundOptions}
-          </MotiScrollView>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {showOption === "font" && (
-          <MotiScrollView
-            horizontal
-            keyboardShouldPersistTaps="always"
-            keyboardDismissMode="interactive"
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ type: "timing", delay: 180, duration: 120 }}
-            exit={{ opacity: 0 }}
-            exitTransition={{ delay: 0 }}
-            contentContainerStyle={{
-              flexDirection: "row",
-              alignItems: "center",
-              columnGap: 15,
-              padding: 15,
-            }}
-            style={{
-              width: "100%",
-              height: 60,
+      <OptionContainer
+        children={backgroundOptions}
+        show={showOption === "background"}
+      />
 
-              backgroundColor: theme.customizeBarColor,
-              position: "absolute",
-              borderTopLeftRadius: 16,
-              borderTopRightRadius: 16,
-              top: 0,
-            }}
-          >
-            {fontOptions}
-          </MotiScrollView>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {showOption === "font-color" && (
-          <MotiScrollView
-            horizontal
-            keyboardShouldPersistTaps="always"
-            keyboardDismissMode="interactive"
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ type: "timing", delay: 180, duration: 120 }}
-            exit={{ opacity: 0 }}
-            exitTransition={{ delay: 0 }}
-            contentContainerStyle={{
-              flexDirection: "row",
-              alignItems: "center",
-              columnGap: 15,
-              padding: 15,
-            }}
-            style={{
-              width: "100%",
-              backgroundColor: theme.customizeBarColor,
-              position: "absolute",
-              borderTopLeftRadius: 16,
-              borderTopRightRadius: 16,
-              top: 0,
-            }}
-          >
-            {fontColorOptions}
-          </MotiScrollView>
-        )}
-      </AnimatePresence>
+      <OptionContainer children={fontOptions} show={showOption === "font"} />
+
+      <OptionContainer
+        children={fontColorOptions}
+        show={showOption === "font-color"}
+      />
+
+      <OptionContainer
+        children={fontSizeOptions}
+        show={showOption === "font-size"}
+      />
+
       <ScrollView
         showsHorizontalScrollIndicator={false}
         decelerationRate={"fast"}
         contentContainerStyle={{
           padding: 15,
-          alignItems: "center",
-          justifyContent: "center",
+
           flexDirection: "row",
           columnGap: 15,
+          alignSelf: "flex-start",
+          width: "100%",
+          alignItems: "center",
         }}
         horizontal
         keyboardShouldPersistTaps="always"
         keyboardDismissMode="interactive"
         style={{
           backgroundColor: theme.customizeBarColor,
-          // alignSelf: "center",
+          alignSelf: "center",
           borderRadius: 16,
         }}
-        scrollEventThrottle={16}
       >
         <BoldIcon active={boldFocused} onPress={onBold} />
         <ItalicIcon active={italicFocused} onPress={onItalic} />
@@ -217,6 +149,14 @@ export function CustomizeBar({
           onPress={() => {
             if (selection.end !== selection.start) {
               setShowOption(toggleState(null, "font-color", onFontColor));
+            }
+          }}
+        />
+
+        <FormatSizeIcon
+          onPress={() => {
+            if (selection.end !== selection.start) {
+              setShowOption(toggleState(null, "font-size"));
             }
           }}
         />

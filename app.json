@@ -11,6 +11,12 @@
         {
           "icon": "./assets/icon.jpg"
         }
+      ],
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
       ]
     ],
     "assetBundlePatterns": ["**/*"],

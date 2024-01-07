@@ -1,14 +1,12 @@
 import * as React from "react";
 import { TouchableOpacity } from "react-native";
-import Svg, { Path } from "react-native-svg";
-import { moderateScale, useTheme, verticalScale } from "../../../tools";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-interface DeleteIconProps {
-  svgProps?: any;
-  onPress?: () => void;
-}
+import Svg, { Path } from "react-native-svg";
+import { useTheme } from "../../../hooks";
+import { moderateScale, verticalScale } from "../../../tools";
+import { IconButtonBase } from "./types";
 
-export function DeleteIcon({ svgProps, onPress }: DeleteIconProps) {
+export function DeleteIcon({ svgProps, onPress }: IconButtonBase) {
   const theme = useTheme();
   const { bottom } = useSafeAreaInsets();
   return (

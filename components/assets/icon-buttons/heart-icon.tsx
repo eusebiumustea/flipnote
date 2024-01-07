@@ -1,19 +1,16 @@
 import * as React from "react";
-import { TouchableOpacity, ViewProps } from "react-native";
+import { TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
-import { moderateScale, useTheme, verticalScale } from "../../../tools";
-interface HeartIconProps {
-  svgProps?: any;
-  onPress?: () => void;
-  btnProps?: ViewProps;
-  focused?: boolean;
-}
+import { moderateScale, verticalScale } from "../../../tools";
+import { IconButtonBase } from "./types";
+import { useTheme } from "../../../hooks";
+
 export function HeartIcon({
   svgProps,
   onPress,
   btnProps,
   focused,
-}: HeartIconProps) {
+}: IconButtonBase) {
   const theme = useTheme();
   return (
     <TouchableOpacity

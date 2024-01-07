@@ -1,8 +1,9 @@
+import Checkbox from "expo-checkbox";
 import { MotiPressable } from "moti/interactions";
 import { Dimensions, Text, View } from "react-native";
+import { useNoteContent, useTheme } from "../../hooks";
 import { note } from "../../screens/note";
-import { moderateFontScale, useTheme, verticalScale } from "../../tools";
-import Checkbox from "expo-checkbox";
+import { moderateFontScale, verticalScale } from "../../tools";
 interface NoteCardProps {
   item: note;
   onLayout?: () => void;
@@ -22,13 +23,14 @@ export function NoteCard({
   deletedProgress,
 }: NoteCardProps) {
   const theme = useTheme();
+  const content = useNoteContent(item.styles, item.text);
   const { width } = Dimensions.get("window");
   function scale() {
     if (deletedProgress) {
       return 0;
     }
     if (selectedForOptions) {
-      return 0.9;
+      return 0.93;
     }
     return 1;
   }
@@ -79,15 +81,7 @@ export function NoteCard({
             {item.title}
           </Text>
         )}
-        <Text
-          style={{
-            color: "#000",
-            fontFamily: "OpenSans",
-            fontSize: moderateFontScale(14),
-          }}
-        >
-          {item.text}
-        </Text>
+        {content}
       </View>
     </MotiPressable>
   );

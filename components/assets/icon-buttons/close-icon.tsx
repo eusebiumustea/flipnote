@@ -1,19 +1,15 @@
 import * as React from "react";
-import { TouchableOpacity, ViewProps, ViewStyle } from "react-native";
+import { TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
-import { moderateScale, useTheme, verticalScale } from "../../../tools";
-interface CloseIconProps {
-  svgProps?: any;
-  onPress?: () => void;
-  btnProps?: ViewProps;
-  style?: ViewStyle;
-}
+import { IconButtonBase } from "./types";
+import { useTheme } from "../../../hooks";
+
 export function CloseIcon({
   svgProps,
   onPress,
   btnProps,
   style,
-}: CloseIconProps) {
+}: IconButtonBase) {
   const theme = useTheme();
   return (
     <TouchableOpacity

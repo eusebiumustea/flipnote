@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useTheme } from "./theme-context";
+import { useTheme } from "../hooks/theme-context";
 
 export function StatusBarController() {
   const theme = useTheme();

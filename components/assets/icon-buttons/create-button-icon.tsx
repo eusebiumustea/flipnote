@@ -3,13 +3,11 @@ import * as React from "react";
 import { TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
-import { moderateScale, useTheme } from "../../../tools";
-interface CreateIconProps {
-  svgProps?: any;
-  onPress: () => void;
-}
+import { moderateScale } from "../../../tools";
+import { IconButtonBase } from "./types";
+import { useTheme } from "../../../hooks";
 
-export function CreateIcon({ svgProps, onPress }: CreateIconProps) {
+export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
   const theme = useTheme();
   const { bottom } = useSafeAreaInsets();
   const keyboard = useKeyboard();

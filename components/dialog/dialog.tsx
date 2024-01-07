@@ -5,9 +5,10 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
-import { moderateFontScale, useTheme } from "../../tools";
+import { moderateFontScale } from "../../tools";
 import { DialogProps } from "./types";
 import { BlurView } from "expo-blur";
+import { useTheme } from "../../hooks";
 
 export function Dialog({
   onCencel,

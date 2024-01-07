@@ -2,9 +2,9 @@ import { MotiView } from "moti";
 import { PropsWithChildren } from "react";
 import { Platform, View, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useTheme, verticalScale } from "../../tools";
+
 import { BackIcon } from "../assets";
-import { BlurView } from "expo-blur";
+import { useTheme } from "../../hooks";
 interface ScreenHeaderProps {
   onBack: () => void;
   style?: ViewStyle;

@@ -57,10 +57,60 @@ export function FontColorEvent(
     }));
   }
 }
+export function FontSizeEvent(
+  currentFocused: TextNoteStyle | undefined,
+  value: number,
+  selection: InputSelectionProps,
+  setEditNote: Dispatch<SetStateAction<note>>,
+  currentIndex: number
+) {
+  if (!currentFocused && selection.end !== selection.start) {
+    setEditNote((prev) => ({
+      ...prev,
+      styles: [
+        ...prev.styles,
+        {
+          interval: selection,
+          style: { fontSize: value },
+        },
+      ],
+    }));
+  }
+  if (
+    currentFocused &&
+    currentFocused?.style?.fontSize === undefined &&
+    Object.keys(currentFocused.style).length >= 1
+  ) {
+    setEditNote((prev) => ({
+      ...prev,
+      styles: replaceElementAtIndex(prev.styles, currentIndex, {
+        ...currentFocused,
+        style: {
+          ...currentFocused.style,
+          fontSize: value,
+        },
+      }),
+    }));
+  }
+
+  if (
+    currentFocused &&
+    currentFocused?.style?.fontSize !== undefined &&
+    Object.keys(currentFocused.style).length >= 1
+  ) {
+    setEditNote((prev) => ({
+      ...prev,
+      styles: replaceElementAtIndex(prev.styles, currentIndex, {
+        ...currentFocused,
+        style: { ...currentFocused.style, fontSize: value },
+      }),
+    }));
+  }
+}
 export function StyleEvent(
   currentFocused: TextNoteStyle | undefined,
   keyStyle: keyof TextStyle,
-  value: string,
+  value: string | number,
   selection: InputSelectionProps,
   setEditNote: React.Dispatch<React.SetStateAction<note>>,
   currentIndex: number

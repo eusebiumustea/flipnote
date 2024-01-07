@@ -1,26 +1,17 @@
 import * as React from "react";
-import {
-  ColorValue,
-  TouchableOpacity,
-  ViewProps,
-  ViewStyle,
-} from "react-native";
+import { TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
-import { moderateScale, useTheme, verticalScale } from "../../../tools";
-interface BackIconProps {
-  svgProps?: any;
-  onPress?: () => void;
-  btnProps?: ViewProps;
-  style?: ViewStyle;
-  color?: ColorValue;
-}
+
+import { IconButtonBase } from "./types";
+import { useTheme } from "../../../hooks";
+
 export function BackIcon({
   svgProps,
   onPress,
   btnProps,
   style,
   color,
-}: BackIconProps) {
+}: IconButtonBase) {
   const theme = useTheme();
   return (
     <TouchableOpacity

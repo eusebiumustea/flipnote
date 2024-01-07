@@ -20,3 +20,4 @@ export * from "./background-icon";
 export * from "./reminder-icon";
 export * from "./font-color-icon";
 export * from "./changes-icon";
+export * from "./format-size-icon";

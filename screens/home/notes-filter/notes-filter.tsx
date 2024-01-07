@@ -1,7 +1,8 @@
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
-import { moderateFontScale, useTheme } from "../../../tools";
+import { moderateFontScale } from "../../../tools";
 import React from "react";
 import { note } from "../..";
+import { useTheme } from "../../../hooks";
 interface filterButtonProps {
   onSelected: () => void;
   selected: boolean;

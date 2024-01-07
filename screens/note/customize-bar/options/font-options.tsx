@@ -4,9 +4,9 @@ import {
   moderateFontScale,
   removeObjectKey,
   replaceElementAtIndex,
-  useTheme,
 } from "../../../../tools";
 import { FontFamilyEvent } from "../../style-events";
+import { useTheme } from "../../../../hooks";
 
 export function FontOptions({
   fonts,
@@ -17,6 +17,7 @@ export function FontOptions({
   selection,
 }: OptionProps) {
   const theme = useTheme();
+
   return (
     <>
       <Pressable

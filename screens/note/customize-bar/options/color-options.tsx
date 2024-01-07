@@ -1,17 +1,13 @@
-import { Pressable, useWindowDimensions, Text } from "react-native";
+import { Pressable, Text, useWindowDimensions } from "react-native";
 import ColorPicker, {
   BrightnessSlider,
   HueSlider,
   SaturationSlider,
 } from "reanimated-color-picker";
-import {
-  moderateFontScale,
-  removeObjectKey,
-  replaceElementAtIndex,
-  useTheme,
-} from "../../../../tools";
-import { OptionProps } from "../../types";
+import { removeObjectKey, replaceElementAtIndex } from "../../../../tools";
 import { FontColorEvent } from "../../style-events";
+import { OptionProps } from "../../types";
+import { useTheme } from "../../../../hooks";
 
 export function ColorOptions({
   currentFocused,
@@ -25,7 +21,7 @@ export function ColorOptions({
     <ColorPicker
       style={{
         rowGap: 10,
-        width: width - 60,
+        width: width - 90,
       }}
       thumbShape="circle"
       onComplete={({ hex }) =>

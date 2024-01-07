@@ -3,7 +3,8 @@ import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { ColorValue, Text, TouchableOpacity } from "react-native";
 import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { moderateFontScale, useTheme } from "../../tools";
+import { useTheme } from "../../hooks";
+import { moderateFontScale } from "../../tools";
 interface ToastComponentProps {
   message: string | null;
   textColor?: ColorValue;

@@ -1,7 +1,7 @@
 import * as React from "react";
-import { ColorValue } from "react-native";
-import Svg, { G, Path, Defs, ClipPath } from "react-native-svg";
-import { moderateScale, useTheme, verticalScale } from "../../tools";
+import Svg, { ClipPath, Defs, G, Path } from "react-native-svg";
+import { useTheme } from "../../hooks";
+import { moderateScale, verticalScale } from "../../tools";
 
 export function SearchIcon(props: any) {
   const theme = useTheme();
