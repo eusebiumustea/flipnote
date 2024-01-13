@@ -1,7 +1,7 @@
 import { BlurView } from "expo-blur";
 import * as Notifications from "expo-notifications";
 import { AnimatePresence, MotiView } from "moti";
-import React, { Fragment, useMemo } from "react";
+import React, { Fragment, memo, useEffect, useMemo } from "react";
 import {
   Modal,
   Platform,
@@ -25,12 +25,14 @@ import {
   verticalScale,
 } from "../../tools";
 import { notesData } from "../note";
+import Animated from "react-native-reanimated";
 interface InboxProps {
   onBack: () => void;
   open: boolean;
 }
-export function Inbox({ onBack, open }: InboxProps) {
+export const Inbox = memo(({ onBack, open }: InboxProps) => {
   const [notes, setNotes] = useRecoilState(notesData);
+
   const upcomingNotifications = useMemo(() => {
     return notes.data.filter(
       (e) => e.reminder && new Date() < new Date(e.reminder)
@@ -261,4 +263,4 @@ export function Inbox({ onBack, open }: InboxProps) {
       )}
     </AnimatePresence>
   );
-}
+});

@@ -1,5 +1,4 @@
 import * as FileSystem from "expo-file-system";
-import { useToast } from "../components";
 import JSZip from "jszip";
 
 export async function unzip(zipPath: string, destinationDirectory: string) {
@@ -7,12 +6,11 @@ export async function unzip(zipPath: string, destinationDirectory: string) {
     const zipFileContents = await FileSystem.readAsStringAsync(zipPath, {
       encoding: FileSystem.EncodingType.Base64,
     });
-
     const zip = await JSZip.loadAsync(zipFileContents, {
       base64: true,
     });
 
-    const unzippedDirectory = `${FileSystem.cacheDirectory}${destinationDirectory}`;
+    const unzippedDirectory = `${FileSystem.documentDirectory}${destinationDirectory}`;
     await FileSystem.makeDirectoryAsync(unzippedDirectory, {
       intermediates: true,
     });
@@ -24,8 +22,9 @@ export async function unzip(zipPath: string, destinationDirectory: string) {
 
       const fileParts = filename.split("/");
       const fileName = fileParts.pop();
+      console.log("file", fileName);
       const folderPath = fileParts.join("/");
-      console.log(folderPath);
+      console.log("foldre", folderPath);
       const folderDirectory = `${unzippedDirectory}/${folderPath}`;
       // Create the directory if it doesn't exist
 
@@ -44,7 +43,6 @@ export async function unzip(zipPath: string, destinationDirectory: string) {
 
     return unzippedDirectory;
   } catch (error) {
-    const toast = useToast();
-    toast({ message: "Failed to load", textColor: "red" });
+    throw error;
   }
 }

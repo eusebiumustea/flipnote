@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
 import { UserdataState, note } from "../screens";
 import { useToast } from "../components";
 import { reinjectElementInArray, replaceElementAtId } from "../tools";
@@ -13,7 +13,9 @@ export function useNoteManager(
   const noteStateIsEmpty = state.text.length === 0 && state.title.length === 0;
   const isEditing = edit && !noteStateIsEmpty;
   const isCreating = !edit && !noteStateIsEmpty;
-  const included = data.map((e) => e.id).includes(id);
+  const included = useMemo(() => {
+    return data.map((e) => e.id).includes(id);
+  }, [data]);
   const toast = useToast();
 
   return useEffect(() => {

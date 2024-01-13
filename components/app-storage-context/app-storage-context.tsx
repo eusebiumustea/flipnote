@@ -1,15 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
-import { PropsWithChildren, useEffect } from "react";
+import { PropsWithChildren, useCallback, useEffect, useMemo } from "react";
 import { useRecoilState } from "recoil";
 import { note, notesData } from "../../screens/note";
 import { changeKeyValuesConditionaly, recalculateId } from "../../tools";
 import { useToast } from "../toast";
-import { useLoading } from "../loading-dialog";
+
 export function AppStorageContext({ children }: PropsWithChildren) {
   const [notes, setNotes] = useRecoilState(notesData);
   const toast = useToast();
-  const loading = useLoading();
+
   Notifications.setNotificationHandler({
     handleError(_, error) {
       toast({ message: `${error.name}: ${error.message}`, textColor: "red" });
@@ -31,40 +32,42 @@ export function AppStorageContext({ children }: PropsWithChildren) {
       priority: Notifications.AndroidNotificationPriority.MAX,
     }),
     handleSuccess() {
-      try {
-        setNotes((prev) => ({
-          ...prev,
-          data: changeKeyValuesConditionaly(
-            prev.data,
-            "reminder",
-            "lower",
-            new Date(),
-            null
-          ),
-        }));
-      } catch (error) {}
+      setNotes((prev) => ({
+        ...prev,
+        data: changeKeyValuesConditionaly(
+          prev.data,
+          "reminder",
+          "lower",
+          new Date(),
+          null
+        ),
+      }));
     },
   });
+  const dataUri = `${FileSystem.documentDirectory}data.json`;
   useEffect(() => {
-    async function getData(key: string) {
+    async function getData() {
       try {
-        loading(true);
-        const res = await AsyncStorage.getItem(key);
-        const notes = JSON.parse(res);
+        const data = await FileSystem.readAsStringAsync(dataUri);
+
+        const notes = JSON.parse(data);
+        console.log(data);
         if (notes) {
-          setNotes({ data: recalculateId(notes) });
+          setNotes((prev) => ({ ...prev, data: notes }));
         }
-        loading(false);
       } catch (e) {
-        console.log(e);
+        console.log("get err");
       }
     }
-    getData("appdata");
+    getData();
   }, []);
   useEffect(() => {
     const storeData = async (value: note[]) => {
       try {
-        await AsyncStorage.setItem("appdata", JSON.stringify(value));
+        await FileSystem.writeAsStringAsync(
+          dataUri,
+          JSON.stringify(value)
+        ).then(() => console.log("saved"));
       } catch (e) {
         toast({
           message: "Failed to save note in appdata!",
@@ -72,9 +75,8 @@ export function AppStorageContext({ children }: PropsWithChildren) {
         });
       }
     };
-
     storeData(notes.data);
-  }, [notes]);
+  }, [notes.data]);
 
   return children;
 }

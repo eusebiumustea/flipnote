@@ -7,11 +7,10 @@ import {
 } from "react-native";
 
 import Checkbox from "expo-checkbox";
-import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import JSZip from "jszip";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 import { Dialog } from "../../../components";
@@ -20,19 +19,15 @@ import { useTheme } from "../../../hooks";
 import {
   moderateFontScale,
   moderateScale,
-  recalculateId,
   removeEmptySpace,
-  replaceElementAtId,
 } from "../../../tools";
-import { TextNoteStyle, notesData } from "../../note";
-import { unzip } from "../../../tools/zip-manager";
+import { notesData } from "../../note";
 interface NoteOptionsProps {
   onDelete: () => void;
   onClose: () => void;
   onTotalSelect: () => void;
   totalSelected: boolean;
   onModalOpen: () => void;
-  onImport?: () => void;
   showModal: boolean;
   onModalClose: () => void;
   selectedNotes: number[];
@@ -46,7 +41,6 @@ export const NoteOptions = memo(
     onClose,
     onTotalSelect,
     totalSelected,
-    onImport,
     onModalOpen,
     showModal,
     onModalClose,
@@ -55,65 +49,46 @@ export const NoteOptions = memo(
     const theme = useTheme();
     const { top } = useSafeAreaInsets();
     const [notes, setNotes] = useRecoilState(notesData);
-    const shareNotes = notes.data.filter((e) => selectedNotes.includes(e.id));
-
+    const shareNotes = useMemo(
+      () => notes.data.filter((e) => selectedNotes.includes(e.id)),
+      [selectedNotes]
+    );
     async function Share() {
       try {
         const zip = new JSZip();
         shareNotes.forEach((note) => {
-          zip.folder(
-            `${
-              note.title.length > 0
-                ? note.title.substring(0, 40)
-                : note.text.substring(0, 30)
-            }`
-          );
           zip.file(
             `${
               note.title.length > 0
                 ? removeEmptySpace(note.title.substring(0, 40))
                 : removeEmptySpace(note.text.substring(0, 30))
-            }/${
-              note.title.length > 0
-                ? removeEmptySpace(note.title.substring(0, 40))
-                : removeEmptySpace(note.text.substring(0, 30))
             }.txt`,
-            `${note.title}\n${note.text}`
+            `${note.text}&${JSON.stringify(note.styles)}`
           );
-          {
-            note.styles.length > 0 &&
-              zip.file(
-                `${
-                  note.title.length > 0
-                    ? removeEmptySpace(note.title.substring(0, 40))
-                    : removeEmptySpace(note.text.substring(0, 30))
-                }/styles${note.id}.json`,
-                `${JSON.stringify(note.styles)}`
-              );
-          }
         });
         zip
           .generateAsync({ type: "base64", compression: "STORE" })
           .then(async function (content) {
             await FileSystem.writeAsStringAsync(
-              `${FileSystem.documentDirectory}flipnotebackup.zip`,
+              `${FileSystem.cacheDirectory}flipnotebackup.zip`,
               content,
               {
-                encoding: "base64",
+                encoding: FileSystem.EncodingType.Base64,
               }
             );
+
             await Sharing.shareAsync(
-              `${FileSystem.documentDirectory}flipnotebackup.zip`,
+              `${FileSystem.cacheDirectory}flipnotebackup.zip`,
               {
                 mimeType: "application/zip",
               }
             );
-            await FileSystem.deleteAsync(
-              `${FileSystem.documentDirectory}flipnotebackup.zip`,
-              {
-                idempotent: true,
-              }
-            );
+            // await FileSystem.deleteAsync(
+            //   `${FileSystem.cacheDirectory}flipnotebackup.zip`,
+            //   {
+            //     idempotent: true,
+            //   }
+            // )
           });
       } catch (error) {
         console.log(error);
@@ -126,7 +101,7 @@ export const NoteOptions = memo(
           justifyContent: "space-between",
           position: "absolute",
           backgroundColor: theme.background,
-          zIndex: 6,
+          zIndex: 999,
           alignItems: "center",
           flexDirection: "row",
           paddingHorizontal: moderateScale(20),
@@ -235,103 +210,6 @@ export const NoteOptions = memo(
         <View
           style={{ flexDirection: "row", alignItems: "center", columnGap: 15 }}
         >
-          <Text
-            onPress={async () => {
-              // await FileSystem.deleteAsync(
-              //   `${FileSystem.documentDirectory}flipnote`,
-              //   { idempotent: true }
-              // ).then((e) => console.log("deleted"));
-              await DocumentPicker.getDocumentAsync({
-                type: "application/zip",
-              }).then(async (result) => {
-                if (result.canceled) {
-                  return;
-                }
-                const zipFilePath = result.assets[0].uri;
-                unzip(zipFilePath, "flipnote").then(
-                  async (unzippedDirectory) => {
-                    await FileSystem.readDirectoryAsync(unzippedDirectory).then(
-                      async (res) => {
-                        console.log(res);
-                        if (res.length > 0) {
-                          res.map(async (src) => {
-                            await FileSystem.readDirectoryAsync(
-                              `${unzippedDirectory}/${src}`
-                            ).then(async (files) => {
-                              const noteContent = files.find(
-                                (e) =>
-                                  e.slice(0, e.lastIndexOf(".") + 1) + "txt" ===
-                                  e
-                              );
-                              const noteStyles = files.find(
-                                (e) =>
-                                  e.slice(0, e.lastIndexOf(".") + 1) +
-                                    "json" ===
-                                  e
-                              );
-
-                              await FileSystem.readAsStringAsync(
-                                `${unzippedDirectory}/${src}/${noteContent}`
-                              ).then((text) => {
-                                console.log(text);
-                                setNotes((prev) => ({
-                                  ...prev,
-                                  data: recalculateId([
-                                    ...prev.data,
-                                    {
-                                      id: prev.data.length + 1,
-                                      title: "",
-                                      text,
-                                      isFavorite: false,
-                                      background: "#fff",
-                                      styles: [],
-                                      reminder: null,
-                                    },
-                                  ]),
-                                }));
-                              });
-                              if (noteStyles) {
-                                // await FileSystem.readAsStringAsync(
-                                //   `${unzippedDirectory}/${src}/${noteStyles}`
-                                // ).then((style) => {
-                                //   const parsedStyle: TextNoteStyle[] =
-                                //     JSON.parse(style);
-                                //   const currentNote = notes.data.find(
-                                //     (e) => e.id === notes.data.length
-                                //   );
-                                //   setNotes((prev) => ({
-                                //     ...prev,
-                                //     data: recalculateId(
-                                //       replaceElementAtId(prev.data, 1, {
-                                //         ...currentNote,
-                                //         styles: parsedStyle,
-                                //       })
-                                //     ),
-                                //   }));
-                                // });
-                              }
-                            });
-                          });
-                        }
-                        console.log(notes.data);
-                        // await FileSystem.deleteAsync(unzippedDirectory, {
-                        //   idempotent: true,
-                        // });
-                      }
-                    );
-                  }
-                );
-                // await unzip(
-                //   result.assets[0].uri,
-                //   FileSystem.cacheDirectory
-                // ).then((path) => {
-                //   console.log(`unzip completed at ${path}`);
-                // });
-              });
-            }}
-          >
-            Import
-          </Text>
           <ExportIcon onPress={onModalOpen} />
           <DeleteIcon onPress={onDelete} />
         </View>

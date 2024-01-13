@@ -33,6 +33,15 @@ export interface InputSelectionProps {
   end: number;
 }
 export interface UserdataState {
-  data: note[];
+  data: note[] | null;
+}
+export type NotificationProp = {
+  id: number;
+  title: string;
+  content: string;
+  time: Date;
+};
+export interface NotificationState {
+  data: NotificationProp[];
 }
 export interface StyleEventProps {}

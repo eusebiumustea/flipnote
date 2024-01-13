@@ -12,6 +12,8 @@ import {
 
 import { memo } from "react";
 import { useTheme } from "../../hooks";
+import { MotiView } from "moti";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
 interface NoteScreenHeaderProps {
   onClipboard: () => void;
@@ -39,7 +41,8 @@ export const NoteScreenHeader = memo(
     const theme = useTheme();
     const colorScheme = useColorScheme();
     return (
-      <View
+      <Animated.View
+        entering={FadeInDown.delay(500)}
         style={{
           width: "100%",
           position: "absolute",
@@ -98,7 +101,7 @@ export const NoteScreenHeader = memo(
             <ShareIcon onPress={onShare} />
           </View>
         </View>
-      </View>
+      </Animated.View>
     );
   }
 );

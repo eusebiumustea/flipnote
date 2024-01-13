@@ -6,4 +6,5 @@ export interface HeaderProps {
   scrollY?: Animated.Value;
   extraHeight?: number;
   onInboxOpen?: () => void;
+  show: boolean;
 }

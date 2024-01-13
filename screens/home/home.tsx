@@ -1,20 +1,23 @@
 import { useBackHandler } from "@react-native-community/hooks";
-import { useNavigation } from "@react-navigation/native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
+import { AnimatePresence } from "moti";
+import { MotiPressable } from "moti/interactions";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
   FlatList,
+  Modal,
   View,
   useAnimatedValue,
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
-import { CreateIcon, Header, NoteCard, useToast } from "../../components";
+import { CreateIcon, NoteCard, useToast } from "../../components";
+import { useTheme } from "../../hooks";
 import {
   excludeNotes,
-  recalculateId,
   removeArrayKeyDuplicates,
   toggleArrayElement,
   verticalScale,
@@ -23,8 +26,7 @@ import { Inbox } from "../inbox";
 import { notesData } from "../note";
 import { NoteOptions } from "./note-options/note-options";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
-import { useTheme } from "../../hooks";
-
+import { Header } from "../../components/header/header";
 export function Home() {
   const navigation = useNavigation<any>();
   const [selected, setSelected] = useState<string[]>([]);
@@ -38,7 +40,7 @@ export function Home() {
   const scrollY = useAnimatedValue(0, { useNativeDriver: true });
   const { top } = useSafeAreaInsets();
   const [deleteProgress, setDeleteProgress] = useState([]);
-  const data = useMemo(() => {
+  const searchFilter = useMemo(() => {
     const searchFiltered = notes.data.filter((e) => {
       return (
         e.text.includes(searchQuery.toLowerCase()) ||
@@ -50,16 +52,25 @@ export function Home() {
     }
     return notes.data;
   }, [searchQuery, notes.data]);
-  const filteredData = useMemo(() => {
-    const newData = data.filter((e) => selected.includes(e.title));
+  const filteredSelection = useMemo(() => {
+    const selectedNotes = searchFilter.filter((e) =>
+      selected.includes(e.title)
+    );
+
     if (selected.length > 0) {
-      return favorite ? newData.filter((e) => e.isFavorite === true) : newData;
+      return selectedNotes;
     }
-    return favorite ? data.filter((e) => e.isFavorite === true) : data;
-  }, [data, selected, favorite]);
+    return searchFilter;
+  }, [searchFilter, selected]);
+  const filteredData = useMemo(() => {
+    if (favorite) {
+      return filteredSelection.filter((note) => note.isFavorite);
+    }
+    return filteredSelection;
+  }, [favorite, filteredSelection]);
   const notesWithoutCopies = useMemo(() => {
-    return removeArrayKeyDuplicates(data, "title");
-  }, [data, selected]);
+    return removeArrayKeyDuplicates(filteredSelection, "title");
+  }, [filteredSelection, selected]);
   useEffect(() => {
     if (filteredData.filter((e) => e.isFavorite === true).length === 0) {
       setFavorite(false);
@@ -67,17 +78,17 @@ export function Home() {
     if (
       optionsSelection.length > 0 &&
       favorite &&
-      notes.data.filter((e) => e.isFavorite === true).length === 0
+      searchFilter.filter((e) => e.isFavorite === true).length === 0
     ) {
       setOptionsSelection([]);
     }
-    if (notes.data.length === 0) {
+    if (searchFilter.length === 0) {
       setOptionsSelection([]);
     }
     if (filteredData.length === 0) {
       setSelected([]);
     }
-  }, [notes.data, favorite, filteredData]);
+  }, [favorite, filteredData]);
   function deleteNotes() {
     const noteCount = optionsSelection.length;
     const plural = noteCount === 1 ? "" : "s";
@@ -85,32 +96,29 @@ export function Home() {
       "Confirm Deletion",
       `You're about to permanently delete ${noteCount} note${plural} and cencel their reminders. This action cannot be undone. Proceed?`,
       [
-        { text: "Cencel", style: "cancel", onPress: () => {} },
+        { text: "Cencel", style: "cancel", onPress: () => null },
         {
           text: "Delete permanently",
           style: "destructive",
           onPress: () => {
-            setDeleteProgress(optionsSelection);
             try {
+              setDeleteProgress(optionsSelection);
               setTimeout(() => {
                 setNotes((prev) => ({
                   ...prev,
                   data: excludeNotes(prev.data, optionsSelection),
                 }));
-                setNotes((prev) => ({
-                  ...prev,
-                  data: recalculateId(prev.data),
-                }));
-                optionsSelection.map(async (e) => {
-                  await Notifications.cancelScheduledNotificationAsync(
-                    e.toString()
-                  );
-                });
+                optionsSelection.forEach(
+                  async (e) =>
+                    await Notifications.cancelScheduledNotificationAsync(
+                      e.toString()
+                    )
+                );
                 setOptionsSelection([]);
                 setDeleteProgress([]);
-              }, optionsSelection.length * 200);
-            } catch (message) {
-              toast({ message });
+              }, optionsSelection.length * 300);
+            } catch (_) {
+              toast({ message: "Can't delete notes", textColor: "red" });
             }
           },
         },
@@ -126,76 +134,17 @@ export function Home() {
     }
     return false;
   });
+
   const { width, height } = useWindowDimensions();
+
   return (
     <View
       style={{
         flex: 1,
         backgroundColor: theme.background,
-        justifyContent: "center",
       }}
     >
       <Inbox onBack={() => setInbox(false)} open={inbox} />
-      {optionsSelection.length === 0 && (
-        <Header
-          children={
-            <FlatList
-              style={{
-                width: "100%",
-                flexGrow: 0,
-              }}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                paddingHorizontal: 14,
-                columnGap: 12,
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-              horizontal
-              ListHeaderComponent={() => (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    columnGap: 12,
-                    alignItems: "center",
-                  }}
-                >
-                  <FilterButton
-                    onSelected={() => setSelected([])}
-                    selected={selected.length === 0}
-                    label="All"
-                  />
-
-                  {filteredData.filter((e) => e.isFavorite === true).length >
-                    0 && (
-                    <FilterFavoritesButton
-                      selected={favorite}
-                      onSelected={() => setFavorite((prev) => !prev)}
-                    />
-                  )}
-                </View>
-              )}
-              data={notesWithoutCopies}
-              keyExtractor={(_, index) => index.toString()}
-              renderItem={({ item }) => (
-                <FilterButton
-                  key={item}
-                  onSelected={() =>
-                    setSelected(toggleArrayElement(selected, item))
-                  }
-                  selected={selected.includes(item)}
-                  label={item}
-                />
-              )}
-            />
-          }
-          onInboxOpen={() => setInbox(true)}
-          scrollY={scrollY}
-          searchValue={searchQuery}
-          onSearch={setSearchQuery}
-          extraHeight={optionsSelection.length === 0 && verticalScale(40)}
-        />
-      )}
 
       {optionsSelection.length > 0 && (
         <NoteOptions
@@ -208,13 +157,72 @@ export function Home() {
             if (optionsSelection.length === filteredData.length) {
               setOptionsSelection([]);
             } else {
-              setOptionsSelection(filteredData.map((e) => e.id).sort());
+              setOptionsSelection(filteredData.map((e) => e.id));
             }
           }}
           onDelete={deleteNotes}
           onClose={() => setOptionsSelection([])}
         />
       )}
+
+      <Header
+        show={optionsSelection.length === 0}
+        children={
+          <FlatList
+            style={{
+              width: "100%",
+              flexGrow: 0,
+            }}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingHorizontal: 14,
+              columnGap: 12,
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+            horizontal
+            ListHeaderComponent={() => (
+              <View
+                style={{
+                  flexDirection: "row",
+                  columnGap: 12,
+                  alignItems: "center",
+                }}
+              >
+                <FilterButton
+                  onSelected={() => setSelected([])}
+                  selected={selected.length === 0}
+                  label="All"
+                />
+                {filteredData.filter((e) => e.isFavorite === true).length >
+                  0 && (
+                  <FilterFavoritesButton
+                    selected={favorite}
+                    onSelected={() => setFavorite((prev) => !prev)}
+                  />
+                )}
+              </View>
+            )}
+            data={notesWithoutCopies}
+            keyExtractor={(_, index) => index.toString()}
+            renderItem={({ item }) => (
+              <FilterButton
+                key={item}
+                onSelected={() =>
+                  setSelected(toggleArrayElement(selected, item))
+                }
+                selected={selected.includes(item)}
+                label={item}
+              />
+            )}
+          />
+        }
+        onInboxOpen={() => setInbox(true)}
+        scrollY={scrollY}
+        searchValue={searchQuery}
+        onSearch={setSearchQuery}
+        extraHeight={optionsSelection.length === 0 && verticalScale(40)}
+      />
 
       <FlatList
         ref={scrollRef}
@@ -232,26 +240,24 @@ export function Home() {
             options={optionsSelection.length > 0}
             selectedForOptions={optionsSelection.includes(item.id)}
             onLongPress={() =>
-              setOptionsSelection(
-                toggleArrayElement(optionsSelection, item.id).sort()
-              )
+              setOptionsSelection(toggleArrayElement(optionsSelection, item.id))
             }
             onPress={() => {
               if (optionsSelection.length > 0) {
                 setOptionsSelection(
-                  toggleArrayElement(optionsSelection, item.id).sort()
+                  toggleArrayElement(optionsSelection, item.id)
                 );
-              } else {
-                navigation.push("note", { id: item.id });
+                return;
               }
+              navigation.navigate("note", { id: item.id });
             }}
             item={item}
           />
         )}
         scrollEventThrottle={16}
-        onScroll={(e) =>
-          scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y))
-        }
+        onScroll={(e) => {
+          scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y));
+        }}
         contentContainerStyle={{
           backgroundColor: theme.background,
           paddingHorizontal: 16,

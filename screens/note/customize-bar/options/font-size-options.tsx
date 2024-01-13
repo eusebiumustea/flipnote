@@ -93,7 +93,7 @@ export function FontSizeOptions({
         thumbStyle={{ backgroundColor: "teal" }}
         maximumTrackTintColor={theme.primary}
         minimumTrackTintColor={"#007AFF"}
-        trackStyle={{ width: width - 90 }}
+        trackStyle={{ width: width - 60 }}
         minimumValue={14}
         maximumValue={70}
       />

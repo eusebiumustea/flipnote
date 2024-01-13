@@ -81,19 +81,21 @@ export function CustomizeBar({
       transition={{
         type: "timing",
         duration: 300,
+        opacity: { delay: 500 },
       }}
       style={{
         borderRadius: 16,
         backgroundColor: theme.customizeBarColor,
         position: "absolute",
-        bottom: 20,
+        bottom: 0,
         alignSelf: "center",
-        marginBottom: paddingTop,
-        width: width - 60,
+        marginBottom: paddingTop + 20,
+        width: width - 30,
       }}
-      from={{ paddingTop: 0 }}
+      from={{ paddingTop: 0, opacity: 0 }}
       animate={{
         paddingTop: showOption ? optionSizeAdjust() : 0,
+        opacity: 1,
       }}
     >
       <OptionContainer

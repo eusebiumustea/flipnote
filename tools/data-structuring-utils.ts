@@ -55,6 +55,13 @@ export function reinjectElementInArray(array: note[], newElement: note) {
     ...array.slice(prevIndex + 1),
   ];
 }
+export function reverseArray<T>(array: T[]) {
+  const reversedArr: T[] = [];
+  for (let i = array.length - 1; i >= 0; i++) {
+    reversedArr.push(array[i]);
+  }
+  return reversedArr;
+}
 export function replaceElementAtIndex<T>(
   array: T[],
   replaceIndex: number,
@@ -100,7 +107,9 @@ export function removeArrayKeyDuplicates<T, K extends keyof T>(
 }
 
 export function excludeNotes(array: note[], elementsToRemove: number[]) {
-  return array.filter((e: note) => !elementsToRemove.includes(e.id));
+  return recalculateId(
+    array.filter((e: note) => !elementsToRemove.includes(e.id))
+  );
 }
 export function excludeArrayElements<T>(array: T[], itemsToRemove: T[]) {
   return array.filter((e: T) => !itemsToRemove.includes(e));

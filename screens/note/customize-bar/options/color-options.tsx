@@ -21,7 +21,7 @@ export function ColorOptions({
     <ColorPicker
       style={{
         rowGap: 10,
-        width: width - 90,
+        width: width - 60,
       }}
       thumbShape="circle"
       onComplete={({ hex }) =>

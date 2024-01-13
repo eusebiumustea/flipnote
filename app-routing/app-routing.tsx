@@ -1,44 +1,20 @@
-import { createStackNavigator } from "@react-navigation/stack";
-import { Easing } from "react-native-reanimated";
-import { enableFreeze } from "react-native-screens";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useRecoilState } from "recoil";
-import { Home, Inbox, NotePage, notesData } from "../screens";
-import { NotePageRework } from "../screens/note/note-page-reworked";
-enableFreeze(true);
-
+import { Home, NotePage, notesData } from "../screens";
+import { Screen1, Screen2 } from "../screens/inbox/screens";
+import { useTheme } from "../hooks";
 export function AppRouting() {
-  const Stack = createStackNavigator();
-  const [notes] = useRecoilState(notesData);
+  const Stack = createNativeStackNavigator();
+  const [notes, setNotes] = useRecoilState(notesData);
+  const theme = useTheme();
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
         freezeOnBlur: true,
-        transitionSpec: {
-          open: {
-            animation: "timing",
-            config: { duration: 180, easing: Easing.inOut(Easing.ease) },
-          },
-          close: {
-            animation: "timing",
-            config: { duration: 180, easing: Easing.inOut(Easing.ease) },
-          },
-        },
-        cardOverlayEnabled: true,
-        cardStyleInterpolator: ({ current, layouts }) => ({
-          cardStyle: {
-            opacity: current.progress,
-            transform: [
-              {
-                translateX: current.progress.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [layouts.screen.width, 0],
-                }),
-              },
-            ],
-          },
-        }),
         gestureEnabled: false,
+        animation: "none",
+        presentation: "containedTransparentModal",
       }}
       initialRouteName="Home"
     >
@@ -50,7 +26,9 @@ export function AppRouting() {
         component={NotePage}
         name="note"
       />
-      <Stack.Screen component={Inbox} name="Inbox" />
+
+      <Stack.Screen component={Screen1} name="screen1" />
+      <Stack.Screen component={Screen2} name="screen2" />
     </Stack.Navigator>
   );
 }

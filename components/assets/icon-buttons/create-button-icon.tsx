@@ -6,6 +6,7 @@ import Svg, { Path } from "react-native-svg";
 import { moderateScale } from "../../../tools";
 import { IconButtonBase } from "./types";
 import { useTheme } from "../../../hooks";
+import Animated from "react-native-reanimated";
 
 export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
   const theme = useTheme();
@@ -37,6 +38,17 @@ export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
         shadowRadius: 3.05,
       }}
     >
+      <Animated.View
+        sharedTransitionTag="note-init"
+        style={{
+          width: 0,
+          height: 0,
+
+          alignSelf: "center",
+          borderRadius: 100,
+          position: "absolute",
+        }}
+      />
       <Svg
         {...svgProps}
         width={45}

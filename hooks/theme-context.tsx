@@ -1,18 +1,16 @@
 import { PropsWithChildren, createContext, useContext, useMemo } from "react";
 import { useColorScheme } from "react-native";
 import { dark, light } from "../tools/colors";
-
 const ThemeContext = createContext(light);
 
 export function ThemeProvider({ children }: PropsWithChildren) {
   const colorScheme = useColorScheme();
-
   const deviceTheme = useMemo(() => {
-    if (colorScheme === "dark") {
-      return dark;
-    }
-    if (colorScheme === "light") {
-      return light;
+    switch (colorScheme) {
+      case "dark":
+        return dark;
+      case "light":
+        return light;
     }
   }, [colorScheme]);
 

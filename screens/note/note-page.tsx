@@ -3,7 +3,14 @@ import { useBackHandler, useKeyboard } from "@react-native-community/hooks";
 import * as Clipboard from "expo-clipboard";
 import * as Notifications from "expo-notifications";
 import * as Sharing from "expo-sharing";
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Dimensions,
   Linking,
@@ -40,7 +47,7 @@ import {
   FontSizeOptions,
 } from "./customize-bar";
 import { DateTimePickerDialog } from "./date-time-picker";
-import { notesData } from "./date-time-picker/atom";
+import { notesData } from "./atom";
 import { HistoryChanges } from "./history-changes";
 import { NoteScreenHeader } from "./note-screen-header";
 import { StyleEvent, onFontColor } from "./style-events";
@@ -48,6 +55,9 @@ import { InputSelectionProps, OptionProps, ReminderProps, note } from "./types";
 import { useEditNoteContent, useNoteContent, useTheme } from "../../hooks";
 import { useNoitication } from "../../hooks/use-notification-handler";
 import { useNoteManager } from "../../hooks/use-note-manager";
+import Animated, { Keyframe, SharedTransition } from "react-native-reanimated";
+import { useIsFocused } from "@react-navigation/native";
+import { AnimatePresence } from "moti";
 interface ParamsProps {
   id: number;
   edit: boolean;
@@ -59,7 +69,7 @@ export function NotePage({ route, navigation }: any) {
     navigation.popToTop();
     return true;
   });
-
+  const inputRef = useRef<TextInput | null>(null);
   const theme = useTheme();
   const { id }: ParamsProps = route.params;
   const [notes, setNotes] = useRecoilState(notesData);
@@ -80,7 +90,7 @@ export function NotePage({ route, navigation }: any) {
   }, []);
 
   const [editNote, setEditNote] = useState<note>({
-    id: item.id,
+    id,
     title: item.title,
     text: item.text,
     isFavorite: item.isFavorite,
@@ -99,22 +109,38 @@ export function NotePage({ route, navigation }: any) {
     start: 0,
     end: 0,
   });
+  // let selection = useRef({ start: 0, end: 0 }).current;
   const [reminderDialog, setReminderDialog] = useState(false);
   const scheduleDateForNotification =
     editNote.reminder && new Date(editNote.reminder);
 
   const textSelected = selection.end !== selection.start;
-  console.log(notes.data);
-
-  useEffect(() => {
-    return () =>
-      setNotes((prev) => ({
-        ...prev,
-        data: recalculateId(prev.data),
-      }));
-  }, []);
+  // console.log(notes.data);
   useNoteManager(setNotes, editNote, notes.data, id);
-  const Content = useEditNoteContent(editNote.styles, editNote.text);
+  // useEffect(() => {
+  //   return () => {
+  //     setNotes((prev) => ({
+  //       ...prev,
+  //       data: recalculateId(prev.data),
+  //     }));
+  //   };
+  // }, []);
+  // const currentFocused = useMemo(() => {
+  //   if (textSelected) {
+  //     return editNote.styles.find(
+  //       (e) =>
+  //         (selection.start < e.interval.start &&
+  //           selection.end > e.interval.end) ||
+  //         range(e.interval.start, e.interval.end).includes(
+  //           selection.start + 1
+  //         ) ||
+  //         (range(e.interval.start, e.interval.end).includes(
+  //           selection.end - 1
+  //         ) &&
+  //           Object.keys(e.style).length > 0)
+  //     );
+  //   }
+  // }, [selection, editNote.styles]);
   const currentFocused =
     textSelected &&
     editNote.styles.find(
@@ -322,13 +348,19 @@ export function NotePage({ route, navigation }: any) {
           if (noteStateIsEmpty) {
             return;
           }
-          await Clipboard.setStringAsync(`${editNote.title}\n${editNote.text}`);
-          toast({
-            message: "Copied",
-            startPositionX: 80,
-            startPositionY: 10,
-            fade: true,
-          });
+          try {
+            await Clipboard.setStringAsync(
+              `${editNote.title}\n${editNote.text}`
+            );
+            toast({
+              message: "Copied",
+              startPositionX: 80,
+              startPositionY: 10,
+              fade: true,
+            });
+          } catch (error) {
+            toast({ message: "Note is too large to copy in clipboard" });
+          }
         }}
         onFavoriteAdd={() =>
           setEditNote((prev) => ({
@@ -348,8 +380,11 @@ export function NotePage({ route, navigation }: any) {
         opened={changes}
         onClose={() => setShowChanges(false)}
       />
-      <ScrollView
-        ref={imageRef}
+      <Animated.ScrollView
+        showsVerticalScrollIndicator={false}
+        sharedTransitionTag={
+          id < notes.data.length + 1 ? id.toString() : "note-init"
+        }
         {...gestureConfig}
         scrollEventThrottle={16}
         collapsable={false}
@@ -357,8 +392,14 @@ export function NotePage({ route, navigation }: any) {
         contentContainerStyle={{
           paddingTop: verticalScale(70) + top,
           padding: 16,
-          // backgroundColor: editNote.background,
-          height: "auto",
+          elevation: 5,
+          shadowColor: "#000000",
+          shadowOffset: {
+            width: 0,
+            height: 3,
+          },
+          shadowOpacity: 0.17,
+          shadowRadius: 3.05,
         }}
         style={{
           flex: 1,
@@ -366,7 +407,7 @@ export function NotePage({ route, navigation }: any) {
           backgroundColor: editNote.background,
         }}
       >
-        <TextInput
+        {/* <TextInput
           placeholderTextColor={theme.placeholder}
           onChangeText={(editedTitle) =>
             setEditNote((prev) => ({
@@ -390,15 +431,13 @@ export function NotePage({ route, navigation }: any) {
           }}
         >
           <Text>{editNote.title}</Text>
-        </TextInput>
+        </TextInput> */}
         <TextInput
-          onSelectionChange={(e) => {
-            const start = e.nativeEvent.selection.start;
-            const end = e.nativeEvent.selection.end;
-            setSelection({
-              start,
-              end,
-            });
+          ref={inputRef}
+          onSelectionChange={({ nativeEvent }) => {
+            // selection = e.nativeEvent.selection;
+
+            setSelection(nativeEvent.selection);
           }}
           placeholderTextColor={theme.placeholder}
           cursorColor={"#FFCB09"}
@@ -407,55 +446,7 @@ export function NotePage({ route, navigation }: any) {
           autoCorrect={false}
           spellCheck={false}
           inputMode="text"
-          keyboardType="default"
           onChangeText={(text) => {
-            editNote.styles.map((style, i) => {
-              // if (
-              //   text.length <= editNote.text.length &&
-              //   selection.end - 1 === style.interval.end
-              // ) {
-              //   setEditNote((prev) => ({
-              //     ...prev,
-              //     styles: replaceElementAtIndex(prev.styles, i, {
-              //       ...style,
-              //       interval: {
-              //         ...style.interval,
-              //         end: style.interval.end - 1,
-              //       },
-              //     }),
-              //   }));
-              // }
-              if (
-                selection.end - 1 < style.interval.start &&
-                text.length > editNote.text.length
-              ) {
-                setEditNote((prev) => ({
-                  ...prev,
-                  styles: replaceElementAtIndex(prev.styles, i, {
-                    ...style,
-                    interval: {
-                      start: style.interval.start + 1,
-                      end: style.interval.end + 1,
-                    },
-                  }),
-                }));
-              }
-              if (
-                selection.end - 1 < style.interval.start &&
-                text.length < editNote.text.length
-              ) {
-                setEditNote((prev) => ({
-                  ...prev,
-                  styles: replaceElementAtIndex(prev.styles, i, {
-                    ...style,
-                    interval: {
-                      start: style.interval.start - 1,
-                      end: style.interval.end - 1,
-                    },
-                  }),
-                }));
-              }
-            });
             setEditNote((prev) => ({
               ...prev,
               text,
@@ -466,14 +457,15 @@ export function NotePage({ route, navigation }: any) {
           // selectionColor={"#FFF3C7"}
           placeholder="Take the note"
           style={{
-            marginTop: verticalScale(20),
+            // marginTop: verticalScale(20),
             paddingBottom: verticalScale(200),
             backgroundColor: editNote.background,
           }}
         >
-          {Content}
+          {useEditNoteContent(editNote.styles, editNote.text)}
         </TextInput>
-      </ScrollView>
+      </Animated.ScrollView>
+
       <CustomizeBar
         focusedColor={currentFocused?.style?.color}
         selection={selection}
