@@ -13,7 +13,11 @@ import {
 import { memo } from "react";
 import { useTheme } from "../../hooks";
 import { MotiView } from "moti";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  FadeOutDown,
+} from "react-native-reanimated";
 
 interface NoteScreenHeaderProps {
   onClipboard: () => void;
@@ -41,13 +45,12 @@ export const NoteScreenHeader = memo(
     const theme = useTheme();
     const colorScheme = useColorScheme();
     return (
-      <Animated.View
-        entering={FadeInDown.delay(500)}
+      <View
         style={{
           width: "100%",
           position: "absolute",
-          zIndex: 1,
           top: 0,
+          zIndex: 2,
         }}
       >
         {Platform.OS === "android" && (
@@ -77,7 +80,7 @@ export const NoteScreenHeader = memo(
         <View
           style={{
             width: "100%",
-            paddingTop: top + 8,
+            paddingTop: 8 + top,
             paddingBottom: 6,
             paddingHorizontal: 8,
             flexDirection: "row",
@@ -101,7 +104,7 @@ export const NoteScreenHeader = memo(
             <ShareIcon onPress={onShare} />
           </View>
         </View>
-      </Animated.View>
+      </View>
     );
   }
 );

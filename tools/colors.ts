@@ -1,5 +1,6 @@
 export const light = {
   background: "#fff",
+  homeBackground: "#ebeced",
   onBackground: "#181818",
   backgroundSearch: "#F0F0F0",
   onBackgroundSearch: "#7C7C7C",
@@ -28,6 +29,7 @@ export const light = {
   ],
 };
 export const dark = {
+  homeBackground: "#04080f",
   background: "#121212",
   onBackground: "#F0F0F0",
   backgroundSearch: "#0D0D0D",

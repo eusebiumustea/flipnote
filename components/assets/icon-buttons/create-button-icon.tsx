@@ -38,17 +38,6 @@ export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
         shadowRadius: 3.05,
       }}
     >
-      <Animated.View
-        sharedTransitionTag="note-init"
-        style={{
-          width: 0,
-          height: 0,
-
-          alignSelf: "center",
-          borderRadius: 100,
-          position: "absolute",
-        }}
-      />
       <Svg
         {...svgProps}
         width={45}

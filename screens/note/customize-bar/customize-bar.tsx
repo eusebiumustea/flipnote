@@ -81,7 +81,6 @@ export function CustomizeBar({
       transition={{
         type: "timing",
         duration: 300,
-        opacity: { delay: 500 },
       }}
       style={{
         borderRadius: 16,
@@ -92,10 +91,9 @@ export function CustomizeBar({
         marginBottom: paddingTop + 20,
         width: width - 30,
       }}
-      from={{ paddingTop: 0, opacity: 0 }}
+      from={{ paddingTop: 0 }}
       animate={{
         paddingTop: showOption ? optionSizeAdjust() : 0,
-        opacity: 1,
       }}
     >
       <OptionContainer

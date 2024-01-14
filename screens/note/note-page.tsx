@@ -19,12 +19,12 @@ import {
   Text,
   TextInput,
   TextStyle,
+  View,
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { captureRef } from "react-native-view-shot";
 import { useRecoilState } from "recoil";
-import { Swipe, useToast } from "../../components";
 import { fontNames } from "../../constants";
 import {
   dateTime,
@@ -47,7 +47,7 @@ import {
   FontSizeOptions,
 } from "./customize-bar";
 import { DateTimePickerDialog } from "./date-time-picker";
-import { notesData } from "./atom";
+import { currentPosition, notesData } from "../../contexts/atom";
 import { HistoryChanges } from "./history-changes";
 import { NoteScreenHeader } from "./note-screen-header";
 import { StyleEvent, onFontColor } from "./style-events";
@@ -58,6 +58,8 @@ import { useNoteManager } from "../../hooks/use-note-manager";
 import Animated, { Keyframe, SharedTransition } from "react-native-reanimated";
 import { useIsFocused } from "@react-navigation/native";
 import { AnimatePresence } from "moti";
+import { useToast } from "../../components/toast";
+import { Swipe } from "../../components/pan-responder";
 interface ParamsProps {
   id: number;
   edit: boolean;
@@ -65,10 +67,7 @@ interface ParamsProps {
 
 export function NotePage({ route, navigation }: any) {
   const { width, height } = useWindowDimensions();
-  useBackHandler(() => {
-    navigation.popToTop();
-    return true;
-  });
+
   const inputRef = useRef<TextInput | null>(null);
   const theme = useTheme();
   const { id }: ParamsProps = route.params;
@@ -115,7 +114,6 @@ export function NotePage({ route, navigation }: any) {
     editNote.reminder && new Date(editNote.reminder);
 
   const textSelected = selection.end !== selection.start;
-  // console.log(notes.data);
   useNoteManager(setNotes, editNote, notes.data, id);
   // useEffect(() => {
   //   return () => {
@@ -125,34 +123,33 @@ export function NotePage({ route, navigation }: any) {
   //     }));
   //   };
   // }, []);
-  // const currentFocused = useMemo(() => {
-  //   if (textSelected) {
-  //     return editNote.styles.find(
-  //       (e) =>
-  //         (selection.start < e.interval.start &&
-  //           selection.end > e.interval.end) ||
-  //         range(e.interval.start, e.interval.end).includes(
-  //           selection.start + 1
-  //         ) ||
-  //         (range(e.interval.start, e.interval.end).includes(
-  //           selection.end - 1
-  //         ) &&
-  //           Object.keys(e.style).length > 0)
-  //     );
-  //   }
-  // }, [selection, editNote.styles]);
-  const currentFocused =
-    textSelected &&
-    editNote.styles.find(
-      (e) =>
-        (selection.start < e.interval.start &&
-          selection.end > e.interval.end) ||
-        range(e.interval.start, e.interval.end).includes(selection.start + 1) ||
-        (range(e.interval.start, e.interval.end).includes(selection.end - 1) &&
-          Object.keys(e.style).length > 0)
-    );
+  const currentFocused = useMemo(() => {
+    if (textSelected) {
+      return editNote.styles.find(
+        (e) =>
+          (selection.start < e.interval.start &&
+            selection.end > e.interval.end) ||
+          range(e.interval.start, e.interval.end).includes(
+            selection.start + 1
+          ) ||
+          (range(e.interval.start, e.interval.end).includes(
+            selection.end - 1
+          ) &&
+            Object.keys(e.style).length > 0)
+      );
+    }
+  }, [selection, editNote.styles]);
+  // const currentFocused =
+  //   textSelected &&
+  //   editNote.styles.find(
+  //     (e) =>
+  //       (selection.start < e.interval.start &&
+  //         selection.end > e.interval.end) ||
+  //       range(e.interval.start, e.interval.end).includes(selection.start + 1) ||
+  //       (range(e.interval.start, e.interval.end).includes(selection.end - 1) &&
+  //         Object.keys(e.style).length > 0)
+  //   );
 
-  console.log("currentFocused:", currentFocused);
   const currentIndex = editNote.styles.indexOf(currentFocused);
 
   // function font(fontName: string) {
@@ -259,19 +256,17 @@ export function NotePage({ route, navigation }: any) {
       : Dimensions.get("screen").height -
         (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
 
-  console.log("editnote:", JSON.stringify(editNote));
-
-  const gestureConfig =
-    Platform.OS === "ios" &&
-    Swipe({
-      onRelease: (e, state) => {
-        const x = state.dx;
-        const pageX = e.nativeEvent.pageX;
-        if (x > 0 && pageX < 200) {
-          navigation.popToTop();
-        }
-      },
-    });
+  // const gestureConfig =
+  //   Platform.OS === "ios" &&
+  //   Swipe({
+  //     onRelease: (e, state) => {
+  //       const x = state.dx;
+  //       const pageX = e.nativeEvent.pageX;
+  //       if (x > 0 && pageX < 200) {
+  //         navigation.goBack();
+  //       }
+  //     },
+  //   });
   const fontFamilyFocused = currentFocused?.style?.fontFamily;
   const [changes, setShowChanges] = useState(false);
   function setStyleEvent(key: keyof TextStyle, value: string) {
@@ -294,13 +289,15 @@ export function NotePage({ route, navigation }: any) {
     fontFamilyFocused,
     fonts: fontNames,
   };
+  const styles = useMemo(() => editNote.styles, [editNote.styles, selection]);
   const notification = useNoitication();
+
   return (
     <>
       <DateTimePickerDialog
         action={() => {
           notification(
-            editNote.title ? editNote.title : "Flipnote",
+            editNote.title ? editNote.title : null,
             editNote.text ? editNote.text : null,
             id,
             reminder,
@@ -359,7 +356,10 @@ export function NotePage({ route, navigation }: any) {
               fade: true,
             });
           } catch (error) {
-            toast({ message: "Note is too large to copy in clipboard" });
+            toast({
+              message: "Note is too large to copy in clipboard",
+              textColor: "orange",
+            });
           }
         }}
         onFavoriteAdd={() =>
@@ -380,26 +380,12 @@ export function NotePage({ route, navigation }: any) {
         opened={changes}
         onClose={() => setShowChanges(false)}
       />
-      <Animated.ScrollView
+      <ScrollView
         showsVerticalScrollIndicator={false}
-        sharedTransitionTag={
-          id < notes.data.length + 1 ? id.toString() : "note-init"
-        }
-        {...gestureConfig}
-        scrollEventThrottle={16}
-        collapsable={false}
         keyboardShouldPersistTaps="always"
         contentContainerStyle={{
           paddingTop: verticalScale(70) + top,
           padding: 16,
-          elevation: 5,
-          shadowColor: "#000000",
-          shadowOffset: {
-            width: 0,
-            height: 3,
-          },
-          shadowOpacity: 0.17,
-          shadowRadius: 3.05,
         }}
         style={{
           flex: 1,
@@ -407,7 +393,7 @@ export function NotePage({ route, navigation }: any) {
           backgroundColor: editNote.background,
         }}
       >
-        {/* <TextInput
+        <TextInput
           placeholderTextColor={theme.placeholder}
           onChangeText={(editedTitle) =>
             setEditNote((prev) => ({
@@ -418,7 +404,6 @@ export function NotePage({ route, navigation }: any) {
           underlineColorAndroid="transparent"
           cursorColor={"#FFCB09"}
           selectTextOnFocus={true}
-          onSelectionChange={(e) => console.log(e.nativeEvent.selection)}
           multiline
           scrollEnabled={false}
           placeholder="Title"
@@ -431,7 +416,7 @@ export function NotePage({ route, navigation }: any) {
           }}
         >
           <Text>{editNote.title}</Text>
-        </TextInput> */}
+        </TextInput>
         <TextInput
           ref={inputRef}
           onSelectionChange={({ nativeEvent }) => {
@@ -457,14 +442,13 @@ export function NotePage({ route, navigation }: any) {
           // selectionColor={"#FFF3C7"}
           placeholder="Take the note"
           style={{
-            // marginTop: verticalScale(20),
+            marginTop: verticalScale(20),
             paddingBottom: verticalScale(200),
-            backgroundColor: editNote.background,
           }}
         >
           {useEditNoteContent(editNote.styles, editNote.text)}
         </TextInput>
-      </Animated.ScrollView>
+      </ScrollView>
 
       <CustomizeBar
         focusedColor={currentFocused?.style?.color}

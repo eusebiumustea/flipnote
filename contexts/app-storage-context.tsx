@@ -3,9 +3,9 @@ import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
 import { PropsWithChildren, useCallback, useEffect, useMemo } from "react";
 import { useRecoilState } from "recoil";
-import { note, notesData } from "../../screens/note";
-import { changeKeyValuesConditionaly, recalculateId } from "../../tools";
-import { useToast } from "../toast";
+import { note, notesData } from "../screens/note";
+import { changeKeyValuesConditionaly, recalculateId } from "../tools";
+import { useToast } from "../components/toast";
 
 export function AppStorageContext({ children }: PropsWithChildren) {
   const [notes, setNotes] = useRecoilState(notesData);
@@ -51,23 +51,17 @@ export function AppStorageContext({ children }: PropsWithChildren) {
         const data = await FileSystem.readAsStringAsync(dataUri);
 
         const notes = JSON.parse(data);
-        console.log(data);
         if (notes) {
           setNotes((prev) => ({ ...prev, data: notes }));
         }
-      } catch (e) {
-        console.log("get err");
-      }
+      } catch (e) {}
     }
     getData();
   }, []);
   useEffect(() => {
     const storeData = async (value: note[]) => {
       try {
-        await FileSystem.writeAsStringAsync(
-          dataUri,
-          JSON.stringify(value)
-        ).then(() => console.log("saved"));
+        await FileSystem.writeAsStringAsync(dataUri, JSON.stringify(value));
       } catch (e) {
         toast({
           message: "Failed to save note in appdata!",

@@ -1,5 +1,4 @@
 import { Platform, TouchableOpacity, View, Text } from "react-native";
-import { Dialog, useToast } from "../../../components";
 import DateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
@@ -7,6 +6,7 @@ import { dateTime, moderateFontScale } from "../../../tools";
 import { DateTimePickerProps } from "./types";
 import React from "react";
 import { useTheme } from "../../../hooks";
+import { Dialog } from "../../../components/dialog";
 
 export function DateTimePickerDialog({
   action,

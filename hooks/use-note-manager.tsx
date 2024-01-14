@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
 import { UserdataState, note } from "../screens";
-import { useToast } from "../components";
 import { reinjectElementInArray, replaceElementAtId } from "../tools";
+import { useToast } from "../components/toast";
 
 export function useNoteManager(
   setNotes: Dispatch<SetStateAction<UserdataState>>,

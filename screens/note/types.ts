@@ -19,6 +19,10 @@ export interface OptionProps {
   currentIndex?: number;
   selection?: InputSelectionProps;
 }
+export interface ElementPositionTypes {
+  relativeY: number;
+  relativeX: number;
+}
 export interface note {
   id: number;
   title: string;
@@ -36,7 +40,6 @@ export interface UserdataState {
   data: note[] | null;
 }
 export type NotificationProp = {
-  id: number;
   title: string;
   content: string;
   time: Date;

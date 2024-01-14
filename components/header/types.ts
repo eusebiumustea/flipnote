@@ -1,10 +1,9 @@
-import { Animated } from "react-native";
+import { Animated, GestureResponderEvent } from "react-native";
 
 export interface HeaderProps {
   onSearch: (e: string) => void;
   searchValue: string;
   scrollY?: Animated.Value;
   extraHeight?: number;
-  onInboxOpen?: () => void;
-  show: boolean;
+  onInboxOpen?: (e: GestureResponderEvent) => void;
 }

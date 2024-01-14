@@ -1,4 +1,4 @@
-import { ColorBox } from "../../../../components";
+import { ColorBox } from "../../../../components/color-box";
 import { OptionProps } from "../../types";
 
 export function BackgroundOptions({

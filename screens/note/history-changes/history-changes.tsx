@@ -12,11 +12,13 @@ import {
 import { FlatList } from "react-native-gesture-handler";
 import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BackIcon, ScreenHeader, Swipe } from "../../../components";
 import { moderateFontScale, verticalScale } from "../../../tools";
 import { HistoryChangesProps } from "./types";
 import { useTheme } from "../../../hooks";
 import { BlurView } from "expo-blur";
+import { Swipe } from "../../../components/pan-responder";
+import { ScreenHeader } from "../../../components/screen-header";
+import { BackIcon } from "../../../components/assets";
 
 export const HistoryChanges = memo(
   ({

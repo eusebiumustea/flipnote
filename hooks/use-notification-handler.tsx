@@ -1,9 +1,9 @@
 import { Linking } from "react-native";
-import { useToast } from "../components";
 import { ReminderProps, note } from "../screens";
 import { dateTime } from "../tools";
 import * as Notifications from "expo-notifications";
 import { Dispatch, SetStateAction } from "react";
+import { useToast } from "../components/toast";
 export function useNoitication() {
   const toast = useToast();
   return async (

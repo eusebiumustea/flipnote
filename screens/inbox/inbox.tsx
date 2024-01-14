@@ -1,266 +1,280 @@
-import { BlurView } from "expo-blur";
 import * as Notifications from "expo-notifications";
-import { AnimatePresence, MotiView } from "moti";
-import React, { Fragment, memo, useEffect, useMemo } from "react";
+import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Modal,
-  Platform,
   Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
-  useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
-import { ScreenHeader, Swipe } from "../../components";
+import { ScreenHeader } from "../../components/screen-header";
 import { useTheme } from "../../hooks";
 import {
   dateTime,
-  deviceIsLowRam,
   moderateFontScale,
-  moderateScale,
+  removeElementAtIndex,
   replaceElementAtId,
   verticalScale,
 } from "../../tools";
-import { notesData } from "../note";
-import Animated from "react-native-reanimated";
-interface InboxProps {
-  onBack: () => void;
-  open: boolean;
-}
-export const Inbox = memo(({ onBack, open }: InboxProps) => {
-  const [notes, setNotes] = useRecoilState(notesData);
+import { notesData, receivedNotifications } from "../note";
+import { CloseIcon } from "../../components";
+import Animated, { FadeOut, ZoomIn, ZoomOut } from "react-native-reanimated";
 
+export const Inbox = ({ navigation }) => {
+  const [notes, setNotes] = useRecoilState(notesData);
+  const [received, setReceived] = useRecoilState(receivedNotifications);
   const upcomingNotifications = useMemo(() => {
     return notes.data.filter(
       (e) => e.reminder && new Date() < new Date(e.reminder)
     );
   }, [notes.data]);
   const theme = useTheme();
-  const { top, bottom } = useSafeAreaInsets();
-  const { height, width } = useWindowDimensions();
-  const config =
-    Platform.OS === "ios" &&
-    Swipe({
-      onMove(e, state) {},
-      onRelease: (e, state) => {
-        const x = state.dx;
-        const pageX = e.nativeEvent.pageX;
-        if (x > 0 && pageX < 200) {
-          onBack();
-        }
-      },
-    });
+
+  // const gestureConfig =
+  //   Platform.OS === "ios" &&
+  //   Swipe({
+  //     onMove(e, state) {},
+  //     onRelease: (e, state) => {
+  //       const x = state.dx;
+  //       const pageX = e.nativeEvent.pageX;
+  //       if (x > 0 && pageX < 200) {
+  //         navigation.goBack();
+  //       }
+  //     },
+  //   });
+  const { top } = useSafeAreaInsets();
 
   return (
-    <AnimatePresence>
-      {open && (
-        <Modal onRequestClose={onBack} transparent>
-          {!deviceIsLowRam && (
-            <MotiView
-              transition={{
-                type: "timing",
-                duration: 350,
-              }}
-              from={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              style={{
-                flex: 1,
-                width: "100%",
-                height: "100%",
-                zIndex: -2,
-                position: "absolute",
-              }}
-            >
-              <BlurView tint="dark" style={{ flex: 1 }} />
-            </MotiView>
-          )}
-          {deviceIsLowRam && (
-            <MotiView
-              transition={{
-                type: "timing",
-                duration: 200,
-              }}
-              from={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
-              exit={{ opacity: 0 }}
-              style={{
-                width: "100%",
-                height: "100%",
-                zIndex: -2,
-                position: "absolute",
-                backgroundColor: "#000",
-              }}
-            />
-          )}
-          <MotiView
-            {...config}
-            transition={{ type: "timing" }}
+    <View style={{ flex: 1 }}>
+      <ScreenHeader
+        style={{ paddingTop: top + 8 }}
+        children={
+          <View
             style={{
-              backgroundColor: theme.background,
-              flex: 1,
-            }}
-            from={{
-              translateX: width / 2 - moderateScale(30),
-              translateY: -height / 2 + top,
-              scale: 0,
-            }}
-            animate={{
-              translateX: 0,
-              translateY: 0,
-              scale: 1,
-            }}
-            exit={{
-              translateX: width / 2 - moderateScale(30),
-              translateY: -height / 2 + top,
-              scale: 0,
+              width: "100%",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
-            <ScreenHeader
-              style={{ paddingVertical: 10 }}
-              children={
-                <View
+            <Text
+              style={{
+                color: theme.onPrimary,
+                fontWeight: "bold",
+                fontSize: moderateFontScale(20),
+              }}
+            >
+              Notifications
+            </Text>
+          </View>
+        }
+        onBack={() => navigation.goBack()}
+      />
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingVertical: verticalScale(10),
+          rowGap: 8,
+          paddingBottom: 30,
+        }}
+        style={{
+          backgroundColor: theme.background,
+          flex: 1,
+        }}
+      >
+        {upcomingNotifications.length === 0 && received.length === 0 && (
+          <>
+            <Text
+              style={{
+                color: theme.onPrimary,
+                fontSize: moderateFontScale(17),
+                textAlign: "center",
+                fontFamily: "OpenSans",
+                paddingTop: 16,
+              }}
+            >
+              No upcoming notifications
+            </Text>
+          </>
+        )}
+        {upcomingNotifications.length > 0 && (
+          <Text
+            style={{
+              color: theme.onPrimary,
+              fontSize: moderateFontScale(18),
+            }}
+          >
+            Upcoming
+          </Text>
+        )}
+        {upcomingNotifications.map((note, i) => {
+          const reminder = new Date(note.reminder);
+
+          return (
+            <Fragment key={i}>
+              <Pressable
+                style={{
+                  width: "100%",
+                  borderRadius: 16,
+                  backgroundColor: note.background,
+                  padding: 16,
+                  flexDirection: "column",
+                  elevation: 5,
+                  shadowColor: "#000000",
+                  shadowOffset: {
+                    width: 0,
+                    height: 3,
+                  },
+                  shadowOpacity: 0.17,
+                  shadowRadius: 3.05,
+                }}
+              >
+                <Text
                   style={{
-                    width: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    fontWeight: "bold",
+                    fontSize: moderateFontScale(18),
+                    color: "#000",
+                  }}
+                >
+                  {note.title.length > 0 ? note.title : note.text}
+                </Text>
+              </Pressable>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  alignItems: "center",
+                }}
+              >
+                <TouchableOpacity
+                  onPress={async () => {
+                    await Notifications.cancelScheduledNotificationAsync(
+                      note.id.toString()
+                    );
+                    setNotes((prev) => ({
+                      ...prev,
+                      data: replaceElementAtId(prev.data, note.id, {
+                        ...note,
+                        reminder: null,
+                      }),
+                    }));
                   }}
                 >
                   <Text
                     style={{
-                      color: theme.onPrimary,
-                      fontWeight: "bold",
-                      fontSize: moderateFontScale(20),
-                    }}
-                  >
-                    Notifications
-                  </Text>
-                </View>
-              }
-              onBack={onBack}
-            />
-            <ScrollView
-              contentContainerStyle={{
-                paddingHorizontal: 16,
-                paddingVertical: verticalScale(10),
-                rowGap: 8,
-                paddingBottom: 30,
-              }}
-              style={{
-                backgroundColor: theme.background,
-                flex: 1,
-              }}
-            >
-              {upcomingNotifications.length === 0 && (
-                <>
-                  <Text
-                    style={{
-                      color: theme.onPrimary,
-                      fontSize: moderateFontScale(17),
-                      textAlign: "center",
+                      color: "red",
+                      fontSize: moderateFontScale(16),
                       fontFamily: "OpenSans",
-                      paddingTop: 16,
+                      fontWeight: "bold",
                     }}
                   >
-                    No upcoming notifications
+                    Cencel
                   </Text>
-                </>
-              )}
-              {upcomingNotifications.length > 0 && (
+                </TouchableOpacity>
                 <Text
                   style={{
                     color: theme.onPrimary,
-                    fontSize: moderateFontScale(18),
+
+                    fontSize: moderateFontScale(15),
                   }}
                 >
-                  Upcoming
+                  {dateTime(reminder)}
                 </Text>
-              )}
-              {upcomingNotifications.map((note, i) => {
-                const reminder = new Date(note.reminder);
+              </View>
+            </Fragment>
+          );
+        })}
+        {received.length > 0 && (
+          <Text
+            style={{
+              color: theme.onPrimary,
+              fontSize: moderateFontScale(20),
+              paddingTop: 16,
+            }}
+          >
+            Received notifications
+          </Text>
+        )}
+        {received.map((item, i) => {
+          return (
+            <Fragment key={i}>
+              <Pressable
+                style={{
+                  width: "100%",
+                  borderRadius: 16,
+                  backgroundColor: theme.onPrimary,
+                  padding: 16,
+                  flexDirection: "column",
+                  elevation: 5,
+                  shadowColor: theme.primary,
+                  shadowOffset: {
+                    width: 0,
+                    height: 3,
+                  },
+                  shadowOpacity: 0.17,
+                  shadowRadius: 3.05,
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: moderateFontScale(18),
+                    color: theme.primary,
+                  }}
+                >
+                  {item?.title?.length >= 100
+                    ? `${item?.title?.slice(0, 100)}...`
+                    : item?.title}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: moderateFontScale(14),
+                    color: theme.primary,
+                    paddingVertical: 6,
+                  }}
+                >
+                  {item?.content?.length >= 100
+                    ? `${item?.content?.slice(0, 100)}...`
+                    : item?.content}
+                </Text>
+                <CloseIcon
+                  onPress={() =>
+                    setReceived((prev) => prev.filter((e) => e !== item))
+                  }
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    alignSelf: "center",
+                    margin: 12,
+                  }}
+                  svgProps={{ fill: theme.primary }}
+                />
+              </Pressable>
 
-                return (
-                  <Fragment key={i}>
-                    <Pressable
-                      style={{
-                        width: "100%",
-                        borderRadius: 16,
-                        backgroundColor: note.background,
-                        padding: 16,
-                        flexDirection: "column",
-                        elevation: 5,
-                        shadowColor: "#000000",
-                        shadowOffset: {
-                          width: 0,
-                          height: 3,
-                        },
-                        shadowOpacity: 0.17,
-                        shadowRadius: 3.05,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontWeight: "bold",
-                          fontSize: moderateFontScale(18),
-                          color: "#000",
-                        }}
-                      >
-                        {note.title.length > 0 ? note.title : note.text}
-                      </Text>
-                    </Pressable>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        width: "100%",
-                        alignItems: "center",
-                      }}
-                    >
-                      <TouchableOpacity
-                        onPress={async () => {
-                          await Notifications.cancelScheduledNotificationAsync(
-                            note.id.toString()
-                          );
-                          setNotes((prev) => ({
-                            ...prev,
-                            data: replaceElementAtId(prev.data, note.id, {
-                              ...note,
-                              reminder: null,
-                            }),
-                          }));
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: "red",
-                            fontSize: moderateFontScale(16),
-                            fontFamily: "OpenSans",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          Cencel
-                        </Text>
-                      </TouchableOpacity>
-                      <Text
-                        style={{
-                          color: theme.onPrimary,
+              {/* <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    color: theme.onPrimary,
 
-                          fontSize: moderateFontScale(15),
-                        }}
-                      >
-                        {dateTime(reminder)}
-                      </Text>
-                    </View>
-                  </Fragment>
-                );
-              })}
-            </ScrollView>
-          </MotiView>
-        </Modal>
-      )}
-    </AnimatePresence>
+                    fontSize: moderateFontScale(15),
+                  }}
+                >
+                  {dateTime(item.time)}
+                </Text>
+              </View> */}
+            </Fragment>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
-});
+};

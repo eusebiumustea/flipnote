@@ -20,6 +20,8 @@ import {
   moderateFontScale,
   moderateScale,
   removeEmptySpace,
+  removeObjectKey,
+  verticalScale,
 } from "../../../tools";
 import { notesData } from "../../note";
 interface NoteOptionsProps {
@@ -35,120 +37,115 @@ interface NoteOptionsProps {
   textValue?: string;
 }
 
-export const NoteOptions = memo(
-  ({
-    onDelete,
-    onClose,
-    onTotalSelect,
-    totalSelected,
-    onModalOpen,
-    showModal,
-    onModalClose,
-    selectedNotes,
-  }: NoteOptionsProps) => {
-    const theme = useTheme();
-    const { top } = useSafeAreaInsets();
-    const [notes, setNotes] = useRecoilState(notesData);
-    const shareNotes = useMemo(
-      () => notes.data.filter((e) => selectedNotes.includes(e.id)),
-      [selectedNotes]
-    );
-    async function Share() {
-      try {
-        const zip = new JSZip();
-        shareNotes.forEach((note) => {
-          zip.file(
-            `${
-              note.title.length > 0
-                ? removeEmptySpace(note.title.substring(0, 40))
-                : removeEmptySpace(note.text.substring(0, 30))
-            }.txt`,
-            `${note.text}&${JSON.stringify(note.styles)}`
+export const NoteOptions = ({
+  onDelete,
+  onClose,
+  onTotalSelect,
+  totalSelected,
+  onModalOpen,
+  showModal,
+  onModalClose,
+  selectedNotes,
+}: NoteOptionsProps) => {
+  const theme = useTheme();
+  const { top } = useSafeAreaInsets();
+  const [notes, setNotes] = useRecoilState(notesData);
+  const shareNotes = useMemo(
+    () => notes.data.filter((e) => selectedNotes.includes(e.id)),
+    [selectedNotes]
+  );
+  async function Share() {
+    try {
+      const zip = new JSZip();
+      shareNotes.forEach((note) => {
+        zip.file(
+          `${note.id}.json`,
+          `${JSON.stringify({
+            title: note.title,
+            text: note.text,
+            isFavorite: note.isFavorite,
+            background: note.background,
+            styles: note.styles,
+          })}`
+        );
+      });
+      zip
+        .generateAsync({ type: "base64", compression: "STORE" })
+        .then(async function (content) {
+          await FileSystem.writeAsStringAsync(
+            `${FileSystem.cacheDirectory}flipnotebackup.zip`,
+            content,
+            {
+              encoding: FileSystem.EncodingType.Base64,
+            }
+          );
+
+          await Sharing.shareAsync(
+            `${FileSystem.cacheDirectory}flipnotebackup.zip`,
+            {
+              mimeType: "application/zip",
+            }
           );
         });
-        zip
-          .generateAsync({ type: "base64", compression: "STORE" })
-          .then(async function (content) {
-            await FileSystem.writeAsStringAsync(
-              `${FileSystem.cacheDirectory}flipnotebackup.zip`,
-              content,
-              {
-                encoding: FileSystem.EncodingType.Base64,
-              }
-            );
+    } catch (error) {}
+  }
 
-            await Sharing.shareAsync(
-              `${FileSystem.cacheDirectory}flipnotebackup.zip`,
-              {
-                mimeType: "application/zip",
-              }
-            );
-            // await FileSystem.deleteAsync(
-            //   `${FileSystem.cacheDirectory}flipnotebackup.zip`,
-            //   {
-            //     idempotent: true,
-            //   }
-            // )
-          });
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    return (
-      <View
-        style={{
-          width: "100%",
-          justifyContent: "space-between",
-          position: "absolute",
-          backgroundColor: theme.background,
-          zIndex: 999,
-          alignItems: "center",
-          flexDirection: "row",
-          paddingHorizontal: moderateScale(20),
-          padding: 10,
-          top: 0,
-          paddingTop: top,
-        }}
+  return (
+    <View
+      style={{
+        width: "100%",
+        justifyContent: "space-between",
+        position: "absolute",
+        backgroundColor: theme.background,
+        zIndex: 1000,
+        alignItems: "center",
+        flexDirection: "row",
+        paddingHorizontal: moderateScale(20),
+        padding: 10,
+        top: 0,
+        paddingTop: top,
+        height: verticalScale(70) + top,
+      }}
+    >
+      <Dialog
+        actionLabel={"Share"}
+        title={`Share selected ${
+          shareNotes.length === 1 ? "note" : "notes"
+        } as zip archive format?`}
+        visible={showModal}
+        onCencel={onModalClose}
+        action={Share}
+        animation="fade"
+        backgroundBlur={Platform.OS === "ios"}
+        styles={{ width: "90%", borderRadius: 16 }}
       >
-        <Dialog
-          actionLabel={"Share"}
-          title={`Share selected ${
-            shareNotes.length === 1 ? "note" : "notes"
-          } as zip archive format?`}
-          visible={showModal}
-          onCencel={onModalClose}
-          action={Share}
-          animation="fade"
-          backgroundBlur={Platform.OS === "ios"}
-          styles={{ width: "90%", borderRadius: 16 }}
+        <ScrollView
+          contentContainerStyle={{
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+          style={{ width: "100%", top: 10 }}
         >
-          <ScrollView
-            contentContainerStyle={{
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-            style={{ width: "100%", top: 10 }}
-          >
-            {shareNotes.map((e, i) => (
-              <Text
-                key={i}
-                style={{
-                  textAlign: "center",
-                  fontSize: moderateFontScale(16),
-                  fontFamily: "OpenSans",
-                  color: theme.onPrimary,
+          {shareNotes.map((e, i) => (
+            <Text
+              key={i}
+              style={{
+                textAlign: "center",
+                fontSize: moderateFontScale(16),
+                fontFamily: "OpenSans",
+                color: theme.onPrimary,
 
-                  borderRadius: 6,
-                  padding: 5,
-                }}
-              >
-                {e.title.length > 0
-                  ? removeEmptySpace(e.title.substring(0, 60))
-                  : removeEmptySpace(e.text.substring(0, 60))}
-              </Text>
-            ))}
-          </ScrollView>
-          {/* <TextInput
+                borderRadius: 6,
+                padding: 5,
+              }}
+            >
+              {e.title.length > 0
+                ? removeEmptySpace(e.title.substring(0, 60))
+                : removeEmptySpace(e.text.substring(0, 60))}
+            </Text>
+          ))}
+        </ScrollView>
+        {/* <TextInput
             onChangeText={onChangeText}
             value={textValue}
             placeholderTextColor={theme.onBackgroundSearch}
@@ -176,44 +173,43 @@ export const NoteOptions = memo(
               data.
             </Text>
           )} */}
-        </Dialog>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            columnGap: 10,
-          }}
+      </Dialog>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          columnGap: 10,
+        }}
+      >
+        <CloseIcon onPress={onClose} />
+        <TouchableOpacity
+          activeOpacity={0.7}
+          style={{ flexDirection: "row", alignItems: "center" }}
+          onPress={onTotalSelect}
         >
-          <CloseIcon onPress={onClose} />
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={{ flexDirection: "row", alignItems: "center" }}
-            onPress={onTotalSelect}
+          <Checkbox
+            onValueChange={onTotalSelect}
+            style={{ borderRadius: 100 }}
+            value={totalSelected}
+          />
+          <Text
+            numberOfLines={2}
+            style={{
+              color: theme.onPrimary,
+              fontFamily: "OpenSans",
+            }}
           >
-            <Checkbox
-              onValueChange={onTotalSelect}
-              style={{ borderRadius: 100 }}
-              value={totalSelected}
-            />
-            <Text
-              numberOfLines={2}
-              style={{
-                color: theme.onPrimary,
-                fontFamily: "OpenSans",
-              }}
-            >
-              Select all
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View
-          style={{ flexDirection: "row", alignItems: "center", columnGap: 15 }}
-        >
-          <ExportIcon onPress={onModalOpen} />
-          <DeleteIcon onPress={onDelete} />
-        </View>
+            Select all
+          </Text>
+        </TouchableOpacity>
       </View>
-    );
-  }
-);
+
+      <View
+        style={{ flexDirection: "row", alignItems: "center", columnGap: 15 }}
+      >
+        <ExportIcon onPress={onModalOpen} />
+        <DeleteIcon onPress={onDelete} />
+      </View>
+    </View>
+  );
+};

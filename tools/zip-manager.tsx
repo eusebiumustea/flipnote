@@ -22,9 +22,7 @@ export async function unzip(zipPath: string, destinationDirectory: string) {
 
       const fileParts = filename.split("/");
       const fileName = fileParts.pop();
-      console.log("file", fileName);
       const folderPath = fileParts.join("/");
-      console.log("foldre", folderPath);
       const folderDirectory = `${unzippedDirectory}/${folderPath}`;
       // Create the directory if it doesn't exist
 
