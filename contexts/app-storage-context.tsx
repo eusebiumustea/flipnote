@@ -6,6 +6,8 @@ import { useRecoilState } from "recoil";
 import { note, notesData } from "../screens/note";
 import { changeKeyValuesConditionaly, recalculateId } from "../tools";
 import { useToast } from "../components/toast";
+import { useLoading } from "../hooks/use-loading-dialog";
+import { NOTES_PATH } from "../constants";
 
 export function AppStorageContext({ children }: PropsWithChildren) {
   const [notes, setNotes] = useRecoilState(notesData);
@@ -44,33 +46,57 @@ export function AppStorageContext({ children }: PropsWithChildren) {
       }));
     },
   });
-  const dataUri = `${FileSystem.documentDirectory}data.json`;
+  const loading = useLoading();
   useEffect(() => {
     async function getData() {
-      try {
-        const data = await FileSystem.readAsStringAsync(dataUri);
+      const { exists } = await FileSystem.getInfoAsync(NOTES_PATH);
+      if (!exists) {
+        await FileSystem.makeDirectoryAsync(NOTES_PATH).then(() =>
+          console.log("init dir")
+        );
+        return;
+      }
 
-        const notes = JSON.parse(data);
-        if (notes) {
-          setNotes((prev) => ({ ...prev, data: notes }));
-        }
-      } catch (e) {}
+      try {
+        await FileSystem.readDirectoryAsync(NOTES_PATH).then((files) => {
+          console.log(files);
+          const tempNotes: note[] = [];
+          if (files.length > 0) {
+            console.log(files);
+            files.map(async (file) => {
+              const content = await FileSystem.readAsStringAsync(
+                `${NOTES_PATH}/${file}`
+              );
+              const note: note = JSON.parse(content);
+              tempNotes.push(note);
+
+              if (tempNotes.length === files.length) {
+                console.log(tempNotes);
+                setNotes((prev) => ({ ...prev, data: tempNotes }));
+              }
+            });
+          }
+        });
+      } catch (e) {
+        loading(false);
+      }
     }
     getData();
   }, []);
-  useEffect(() => {
-    const storeData = async (value: note[]) => {
-      try {
-        await FileSystem.writeAsStringAsync(dataUri, JSON.stringify(value));
-      } catch (e) {
-        toast({
-          message: "Failed to save note in appdata!",
-          textColor: "red",
-        });
-      }
-    };
-    storeData(notes.data);
-  }, [notes.data]);
+  // useEffect(() => {
+  //   const storeData = async (value: note[]) => {
+  //     try {
+  //       await FileSystem.writeAsStringAsync(dataUri, JSON.stringify(value));
+  //     } catch (e) {
+  //       console.log(e);
+  //       toast({
+  //         message: "Failed to save note in appdata!",
+  //         textColor: "red",
+  //       });
+  //     }
+  //   };
+  //   storeData(notes.data);
+  // }, [notes]);
 
   return children;
 }

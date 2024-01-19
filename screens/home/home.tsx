@@ -1,7 +1,21 @@
 import { useBackHandler } from "@react-native-community/hooks";
+import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, FlatList, View, useAnimatedValue } from "react-native";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  Alert,
+  FlatList,
+  Platform,
+  RefreshControl,
+  View,
+  useAnimatedValue,
+} from "react-native";
 import { Text } from "react-native-fast-text";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
@@ -9,22 +23,25 @@ import { CreateIcon } from "../../components/assets";
 import { Header } from "../../components/header/header";
 import { NoteCard } from "../../components/note-card";
 import { useToast } from "../../components/toast";
+import { NOTES_PATH } from "../../constants";
 import { useTheme } from "../../hooks";
+import { useRequest } from "../../hooks/use-request";
 import {
-  excludeNotes,
   moderateFontScale,
   moderateScale,
   removeArrayKeyDuplicates,
   toggleArrayElement,
   verticalScale,
 } from "../../tools";
-import { currentPosition, notesData } from "../note";
+import { currentPosition, note, notesData } from "../note";
 import { NoteOptions } from "./note-options/note-options";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
+import { useLoading } from "../../hooks/use-loading-dialog";
+
 export function Home({ navigation }) {
   const [elementPosition, setElementPosition] = useRecoilState(currentPosition);
   const [selected, setSelected] = useState<string[]>([]);
-
+  const { request } = useRequest();
   const [optionsSelection, setOptionsSelection] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [notes, setNotes] = useRecoilState(notesData);
@@ -52,6 +69,7 @@ export function Home({ navigation }) {
     }
     return favorite ? data.filter((e) => e.isFavorite === true) : data;
   }, [data, selected, favorite]);
+
   const notesWithoutCopies = useMemo(() => {
     return removeArrayKeyDuplicates(data, "title");
   }, [data, selected]);
@@ -62,17 +80,19 @@ export function Home({ navigation }) {
     if (
       optionsSelection.length > 0 &&
       favorite &&
-      notes.data.filter((e) => e.isFavorite === true).length === 0
+      data.filter((e) => e.isFavorite === true).length === 0
     ) {
       setOptionsSelection([]);
     }
-    if (notes.data.length === 0) {
+    if (filteredData.length === 0) {
       setOptionsSelection([]);
     }
     if (filteredData.length === 0) {
       setSelected([]);
     }
-  }, [notes.data, favorite, filteredData]);
+  }, [favorite, filteredData]);
+  // console.log(notes.data);
+  const loading = useLoading();
   function deleteNotes() {
     const noteCount = optionsSelection.length;
     const plural = noteCount === 1 ? "" : "s";
@@ -84,18 +104,31 @@ export function Home({ navigation }) {
         {
           text: "Delete permanently",
           style: "destructive",
-          onPress: () => {
+          onPress: async () => {
             try {
-              setNotes((prev) => ({
-                ...prev,
-                data: excludeNotes(prev.data, optionsSelection),
-              }));
-              optionsSelection.forEach(
-                async (e) =>
-                  await Notifications.cancelScheduledNotificationAsync(
-                    e.toString()
-                  )
-              );
+              loading(true);
+              await FileSystem.readDirectoryAsync(NOTES_PATH)
+                .then((files) => {
+                  files.forEach(async (file) => {
+                    const content = await FileSystem.readAsStringAsync(
+                      `${NOTES_PATH}/${file}`
+                    );
+                    const data: note = JSON.parse(content);
+                    if (optionsSelection.includes(data.id)) {
+                      await FileSystem.deleteAsync(`${NOTES_PATH}/${file}`, {
+                        idempotent: true,
+                      }).then(async () => {
+                        await request();
+                        loading(false);
+                      });
+                      await Notifications.cancelScheduledNotificationAsync(
+                        data.id.toString()
+                      );
+                    }
+                  });
+                })
+                .catch((e) => console.log(e));
+              await request();
               setOptionsSelection([]);
             } catch (_) {
               toast({ message: "Can't delete notes", textColor: "red" });
@@ -114,16 +147,49 @@ export function Home({ navigation }) {
     }
     return false;
   });
+  const reversedData = filteredData.slice().reverse();
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+  const activityIndicatorColors = [
+    "orange",
+    "red",
+    "green",
+    "blue",
+    "brown",
+    "teal",
+    "chartreuse",
+  ];
   return (
     <>
       <FlatList
+        refreshControl={
+          <RefreshControl
+            progressViewOffset={verticalScale(115) + top}
+            tintColor={
+              Platform.OS === "ios" &&
+              activityIndicatorColors[
+                Math.floor(Math.random() * activityIndicatorColors.length)
+              ]
+            }
+            colors={activityIndicatorColors}
+            style={{ zIndex: 1 }}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
         initialNumToRender={50}
         maxToRenderPerBatch={100}
         ref={scrollRef}
         columnWrapperStyle={{
           width: "100%",
-          justifyContent: "center",
-          gap: 12,
+          // justifyContent: "center",
+          paddingHorizontal: 12,
+          gap: 8,
         }}
         numColumns={2}
         ListEmptyComponent={
@@ -137,7 +203,7 @@ export function Home({ navigation }) {
             No data found
           </Text>
         }
-        data={filteredData}
+        data={reversedData}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
           <NoteCard
@@ -166,21 +232,23 @@ export function Home({ navigation }) {
         )}
         scrollEventThrottle={16}
         windowSize={50}
+        directionalLockEnabled
         getItemLayout={(data, index) => ({
           length: verticalScale(250),
           offset: verticalScale(250) * index,
           index,
         })}
         updateCellsBatchingPeriod={100}
+        onEndReachedThreshold={100}
         onScroll={(e) => {
           scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y));
         }}
         contentContainerStyle={{
           backgroundColor: theme.homeBackground,
-          paddingHorizontal: 16,
+
           width: "100%",
-          rowGap: 12,
-          paddingBottom: 30,
+          rowGap: 8,
+          paddingBottom: verticalScale(125),
           paddingTop: verticalScale(115) + top,
         }}
         style={{
@@ -204,7 +272,10 @@ export function Home({ navigation }) {
             }
           }}
           onDelete={deleteNotes}
-          onClose={() => setOptionsSelection([])}
+          onClose={() => {
+            setOptionsSelection([]);
+            scrollY.setValue(0);
+          }}
         />
       )}
       {optionsSelection.length === 0 && (
@@ -251,7 +322,7 @@ export function Home({ navigation }) {
                 <FilterButton
                   key={item}
                   onSelected={() => {
-                    if (selected.length + 1 === notes.data.length) {
+                    if (selected.length === filteredData.length) {
                       setSelected([]);
                     } else {
                       setSelected((prev) => toggleArrayElement(prev, item));
@@ -288,8 +359,12 @@ export function Home({ navigation }) {
               relativeX: pageX - locationX + moderateScale(45),
               relativeY: pageY - locationY + verticalScale(45),
             });
-            navigation.navigate("note-init", { id: notes.data.length + 1 });
+            navigation.navigate("note-init");
           }}
+          // onPress={() => {
+          //   recalculateId();
+          //   request();
+          // }}
         />
       )}
     </>

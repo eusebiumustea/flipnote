@@ -24,6 +24,7 @@ import {
   verticalScale,
 } from "../../../tools";
 import { notesData } from "../../note";
+import { useLoading } from "../../../hooks/use-loading-dialog";
 interface NoteOptionsProps {
   onDelete: () => void;
   onClose: () => void;
@@ -37,115 +38,126 @@ interface NoteOptionsProps {
   textValue?: string;
 }
 
-export const NoteOptions = ({
-  onDelete,
-  onClose,
-  onTotalSelect,
-  totalSelected,
-  onModalOpen,
-  showModal,
-  onModalClose,
-  selectedNotes,
-}: NoteOptionsProps) => {
-  const theme = useTheme();
-  const { top } = useSafeAreaInsets();
-  const [notes, setNotes] = useRecoilState(notesData);
-  const shareNotes = useMemo(
-    () => notes.data.filter((e) => selectedNotes.includes(e.id)),
-    [selectedNotes]
-  );
-  async function Share() {
-    try {
-      const zip = new JSZip();
-      shareNotes.forEach((note) => {
-        zip.file(
-          `${note.id}.json`,
-          `${JSON.stringify({
-            title: note.title,
-            text: note.text,
-            isFavorite: note.isFavorite,
-            background: note.background,
-            styles: note.styles,
-          })}`
-        );
-      });
-      zip
-        .generateAsync({ type: "base64", compression: "STORE" })
-        .then(async function (content) {
-          await FileSystem.writeAsStringAsync(
-            `${FileSystem.cacheDirectory}flipnotebackup.zip`,
-            content,
-            {
-              encoding: FileSystem.EncodingType.Base64,
-            }
-          );
+export const NoteOptions = memo(
+  ({
+    onDelete,
+    onClose,
+    onTotalSelect,
+    totalSelected,
+    onModalOpen,
+    showModal,
+    onModalClose,
+    selectedNotes,
+  }: NoteOptionsProps) => {
+    const loading = useLoading();
+    const theme = useTheme();
+    const { top } = useSafeAreaInsets();
+    const [notes, setNotes] = useRecoilState(notesData);
+    const shareNotes = useMemo(
+      () => notes.data.filter((e) => selectedNotes.includes(e.id)),
+      [selectedNotes]
+    );
+    async function Share() {
+      loading(true);
+      try {
+        const zip = new JSZip();
 
-          await Sharing.shareAsync(
-            `${FileSystem.cacheDirectory}flipnotebackup.zip`,
-            {
-              mimeType: "application/zip",
-            }
+        shareNotes.forEach((note) => {
+          zip.file(
+            `${new Date().getTime()}.json`,
+            `${JSON.stringify({
+              id: new Date().getTime(),
+              title: note.title,
+              text: note.text,
+              isFavorite: note.isFavorite,
+              background: note.background,
+              styles: note.styles,
+            })}`
           );
         });
-    } catch (error) {}
-  }
+        zip
+          .generateAsync({ type: "base64", compression: "STORE" })
+          .then(async function (content) {
+            await FileSystem.writeAsStringAsync(
+              `${FileSystem.documentDirectory}flipnotebackup.zip`,
+              content,
+              {
+                encoding: FileSystem.EncodingType.Base64,
+              }
+            );
 
-  return (
-    <View
-      style={{
-        width: "100%",
-        justifyContent: "space-between",
-        position: "absolute",
-        backgroundColor: theme.background,
-        zIndex: 1000,
-        alignItems: "center",
-        flexDirection: "row",
-        paddingHorizontal: moderateScale(20),
-        padding: 10,
-        top: 0,
-        paddingTop: top,
-        height: verticalScale(70) + top,
-      }}
-    >
-      <Dialog
-        actionLabel={"Share"}
-        title={`Share selected ${
-          shareNotes.length === 1 ? "note" : "notes"
-        } as zip archive format?`}
-        visible={showModal}
-        onCencel={onModalClose}
-        action={Share}
-        animation="fade"
-        backgroundBlur={Platform.OS === "ios"}
-        styles={{ width: "90%", borderRadius: 16 }}
+            await Sharing.shareAsync(
+              `${FileSystem.documentDirectory}flipnotebackup.zip`,
+              {
+                mimeType: "application/zip",
+              }
+            ).then(() => loading(false));
+            await FileSystem.deleteAsync(
+              `${FileSystem.documentDirectory}flipnotebackup.zip`,
+              { idempotent: true }
+            );
+          });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    return (
+      <View
+        style={{
+          width: "100%",
+          justifyContent: "space-between",
+          position: "absolute",
+          backgroundColor: theme.background,
+          zIndex: 1000,
+          alignItems: "center",
+          flexDirection: "row",
+          paddingHorizontal: moderateScale(20),
+          padding: 10,
+          top: 0,
+          paddingTop: top,
+          height: verticalScale(70) + top,
+        }}
       >
-        <ScrollView
-          contentContainerStyle={{
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-          style={{ width: "100%", top: 10 }}
+        <Dialog
+          actionLabel={"Share"}
+          title={`Share selected ${
+            shareNotes.length === 1 ? "note" : "notes"
+          } as zip archive format?`}
+          visible={showModal}
+          onCencel={onModalClose}
+          action={Share}
+          animation="fade"
+          backgroundBlur={Platform.OS === "ios"}
+          styles={{ width: "90%", borderRadius: 16 }}
         >
-          {shareNotes.map((e, i) => (
-            <Text
-              key={i}
-              style={{
-                textAlign: "center",
-                fontSize: moderateFontScale(16),
-                fontFamily: "OpenSans",
-                color: theme.onPrimary,
+          <ScrollView
+            contentContainerStyle={{
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+            style={{ width: "100%", top: 10 }}
+          >
+            {shareNotes.map((e, i) => (
+              <Text
+                key={i}
+                style={{
+                  textAlign: "center",
+                  fontSize: moderateFontScale(16),
+                  fontFamily: "OpenSans",
+                  color: theme.onPrimary,
 
-                borderRadius: 6,
-                padding: 5,
-              }}
-            >
-              {e.title.length > 0
-                ? removeEmptySpace(e.title.substring(0, 60))
-                : removeEmptySpace(e.text.substring(0, 60))}
-            </Text>
-          ))}
-        </ScrollView>
-        {/* <TextInput
+                  borderRadius: 6,
+                  padding: 5,
+                }}
+              >
+                {e.title.length > 0
+                  ? removeEmptySpace(e.title.substring(0, 60))
+                  : removeEmptySpace(e.text.substring(0, 60))}
+              </Text>
+            ))}
+          </ScrollView>
+          {/* <TextInput
             onChangeText={onChangeText}
             value={textValue}
             placeholderTextColor={theme.onBackgroundSearch}
@@ -173,43 +185,44 @@ export const NoteOptions = ({
               data.
             </Text>
           )} */}
-      </Dialog>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          columnGap: 10,
-        }}
-      >
-        <CloseIcon onPress={onClose} />
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={{ flexDirection: "row", alignItems: "center" }}
-          onPress={onTotalSelect}
+        </Dialog>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            columnGap: 10,
+          }}
         >
-          <Checkbox
-            onValueChange={onTotalSelect}
-            style={{ borderRadius: 100 }}
-            value={totalSelected}
-          />
-          <Text
-            numberOfLines={2}
-            style={{
-              color: theme.onPrimary,
-              fontFamily: "OpenSans",
-            }}
+          <CloseIcon onPress={onClose} />
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={{ flexDirection: "row", alignItems: "center" }}
+            onPress={onTotalSelect}
           >
-            Select all
-          </Text>
-        </TouchableOpacity>
-      </View>
+            <Checkbox
+              onValueChange={onTotalSelect}
+              style={{ borderRadius: 100 }}
+              value={totalSelected}
+            />
+            <Text
+              numberOfLines={2}
+              style={{
+                color: theme.onPrimary,
+                fontFamily: "OpenSans",
+              }}
+            >
+              Select all
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-      <View
-        style={{ flexDirection: "row", alignItems: "center", columnGap: 15 }}
-      >
-        <ExportIcon onPress={onModalOpen} />
-        <DeleteIcon onPress={onDelete} />
+        <View
+          style={{ flexDirection: "row", alignItems: "center", columnGap: 15 }}
+        >
+          <ExportIcon onPress={onModalOpen} />
+          <DeleteIcon onPress={onDelete} />
+        </View>
       </View>
-    </View>
-  );
-};
+    );
+  }
+);

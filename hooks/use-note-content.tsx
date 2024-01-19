@@ -2,6 +2,7 @@ import { Fragment, useMemo } from "react";
 import { Text } from "react-native";
 import { TextNoteStyle } from "../screens";
 import { removeEmptySpace } from "../tools";
+// read-only
 export function useNoteContent(styles: TextNoteStyle[], text: string) {
   return useMemo(() => {
     const isStyled = styles.length > 0;
@@ -21,12 +22,12 @@ export function useNoteContent(styles: TextNoteStyle[], text: string) {
             return (
               <Fragment key={i}>
                 <Text style={{ ...style, fontSize: 14 }}>
-                  {removeEmptySpace(text.slice(start, end)).substring(0, 40)}
+                  {removeEmptySpace(text.slice(start, end)).substring(0, 100)}
                 </Text>
                 <Text>
                   {removeEmptySpace(text.slice(end, nextStart)).substring(
                     0,
-                    40
+                    100
                   )}
                 </Text>
               </Fragment>
@@ -35,9 +36,9 @@ export function useNoteContent(styles: TextNoteStyle[], text: string) {
         </>
       );
     }
-    return <Text>{removeEmptySpace(text)}</Text>;
+    return <Text>{removeEmptySpace(text).substring(0, 150)}</Text>;
   }, [styles, text]);
-} // read-only
+}
 export function useEditNoteContent(styles: TextNoteStyle[], text: string) {
   return useMemo(() => {
     const isStyled = styles.length > 0;

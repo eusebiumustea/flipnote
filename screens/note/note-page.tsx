@@ -1,19 +1,13 @@
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
-import { useBackHandler, useKeyboard } from "@react-native-community/hooks";
+import { useKeyboard } from "@react-native-community/hooks";
 import * as Clipboard from "expo-clipboard";
+import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
 import * as Sharing from "expo-sharing";
-import {
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import {
   Dimensions,
-  Linking,
+  PixelRatio,
   Platform,
   ScrollView,
   Text,
@@ -23,18 +17,18 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { captureRef } from "react-native-view-shot";
-import { useRecoilState } from "recoil";
-import { fontNames } from "../../constants";
+import ViewShot, { captureRef } from "react-native-view-shot";
+import { useToast } from "../../components/toast";
+import { NOTES_PATH, fontNames } from "../../constants";
+import { useEditNoteContent, useTheme } from "../../hooks";
+import { useLoading } from "../../hooks/use-loading-dialog";
+import { useStoreNote } from "../../hooks/use-note-manager";
+import { useNoitication } from "../../hooks/use-notification-handler";
 import {
   dateTime,
   moderateFontScale,
   moderateScale,
   range,
-  recalculateId,
-  reinjectElementInArray,
-  removeEmptySpace,
-  replaceElementAtId,
   replaceElementAtIndex,
   verticalScale,
 } from "../../tools";
@@ -47,56 +41,63 @@ import {
   FontSizeOptions,
 } from "./customize-bar";
 import { DateTimePickerDialog } from "./date-time-picker";
-import { currentPosition, notesData } from "../../contexts/atom";
 import { HistoryChanges } from "./history-changes";
 import { NoteScreenHeader } from "./note-screen-header";
 import { StyleEvent, onFontColor } from "./style-events";
 import { InputSelectionProps, OptionProps, ReminderProps, note } from "./types";
-import { useEditNoteContent, useNoteContent, useTheme } from "../../hooks";
-import { useNoitication } from "../../hooks/use-notification-handler";
-import { useNoteManager } from "../../hooks/use-note-manager";
-import Animated, { Keyframe, SharedTransition } from "react-native-reanimated";
-import { useIsFocused } from "@react-navigation/native";
-import { AnimatePresence } from "moti";
-import { useToast } from "../../components/toast";
-import { Swipe } from "../../components/pan-responder";
+import { useRequest } from "../../hooks/use-request";
 interface ParamsProps {
   id: number;
-  edit: boolean;
 }
-
-export function NotePage({ route, navigation }: any) {
+export const NotePage = memo(({ route, navigation }: any) => {
+  const { id }: ParamsProps = route.params;
   const { width, height } = useWindowDimensions();
-
   const inputRef = useRef<TextInput | null>(null);
   const theme = useTheme();
-  const { id }: ParamsProps = route.params;
-  const [notes, setNotes] = useRecoilState(notesData);
-  const edit: boolean = id < notes.data.length + 1;
-  const item: note = useMemo(() => {
-    if (!edit) {
-      return {
-        id,
-        title: "",
-        text: "",
-        isFavorite: false,
-        background: "#fff",
-        styles: [],
-        reminder: null,
-      };
-    }
-    return notes.data.find((e) => e.id === id);
-  }, []);
-
+  // const [notes, setNotes] = useRecoilState(notesData);
+  // const edit: boolean = id < notes.data.length + 1;
+  // const item: note = useMemo(() => {
+  //   if (!edit) {
+  // return {
+  //   id,
+  //   title: "",
+  //   text: "",
+  //   isFavorite: false,
+  //   background: "#fff",
+  //   styles: [],
+  //   reminder: null,
+  // };
+  //   }
+  //   return notes.data.find((e) => e.id === id);
+  // }, []);
+  const { request } = useRequest();
   const [editNote, setEditNote] = useState<note>({
     id,
-    title: item.title,
-    text: item.text,
-    isFavorite: item.isFavorite,
-    background: item.background,
-    styles: item.styles,
-    reminder: item.reminder,
+    title: "",
+    text: "",
+    isFavorite: false,
+    background: "#fff",
+    styles: [],
+    reminder: null,
   });
+  const loading = useLoading();
+  const fileName = `${id}.json`;
+  const notePath = `${NOTES_PATH}/${fileName}`;
+  useEffect(() => {
+    async function getData() {
+      const { exists } = await FileSystem.getInfoAsync(notePath);
+      if (!exists) {
+        return;
+      }
+      await FileSystem.readAsStringAsync(notePath)
+        .then((data) => {
+          const content: note = JSON.parse(data);
+          setTimeout(() => setEditNote(content), 100);
+        })
+        .catch((e) => console.log("edit error", e));
+    }
+    getData();
+  }, []);
   const noteStateIsEmpty =
     editNote.text.length === 0 && editNote.title.length === 0;
   const [reminder, setReminder] = useState<ReminderProps>({
@@ -112,43 +113,41 @@ export function NotePage({ route, navigation }: any) {
   const [reminderDialog, setReminderDialog] = useState(false);
   const scheduleDateForNotification =
     editNote.reminder && new Date(editNote.reminder);
-
   const textSelected = selection.end !== selection.start;
-  useNoteManager(setNotes, editNote, notes.data, id);
-  // useEffect(() => {
-  //   return () => {
-  //     setNotes((prev) => ({
-  //       ...prev,
-  //       data: recalculateId(prev.data),
-  //     }));
-  //   };
-  // }, []);
-  const currentFocused = useMemo(() => {
-    if (textSelected) {
-      return editNote.styles.find(
-        (e) =>
-          (selection.start < e.interval.start &&
-            selection.end > e.interval.end) ||
-          range(e.interval.start, e.interval.end).includes(
-            selection.start + 1
-          ) ||
-          (range(e.interval.start, e.interval.end).includes(
-            selection.end - 1
-          ) &&
-            Object.keys(e.style).length > 0)
-      );
-    }
-  }, [selection, editNote.styles]);
-  // const currentFocused =
-  //   textSelected &&
-  //   editNote.styles.find(
-  //     (e) =>
-  //       (selection.start < e.interval.start &&
-  //         selection.end > e.interval.end) ||
-  //       range(e.interval.start, e.interval.end).includes(selection.start + 1) ||
-  //       (range(e.interval.start, e.interval.end).includes(selection.end - 1) &&
-  //         Object.keys(e.style).length > 0)
-  //   );
+  // useNoteManager(setNotes, editNote, notes.data, id);
+  useStoreNote(id, editNote);
+
+  useEffect(() => {
+    return () => {
+      request();
+    };
+  }, []);
+  // const currentFocused = useMemo(() => {
+  //   if (textSelected) {
+  //     return editNote.styles.find(
+  //       (e) =>
+  //         (selection.start < e.interval.start &&
+  //           selection.end > e.interval.end) ||
+  //         range(e.interval.start, e.interval.end).includes(
+  //           selection.start + 1
+  //         ) ||
+  //         (range(e.interval.start, e.interval.end).includes(
+  //           selection.end - 1
+  //         ) &&
+  //           Object.keys(e.style).length > 0)
+  //     );
+  //   }
+  // }, [selection, editNote.styles, id]);
+  const currentFocused =
+    textSelected &&
+    editNote.styles.find(
+      (e) =>
+        (selection.start < e.interval.start &&
+          selection.end > e.interval.end) ||
+        range(e.interval.start, e.interval.end).includes(selection.start + 1) ||
+        (range(e.interval.start, e.interval.end).includes(selection.end - 1) &&
+          Object.keys(e.style).length > 0)
+    );
 
   const currentIndex = editNote.styles.indexOf(currentFocused);
 
@@ -174,7 +173,7 @@ export function NotePage({ route, navigation }: any) {
   // }
 
   const [imageUri, setImageUri] = useState<string>("");
-  const imageRef = useRef<ScrollView>();
+  const imageRef = useRef<ScrollView>(null);
   function openReminder() {
     if (noteStateIsEmpty) {
       toast({
@@ -225,11 +224,9 @@ export function NotePage({ route, navigation }: any) {
     }
     try {
       await captureRef(imageRef, {
-        format: "jpg",
         snapshotContentContainer: true,
-        handleGLSurfaceViewOnAndroid: true,
+        fileName: `${id}-screenshot`,
         result: "tmpfile",
-        useRenderInContext: true,
       }).then(async (uri) => {
         await Sharing.shareAsync(uri);
       });
@@ -289,7 +286,7 @@ export function NotePage({ route, navigation }: any) {
     fontFamilyFocused,
     fonts: fontNames,
   };
-  const styles = useMemo(() => editNote.styles, [editNote.styles, selection]);
+
   const notification = useNoitication();
 
   return (
@@ -368,7 +365,7 @@ export function NotePage({ route, navigation }: any) {
             isFavorite: !prev.isFavorite,
           }))
         }
-        onBack={() => navigation.popToTop()}
+        onBack={() => navigation.goBack()}
         favorite={editNote.isFavorite}
         onShare={Share}
       />
@@ -381,6 +378,7 @@ export function NotePage({ route, navigation }: any) {
         onClose={() => setShowChanges(false)}
       />
       <ScrollView
+        ref={imageRef}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="always"
         contentContainerStyle={{
@@ -417,12 +415,12 @@ export function NotePage({ route, navigation }: any) {
         >
           <Text>{editNote.title}</Text>
         </TextInput>
+
         <TextInput
-          ref={inputRef}
-          onSelectionChange={({ nativeEvent }) => {
+          onSelectionChange={({ nativeEvent: { selection } }) => {
             // selection = e.nativeEvent.selection;
 
-            setSelection(nativeEvent.selection);
+            setSelection(selection);
           }}
           placeholderTextColor={theme.placeholder}
           cursorColor={"#FFCB09"}
@@ -431,6 +429,7 @@ export function NotePage({ route, navigation }: any) {
           autoCorrect={false}
           spellCheck={false}
           inputMode="text"
+          onTextInput={(e) => {}}
           onChangeText={(text) => {
             setEditNote((prev) => ({
               ...prev,
@@ -471,4 +470,4 @@ export function NotePage({ route, navigation }: any) {
       />
     </>
   );
-}
+});

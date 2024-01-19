@@ -37,6 +37,7 @@ export interface InputSelectionProps {
   end: number;
 }
 export interface UserdataState {
+  loading?: boolean;
   data: note[] | null;
 }
 export type NotificationProp = {

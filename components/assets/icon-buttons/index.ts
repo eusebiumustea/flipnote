@@ -18,3 +18,5 @@ export * from "./font-color-icon";
 export * from "./changes-icon";
 export * from "./format-size-icon";
 export * from "./import-icon";
+export * from "./redo-icon";
+export * from "./undo-icon";

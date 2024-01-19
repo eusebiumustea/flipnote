@@ -1,8 +1,11 @@
-import { TransitionSpecs, createStackNavigator } from "@react-navigation/stack";
-import { useRecoilState } from "recoil";
-import { Home, Inbox, NotePage, currentPosition, notesData } from "../screens";
-import { moderateScale, verticalScale } from "../tools";
+import { createStackNavigator } from "@react-navigation/stack";
 import { enableFreeze } from "react-native-screens";
+import { useRecoilState } from "recoil";
+import { Home, Inbox, currentPosition, notesData } from "../screens";
+import { moderateScale, verticalScale } from "../tools";
+import { Animated } from "react-native";
+import { NotePage } from "../screens/note/note-page";
+
 enableFreeze();
 export function AppRouting() {
   const [position, setPosition] = useRecoilState(currentPosition);
@@ -15,9 +18,10 @@ export function AppRouting() {
         headerShown: false,
         cardOverlayEnabled: true,
         detachPreviousScreen: true,
+
         transitionSpec: {
-          open: TransitionSpecs.TransitionIOSSpec,
-          close: TransitionSpecs.TransitionIOSSpec,
+          open: { animation: "timing", config: { duration: 200 } },
+          close: { animation: "timing", config: { duration: 200 } },
         },
       }}
       initialRouteName="Home"
@@ -27,6 +31,7 @@ export function AppRouting() {
         options={{
           cardStyleInterpolator: ({
             current,
+            next,
             layouts: {
               screen: { width, height },
             },
@@ -39,7 +44,6 @@ export function AppRouting() {
             },
 
             cardStyle: {
-              // opacity: current.progress,
               transform: [
                 {
                   translateX: current.progress.interpolate({
@@ -60,10 +64,20 @@ export function AppRouting() {
                   }),
                 },
                 {
-                  scale: current.progress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.7, 1],
-                  }),
+                  scale: Animated.add(
+                    current.progress.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.7, 1],
+                      extrapolate: "clamp",
+                    }),
+                    next
+                      ? next.progress.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, -0.1],
+                          extrapolate: "clamp",
+                        })
+                      : 0
+                  ),
                 },
                 {
                   scaleX: current.progress.interpolate({
@@ -74,7 +88,7 @@ export function AppRouting() {
                 {
                   scaleY: current.progress.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [0.4, 1],
+                    outputRange: [0.38, 1],
                   }),
                 },
               ],
@@ -82,7 +96,7 @@ export function AppRouting() {
           }),
         }}
         initialParams={{
-          id: notes.data.length + 1,
+          id: new Date().getTime(),
         }}
         component={NotePage}
         name="note"
@@ -91,6 +105,7 @@ export function AppRouting() {
         options={{
           cardStyleInterpolator: ({
             current,
+            next,
             layouts: {
               screen: { width, height },
             },
@@ -122,14 +137,27 @@ export function AppRouting() {
                   }),
                 },
                 {
-                  scale: current.progress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 1],
-                  }),
+                  scale: Animated.add(
+                    current.progress.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 1],
+                      extrapolate: "clamp",
+                    }),
+                    next
+                      ? next.progress.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, -0.1],
+                          extrapolate: "clamp",
+                        })
+                      : 0
+                  ),
                 },
               ],
             },
           }),
+        }}
+        initialParams={{
+          id: new Date().getTime(),
         }}
         component={NotePage}
         name="note-init"

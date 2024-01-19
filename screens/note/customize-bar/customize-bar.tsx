@@ -14,8 +14,10 @@ import {
   FontColorIcon,
   FormatSizeIcon,
   ItalicIcon,
+  RedoIcon,
   TextIcon,
   UnderlineIcon,
+  UndoIcon,
 } from "../../../components/assets";
 import { toggleState } from "../../../tools";
 import { InputSelectionProps } from "../types";
@@ -35,6 +37,8 @@ interface CustomizeBarProps {
   fontSizeOptions?: PropsWithChildren<ReactNode>;
   selection?: InputSelectionProps;
   focusedColor?: ColorValue | string;
+  onUndo?: () => void;
+  onRedo?: () => void;
 }
 export function CustomizeBar({
   backgroundOptions,
@@ -50,6 +54,8 @@ export function CustomizeBar({
   selection,
   focusedColor,
   fontSizeOptions,
+  onUndo,
+  onRedo,
 }: CustomizeBarProps) {
   const [showOption, setShowOption] = useState<string | null>(null);
   const theme = useTheme();
@@ -120,7 +126,7 @@ export function CustomizeBar({
           padding: 15,
 
           flexDirection: "row",
-          columnGap: 15,
+          columnGap: 12,
           alignSelf: "flex-start",
           width: "100%",
           alignItems: "center",
@@ -163,6 +169,8 @@ export function CustomizeBar({
         <BackgroundIcon
           onPress={() => setShowOption(toggleState(null, "background"))}
         />
+        <UndoIcon onPress={onUndo} />
+        <RedoIcon onPress={onRedo} />
       </ScrollView>
     </MotiView>
   );

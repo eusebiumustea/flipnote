@@ -4,9 +4,19 @@ import {
   NotificationProp,
   UserdataState,
 } from "../screens/note/types";
+export const EMPTY_NOTE_STATE = {
+  id: 0,
+  title: "",
+  text: "",
+  isFavorite: false,
+  background: "#fff",
+  styles: [],
+  reminder: null,
+};
 export const notesData = atom<UserdataState>({
   key: "userdata",
   default: {
+    loading: false,
     data: [],
   },
 });

@@ -1,27 +1,21 @@
 import Checkbox from "expo-checkbox";
-import { MotiPressable } from "moti/interactions";
 import React, { memo } from "react";
 import {
-  TouchableHighlight,
-  TouchableWithoutFeedback,
+  GestureResponderEvent,
+  Pressable,
+  Text,
   View,
   useWindowDimensions,
-  Text,
-  GestureResponderEvent,
-  TouchableOpacity,
 } from "react-native";
-import Animated from "react-native-reanimated";
 import { useNoteContent, useTheme } from "../../hooks";
 import { note } from "../../screens/note";
-import { deviceIsLowRam, moderateFontScale, verticalScale } from "../../tools";
+import { moderateFontScale, verticalScale } from "../../tools";
 interface NoteCardProps {
   item: note;
-
   onPress: (event: GestureResponderEvent) => void;
   onLongPress: () => void;
   selectedForOptions: boolean;
   options: boolean;
-  deletedProgress?: boolean;
 }
 export const NoteCard = memo(
   ({
@@ -42,8 +36,7 @@ export const NoteCard = memo(
     }
     const theme = useTheme();
     return (
-      <TouchableOpacity
-        activeOpacity={1}
+      <Pressable
         onLongPress={onLongPress}
         onPress={onPress}
         style={{
@@ -52,7 +45,7 @@ export const NoteCard = memo(
           width: width / 2 - 16,
           borderRadius: 16,
 
-          elevation: 5,
+          elevation: 7,
 
           shadowColor: theme.onPrimary,
           shadowOffset: {
@@ -64,6 +57,16 @@ export const NoteCard = memo(
           padding: 16,
         }}
       >
+        <View
+          style={{
+            height: verticalScale(250),
+            width: width / 2 - 16,
+            borderRadius: 16,
+            position: "absolute",
+            zIndex: 1,
+            top: 0,
+          }}
+        />
         {options && (
           <Checkbox
             style={{
@@ -75,20 +78,29 @@ export const NoteCard = memo(
             value={selectedForOptions}
           />
         )}
-        {item.title && (
-          <Text
-            style={{
-              color: "#000",
-              fontSize: moderateFontScale(20),
-              fontWeight: "bold",
-              fontFamily: "OpenSans",
-            }}
-          >
-            {item.title}
-          </Text>
-        )}
-        {content}
-      </TouchableOpacity>
+
+        <View
+          style={{
+            height: "100%",
+            width: "100%",
+            overflow: "hidden",
+          }}
+        >
+          {item.title && (
+            <Text
+              style={{
+                color: "#000",
+                fontSize: moderateFontScale(20),
+                fontWeight: "bold",
+                fontFamily: "OpenSans",
+              }}
+            >
+              {item.title}
+            </Text>
+          )}
+          {content}
+        </View>
+      </Pressable>
     );
   }
 );

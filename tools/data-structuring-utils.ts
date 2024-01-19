@@ -123,6 +123,14 @@ export function recalculateId(array: note[]) {
     };
   });
 }
+export function incrementId(array: note[]) {
+  return array.map((item, i) => {
+    return {
+      ...item,
+      id: i + 1,
+    };
+  });
+}
 export function uniqueIdCheck(array: note[]) {
   let passed = true;
   array.map((item, i) => {
