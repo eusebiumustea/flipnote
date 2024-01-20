@@ -50,7 +50,6 @@ export const NoteScreenHeader = memo(
           width: "100%",
           position: "absolute",
           top: 0,
-          zIndex: 2,
         }}
       >
         {Platform.OS === "android" && (
@@ -59,7 +58,7 @@ export const NoteScreenHeader = memo(
               width: width,
               height: "100%",
               position: "absolute",
-              zIndex: -1,
+
               backgroundColor: theme.primary,
               opacity: 0.7,
             }}
@@ -73,7 +72,6 @@ export const NoteScreenHeader = memo(
               width: width,
               height: "100%",
               position: "absolute",
-              zIndex: -1,
             }}
           />
         )}

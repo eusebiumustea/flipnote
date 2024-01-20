@@ -53,27 +53,14 @@ export const NoteOptions = memo(
     const theme = useTheme();
     const { top } = useSafeAreaInsets();
     const [notes, setNotes] = useRecoilState(notesData);
-    const shareNotes = useMemo(
-      () => notes.data.filter((e) => selectedNotes.includes(e.id)),
-      [selectedNotes]
-    );
+    const shareNotes = notes.data.filter((e) => selectedNotes.includes(e.id));
+
     async function Share() {
-      loading(true);
       try {
         const zip = new JSZip();
 
-        shareNotes.forEach((note) => {
-          zip.file(
-            `${new Date().getTime()}.json`,
-            `${JSON.stringify({
-              id: new Date().getTime(),
-              title: note.title,
-              text: note.text,
-              isFavorite: note.isFavorite,
-              background: note.background,
-              styles: note.styles,
-            })}`
-          );
+        shareNotes.forEach((note, i) => {
+          zip.file(`${note.id}.json`, `${JSON.stringify(note)}`);
         });
         zip
           .generateAsync({ type: "base64", compression: "STORE" })
@@ -91,7 +78,7 @@ export const NoteOptions = memo(
               {
                 mimeType: "application/zip",
               }
-            ).then(() => loading(false));
+            );
             await FileSystem.deleteAsync(
               `${FileSystem.documentDirectory}flipnotebackup.zip`,
               { idempotent: true }

@@ -1,13 +1,12 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
-import { PropsWithChildren, useCallback, useEffect, useMemo } from "react";
+import { PropsWithChildren, useEffect } from "react";
 import { useRecoilState } from "recoil";
-import { note, notesData } from "../screens/note";
-import { changeKeyValuesConditionaly, recalculateId } from "../tools";
 import { useToast } from "../components/toast";
-import { useLoading } from "../hooks/use-loading-dialog";
 import { NOTES_PATH } from "../constants";
+import { useLoading } from "../hooks/use-loading-dialog";
+import { note, notesData } from "../screens/note";
+import { changeKeyValuesConditionaly } from "../tools";
 
 export function AppStorageContext({ children }: PropsWithChildren) {
   const [notes, setNotes] = useRecoilState(notesData);
@@ -47,8 +46,10 @@ export function AppStorageContext({ children }: PropsWithChildren) {
     },
   });
   const loading = useLoading();
+
   useEffect(() => {
     async function getData() {
+      const tempNotes: note[] = [];
       const { exists } = await FileSystem.getInfoAsync(NOTES_PATH);
       if (!exists) {
         await FileSystem.makeDirectoryAsync(NOTES_PATH).then(() =>
@@ -60,7 +61,7 @@ export function AppStorageContext({ children }: PropsWithChildren) {
       try {
         await FileSystem.readDirectoryAsync(NOTES_PATH).then((files) => {
           console.log(files);
-          const tempNotes: note[] = [];
+
           if (files.length > 0) {
             console.log(files);
             files.map(async (file) => {
@@ -83,20 +84,6 @@ export function AppStorageContext({ children }: PropsWithChildren) {
     }
     getData();
   }, []);
-  // useEffect(() => {
-  //   const storeData = async (value: note[]) => {
-  //     try {
-  //       await FileSystem.writeAsStringAsync(dataUri, JSON.stringify(value));
-  //     } catch (e) {
-  //       console.log(e);
-  //       toast({
-  //         message: "Failed to save note in appdata!",
-  //         textColor: "red",
-  //       });
-  //     }
-  //   };
-  //   storeData(notes.data);
-  // }, [notes]);
 
   return children;
 }

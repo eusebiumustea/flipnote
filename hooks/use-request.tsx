@@ -7,35 +7,43 @@ export function useRequest() {
   const [notes, setNotes] = useRecoilState(notesData);
 
   const request = async () => {
-    const { exists } = await FileSystem.getInfoAsync(NOTES_PATH);
-    if (!exists) {
-      await FileSystem.makeDirectoryAsync(NOTES_PATH).then(() =>
-        console.log("init dir")
-      );
-      return;
-    }
     try {
-      await FileSystem.readDirectoryAsync(NOTES_PATH).then((files) => {
-        console.log(files);
-        const tempNotes: note[] = [];
-        if (files.length > 0) {
-          console.log(files);
-          files.forEach(async (file) => {
-            await FileSystem.readAsStringAsync(`${NOTES_PATH}/${file}`).then(
-              (content) => {
-                const note: note = JSON.parse(content);
-                tempNotes.push(note);
+      const { exists } = await FileSystem.getInfoAsync(NOTES_PATH);
+      if (!exists) {
+        await FileSystem.makeDirectoryAsync(NOTES_PATH).then(() =>
+          console.log("init dir")
+        );
+        return;
+      }
+      const files = await FileSystem.readDirectoryAsync(NOTES_PATH);
+      console.log(files);
 
-                if (tempNotes.length === files.length) {
-                  console.log(tempNotes);
-                  setNotes((prev) => ({ ...prev, data: tempNotes }));
-                }
-              }
-            );
-          });
-        }
+      if (files.length === 0) {
+        setNotes((prev) => ({ ...prev, data: [] }));
+        return;
+      }
+      const promisesFiles = files.map(async (file) => {
+        const content = await FileSystem.readAsStringAsync(
+          `${NOTES_PATH}/${file}`
+        );
+        const note: note = JSON.parse(content);
+
+        return note;
       });
+      console.log(files);
+      const notes = await Promise.all(promisesFiles);
+      setNotes((prev) => ({ ...prev, data: notes }));
     } catch (e) {}
   };
-  return { request };
+  const readNotes = async () => {
+    try {
+      const { exists } = await FileSystem.getInfoAsync(NOTES_PATH);
+      if (!exists) {
+        return;
+      }
+      const files = await FileSystem.readDirectoryAsync(NOTES_PATH);
+      return files;
+    } catch (e) {}
+  };
+  return { request, readNotes };
 }

@@ -58,7 +58,6 @@ export default function App() {
                 <ThemeProvider>
                   <NavigationContainer>
                     <StatusBarController />
-
                     <AppRouting />
                   </NavigationContainer>
                 </ThemeProvider>

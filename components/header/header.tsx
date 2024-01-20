@@ -56,6 +56,7 @@ export const Header = memo(
         setBadge(false);
       }
     }, [notifications]);
+    const { request } = useRequest();
     return (
       <Animated.View
         style={{
@@ -120,56 +121,38 @@ export const Header = memo(
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
             <ImportIcon
               onPress={async () => {
-                await DocumentPicker.getDocumentAsync({})
-                  .then(async (result) => {
-                    if (result.canceled) {
-                      return;
-                    }
+                const result = await DocumentPicker.getDocumentAsync({});
 
-                    const zipFilePath = result.assets[0].uri;
+                if (result.canceled) {
+                  return;
+                }
 
-                    const zipFileContents = await FileSystem.readAsStringAsync(
-                      zipFilePath,
-                      {
-                        encoding: FileSystem.EncodingType.Base64,
-                      }
+                const zipFilePath = result.assets[0].uri;
+
+                const zipFileContents = await FileSystem.readAsStringAsync(
+                  zipFilePath,
+                  {
+                    encoding: FileSystem.EncodingType.Base64,
+                  }
+                );
+                const zip = await JSZip.loadAsync(zipFileContents, {
+                  base64: true,
+                });
+
+                const zipItems = Object.keys(zip.files);
+
+                Promise.all(
+                  zipItems.map(async (file, i, arr) => {
+                    const content = await zip.files[file].async("text");
+                    const newNote: note = JSON.parse(content);
+
+                    await FileSystem.writeAsStringAsync(
+                      `${NOTES_PATH}/${file}`,
+                      content
                     );
-                    const zip = await JSZip.loadAsync(zipFileContents, {
-                      base64: true,
-                    });
-
-                    // const dirParent = `${FileSystem.cacheDirectory}flipnote`;
-                    // await FileSystem.makeDirectoryAsync(dirParent, {
-                    //   intermediates: true,
-                    // });
-
-                    const zipItems = Object.keys(zip.files);
-                    const tempData: note[] = [];
-                    loading(true);
-                    zipItems.map(async (file, i, arr) => {
-                      const content = await zip.files[file].async("text");
-                      await FileSystem.writeAsStringAsync(
-                        `${NOTES_PATH}/${file}`,
-                        content
-                      )
-                        .then(() => {
-                          const newNote: note = JSON.parse(content);
-                          tempData.push(newNote);
-                          if (tempData.length === arr.length) {
-                            setNotes((prev) => ({
-                              ...prev,
-                              data: [...prev.data, ...tempData],
-                            }));
-                          }
-                        })
-                        .catch((e) => {
-                          console.error(e);
-                        });
-                    });
                   })
-                  .catch((e) => {
-                    console.error(e);
-                  });
+                );
+                request();
               }}
             />
             <InboxIcon onPress={onInboxOpen} active={badge} />

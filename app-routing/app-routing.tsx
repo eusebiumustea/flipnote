@@ -1,27 +1,43 @@
-import { createStackNavigator } from "@react-navigation/stack";
+import {
+  CardStyleInterpolators,
+  StackCardInterpolatedStyle,
+  StackCardStyleInterpolator,
+  createStackNavigator,
+} from "@react-navigation/stack";
 import { enableFreeze } from "react-native-screens";
 import { useRecoilState } from "recoil";
 import { Home, Inbox, currentPosition, notesData } from "../screens";
 import { moderateScale, verticalScale } from "../tools";
 import { Animated } from "react-native";
 import { NotePage } from "../screens/note/note-page";
+import { Easing } from "react-native-reanimated";
+import { useRequest } from "../hooks/use-request";
 
 enableFreeze();
 export function AppRouting() {
   const [position, setPosition] = useRecoilState(currentPosition);
   const Stack = createStackNavigator();
   const [notes, setNotes] = useRecoilState(notesData);
-
+  const { request } = useRequest();
   return (
     <Stack.Navigator
+      screenListeners={{
+        beforeRemove: request,
+      }}
       screenOptions={{
         headerShown: false,
         cardOverlayEnabled: true,
         detachPreviousScreen: true,
 
         transitionSpec: {
-          open: { animation: "timing", config: { duration: 200 } },
-          close: { animation: "timing", config: { duration: 200 } },
+          open: {
+            animation: "timing",
+            config: { duration: 300, easing: Easing.inOut(Easing.ease) },
+          },
+          close: {
+            animation: "timing",
+            config: { duration: 300, easing: Easing.inOut(Easing.ease) },
+          },
         },
       }}
       initialRouteName="Home"
@@ -32,6 +48,7 @@ export function AppRouting() {
           cardStyleInterpolator: ({
             current,
             next,
+            closing,
             layouts: {
               screen: { width, height },
             },
@@ -44,6 +61,7 @@ export function AppRouting() {
             },
 
             cardStyle: {
+              opacity: current.progress,
               transform: [
                 {
                   translateX: current.progress.interpolate({
@@ -64,33 +82,23 @@ export function AppRouting() {
                   }),
                 },
                 {
-                  scale: Animated.add(
-                    current.progress.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0.7, 1],
-                      extrapolate: "clamp",
-                    }),
-                    next
-                      ? next.progress.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0, -0.1],
-                          extrapolate: "clamp",
-                        })
-                      : 0
-                  ),
-                },
-                {
-                  scaleX: current.progress.interpolate({
+                  scale: current.progress.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [0.57, 1],
+                    outputRange: [0, 1],
                   }),
                 },
-                {
-                  scaleY: current.progress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.38, 1],
-                  }),
-                },
+                // {
+                //   scaleX: current.progress.interpolate({
+                //     inputRange: [0, 1],
+                //     outputRange: [0.57, 1],
+                //   }),
+                // },
+                // {
+                //   scaleY: current.progress.interpolate({
+                //     inputRange: [0, 1],
+                //     outputRange: [0.38, 1],
+                //   }),
+                // },
               ],
             },
           }),
@@ -137,20 +145,11 @@ export function AppRouting() {
                   }),
                 },
                 {
-                  scale: Animated.add(
-                    current.progress.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, 1],
-                      extrapolate: "clamp",
-                    }),
-                    next
-                      ? next.progress.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0, -0.1],
-                          extrapolate: "clamp",
-                        })
-                      : 0
-                  ),
+                  scale: current.progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 1],
+                    extrapolate: "clamp",
+                  }),
                 },
               ],
             },

@@ -10,9 +10,7 @@ export function useNoteContent(styles: TextNoteStyle[], text: string) {
       return (
         <>
           <Text>
-            {removeEmptySpace(
-              text.slice(0, styles[0]?.interval?.start)
-            ).substring(0, 40)}
+            {removeEmptySpace(text.slice(0, styles[0]?.interval?.start))}
           </Text>
           {styles.map((e, i, arr) => {
             const start = e?.interval?.start;
@@ -22,14 +20,9 @@ export function useNoteContent(styles: TextNoteStyle[], text: string) {
             return (
               <Fragment key={i}>
                 <Text style={{ ...style, fontSize: 14 }}>
-                  {removeEmptySpace(text.slice(start, end)).substring(0, 100)}
+                  {removeEmptySpace(text.slice(start, end))}
                 </Text>
-                <Text>
-                  {removeEmptySpace(text.slice(end, nextStart)).substring(
-                    0,
-                    100
-                  )}
-                </Text>
+                <Text>{removeEmptySpace(text.slice(end, nextStart))}</Text>
               </Fragment>
             );
           })}

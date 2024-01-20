@@ -25,6 +25,7 @@ import { NoteCard } from "../../components/note-card";
 import { useToast } from "../../components/toast";
 import { NOTES_PATH } from "../../constants";
 import { useTheme } from "../../hooks";
+import { useLoading } from "../../hooks/use-loading-dialog";
 import { useRequest } from "../../hooks/use-request";
 import {
   moderateFontScale,
@@ -36,7 +37,6 @@ import {
 import { currentPosition, note, notesData } from "../note";
 import { NoteOptions } from "./note-options/note-options";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
-import { useLoading } from "../../hooks/use-loading-dialog";
 
 export function Home({ navigation }) {
   const [elementPosition, setElementPosition] = useRecoilState(currentPosition);
@@ -48,7 +48,7 @@ export function Home({ navigation }) {
   const [favorite, setFavorite] = useState(false);
   const [modal, setModal] = useState(false);
   const theme = useTheme();
-  const scrollY = useAnimatedValue(0, { useNativeDriver: true });
+  const scrollY = useAnimatedValue(0);
   const { top } = useSafeAreaInsets();
   const data = useMemo(() => {
     const searchFiltered = notes.data.filter((e) => {
@@ -86,12 +86,10 @@ export function Home({ navigation }) {
     }
     if (filteredData.length === 0) {
       setOptionsSelection([]);
-    }
-    if (filteredData.length === 0) {
       setSelected([]);
     }
   }, [favorite, filteredData]);
-  // console.log(notes.data);
+
   const loading = useLoading();
   function deleteNotes() {
     const noteCount = optionsSelection.length;
@@ -104,32 +102,31 @@ export function Home({ navigation }) {
         {
           text: "Delete permanently",
           style: "destructive",
-          onPress: async () => {
+          onPress: () => {
             try {
-              loading(true);
-              await FileSystem.readDirectoryAsync(NOTES_PATH)
+              FileSystem.readDirectoryAsync(NOTES_PATH)
                 .then((files) => {
-                  files.forEach(async (file) => {
-                    const content = await FileSystem.readAsStringAsync(
-                      `${NOTES_PATH}/${file}`
-                    );
-                    const data: note = JSON.parse(content);
-                    if (optionsSelection.includes(data.id)) {
-                      await FileSystem.deleteAsync(`${NOTES_PATH}/${file}`, {
-                        idempotent: true,
-                      }).then(async () => {
-                        await request();
-                        loading(false);
-                      });
-                      await Notifications.cancelScheduledNotificationAsync(
-                        data.id.toString()
+                  Promise.all(
+                    files.map(async (file) => {
+                      const content = await FileSystem.readAsStringAsync(
+                        `${NOTES_PATH}/${file}`
                       );
-                    }
-                  });
+                      const data: note = JSON.parse(content);
+                      if (optionsSelection.includes(data.id)) {
+                        await FileSystem.deleteAsync(`${NOTES_PATH}/${file}`, {
+                          idempotent: true,
+                        });
+                        await Notifications.cancelScheduledNotificationAsync(
+                          data.id.toString()
+                        );
+                      }
+                    })
+                  );
+                  request();
+                  console.log("re");
+                  setOptionsSelection([]);
                 })
                 .catch((e) => console.log(e));
-              await request();
-              setOptionsSelection([]);
             } catch (_) {
               toast({ message: "Can't delete notes", textColor: "red" });
             }
@@ -147,14 +144,14 @@ export function Home({ navigation }) {
     }
     return false;
   });
-  const reversedData = filteredData.slice().reverse();
+  const sortedData = filteredData.slice().sort((a, b) => b.id - a.id);
   const [refreshing, setRefreshing] = useState(false);
-  const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
+    await request();
+    setRefreshing(false);
   }, []);
+
   const activityIndicatorColors = [
     "orange",
     "red",
@@ -203,21 +200,23 @@ export function Home({ navigation }) {
             No data found
           </Text>
         }
-        data={reversedData}
+        data={sortedData}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
           <NoteCard
             options={optionsSelection.length > 0}
             selectedForOptions={optionsSelection.includes(item.id)}
             onLongPress={() =>
-              setOptionsSelection(toggleArrayElement(optionsSelection, item.id))
+              setOptionsSelection(
+                toggleArrayElement(optionsSelection, item.id).sort()
+              )
             }
             onPress={({
               nativeEvent: { pageX, pageY, locationX, locationY },
             }) => {
               if (optionsSelection.length > 0) {
                 setOptionsSelection(
-                  toggleArrayElement(optionsSelection, item.id)
+                  toggleArrayElement(optionsSelection, item.id).sort()
                 );
               } else {
                 setElementPosition({
@@ -238,14 +237,10 @@ export function Home({ navigation }) {
           offset: verticalScale(250) * index,
           index,
         })}
-        updateCellsBatchingPeriod={100}
-        onEndReachedThreshold={100}
         onScroll={(e) => {
           scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y));
         }}
         contentContainerStyle={{
-          backgroundColor: theme.homeBackground,
-
           width: "100%",
           rowGap: 8,
           paddingBottom: verticalScale(125),
@@ -253,7 +248,7 @@ export function Home({ navigation }) {
         }}
         style={{
           flex: 1,
-          backgroundColor: theme.homeBackground,
+          backgroundColor: theme.primary,
         }}
       />
 
@@ -268,7 +263,7 @@ export function Home({ navigation }) {
             if (optionsSelection.length === filteredData.length) {
               setOptionsSelection([]);
             } else {
-              setOptionsSelection(filteredData.map((e) => e.id));
+              setOptionsSelection(filteredData.map((e) => e.id).sort());
             }
           }}
           onDelete={deleteNotes}
@@ -321,13 +316,9 @@ export function Home({ navigation }) {
               renderItem={({ item }) => (
                 <FilterButton
                   key={item}
-                  onSelected={() => {
-                    if (selected.length === filteredData.length) {
-                      setSelected([]);
-                    } else {
-                      setSelected((prev) => toggleArrayElement(prev, item));
-                    }
-                  }}
+                  onSelected={() =>
+                    setSelected((prev) => toggleArrayElement(prev, item))
+                  }
                   selected={selected.includes(item)}
                   label={item}
                 />

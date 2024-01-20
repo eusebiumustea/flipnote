@@ -46,6 +46,7 @@ import { NoteScreenHeader } from "./note-screen-header";
 import { StyleEvent, onFontColor } from "./style-events";
 import { InputSelectionProps, OptionProps, ReminderProps, note } from "./types";
 import { useRequest } from "../../hooks/use-request";
+import { MotiScrollView } from "moti";
 interface ParamsProps {
   id: number;
 }
@@ -70,7 +71,9 @@ export const NotePage = memo(({ route, navigation }: any) => {
   //   }
   //   return notes.data.find((e) => e.id === id);
   // }, []);
-  const { request } = useRequest();
+  const { readNotes } = useRequest();
+  const fileName = `${id}.json`;
+  const notePath = `${NOTES_PATH}/${fileName}`;
   const [editNote, setEditNote] = useState<note>({
     id,
     title: "",
@@ -80,26 +83,38 @@ export const NotePage = memo(({ route, navigation }: any) => {
     styles: [],
     reminder: null,
   });
-  const loading = useLoading();
-  const fileName = `${id}.json`;
-  const notePath = `${NOTES_PATH}/${fileName}`;
+  const noteStateIsEmpty =
+    editNote.text.length === 0 && editNote.title.length === 0;
   useEffect(() => {
     async function getData() {
-      const { exists } = await FileSystem.getInfoAsync(notePath);
-      if (!exists) {
-        return;
-      }
-      await FileSystem.readAsStringAsync(notePath)
+      FileSystem.readAsStringAsync(notePath)
         .then((data) => {
           const content: note = JSON.parse(data);
-          setTimeout(() => setEditNote(content), 100);
+          setTimeout(() => setEditNote(content), 180);
         })
-        .catch((e) => console.log("edit error", e));
+        .catch(() => null);
     }
     getData();
   }, []);
-  const noteStateIsEmpty =
-    editNote.text.length === 0 && editNote.title.length === 0;
+  useEffect(() => {
+    async function storeDataConditional() {
+      try {
+        if (noteStateIsEmpty) {
+          await FileSystem.deleteAsync(notePath, { idempotent: true });
+        } else {
+          await FileSystem.writeAsStringAsync(
+            notePath,
+            JSON.stringify(editNote)
+          );
+          console.log("edited");
+        }
+      } catch (_) {
+        toast({ message: "Failed to save note", textColor: "red" });
+      }
+    }
+    storeDataConditional();
+  }, [editNote]);
+  const loading = useLoading();
   const [reminder, setReminder] = useState<ReminderProps>({
     date: new Date(),
     time: new Date(),
@@ -115,13 +130,8 @@ export const NotePage = memo(({ route, navigation }: any) => {
     editNote.reminder && new Date(editNote.reminder);
   const textSelected = selection.end !== selection.start;
   // useNoteManager(setNotes, editNote, notes.data, id);
-  useStoreNote(id, editNote);
+  // useStoreNote(id, editNote);
 
-  useEffect(() => {
-    return () => {
-      request();
-    };
-  }, []);
   // const currentFocused = useMemo(() => {
   //   if (textSelected) {
   //     return editNote.styles.find(
@@ -291,6 +301,82 @@ export const NotePage = memo(({ route, navigation }: any) => {
 
   return (
     <>
+      <MotiScrollView
+        transition={{
+          type: "timing",
+          duration: 500,
+          backgroundColor: { duration: 200 },
+        }}
+        from={{ opacity: 0 }}
+        animate={{ backgroundColor: editNote.background, opacity: 1 }}
+        ref={imageRef}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="always"
+        contentContainerStyle={{
+          paddingTop: verticalScale(70) + top,
+          padding: 16,
+        }}
+        style={{
+          flex: 1,
+          marginBottom,
+        }}
+      >
+        <TextInput
+          placeholderTextColor={theme.placeholder}
+          onChangeText={(editedTitle) =>
+            setEditNote((prev) => ({
+              ...prev,
+              title: editedTitle,
+            }))
+          }
+          underlineColorAndroid="transparent"
+          cursorColor={"#FFCB09"}
+          selectTextOnFocus={true}
+          multiline
+          scrollEnabled={false}
+          placeholder="Title"
+          style={{
+            color: "#000",
+            fontSize: moderateFontScale(28),
+            fontWeight: "bold",
+            fontFamily: "OpenSans",
+          }}
+        >
+          <Text>{editNote.title}</Text>
+        </TextInput>
+
+        <TextInput
+          onFocus={(e) => console.log(e.nativeEvent.text)}
+          onSelectionChange={({ nativeEvent: { selection } }) => {
+            // selection = e.nativeEvent.selection;
+
+            setSelection(selection);
+          }}
+          placeholderTextColor={theme.placeholder}
+          cursorColor={"#FFCB09"}
+          selectTextOnFocus={false}
+          autoCapitalize="none"
+          autoCorrect={false}
+          spellCheck={false}
+          inputMode="text"
+          onChangeText={(text) => {
+            setEditNote((prev) => ({
+              ...prev,
+              text,
+            }));
+          }}
+          underlineColorAndroid="transparent"
+          multiline
+          // selectionColor={"#FFF3C7"}
+          placeholder="Take the note"
+          style={{
+            marginTop: verticalScale(20),
+            paddingBottom: verticalScale(200),
+          }}
+        >
+          {useEditNoteContent(editNote.styles, editNote.text)}
+        </TextInput>
+      </MotiScrollView>
       <DateTimePickerDialog
         action={() => {
           notification(
@@ -377,78 +463,6 @@ export const NotePage = memo(({ route, navigation }: any) => {
         opened={changes}
         onClose={() => setShowChanges(false)}
       />
-      <ScrollView
-        ref={imageRef}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="always"
-        contentContainerStyle={{
-          paddingTop: verticalScale(70) + top,
-          padding: 16,
-        }}
-        style={{
-          flex: 1,
-          marginBottom,
-          backgroundColor: editNote.background,
-        }}
-      >
-        <TextInput
-          placeholderTextColor={theme.placeholder}
-          onChangeText={(editedTitle) =>
-            setEditNote((prev) => ({
-              ...prev,
-              title: editedTitle,
-            }))
-          }
-          underlineColorAndroid="transparent"
-          cursorColor={"#FFCB09"}
-          selectTextOnFocus={true}
-          multiline
-          scrollEnabled={false}
-          placeholder="Title"
-          style={{
-            color: "#000",
-            fontSize: moderateFontScale(28),
-            fontWeight: "bold",
-            fontFamily: "OpenSans",
-            backgroundColor: editNote.background,
-          }}
-        >
-          <Text>{editNote.title}</Text>
-        </TextInput>
-
-        <TextInput
-          onSelectionChange={({ nativeEvent: { selection } }) => {
-            // selection = e.nativeEvent.selection;
-
-            setSelection(selection);
-          }}
-          placeholderTextColor={theme.placeholder}
-          cursorColor={"#FFCB09"}
-          selectTextOnFocus={false}
-          autoCapitalize="none"
-          autoCorrect={false}
-          spellCheck={false}
-          inputMode="text"
-          onTextInput={(e) => {}}
-          onChangeText={(text) => {
-            setEditNote((prev) => ({
-              ...prev,
-              text,
-            }));
-          }}
-          underlineColorAndroid="transparent"
-          multiline
-          // selectionColor={"#FFF3C7"}
-          placeholder="Take the note"
-          style={{
-            marginTop: verticalScale(20),
-            paddingBottom: verticalScale(200),
-          }}
-        >
-          {useEditNoteContent(editNote.styles, editNote.text)}
-        </TextInput>
-      </ScrollView>
-
       <CustomizeBar
         focusedColor={currentFocused?.style?.color}
         selection={selection}

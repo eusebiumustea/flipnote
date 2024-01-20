@@ -3780,10 +3780,10 @@ expo-modules-core@1.11.7:
   dependencies:
     invariant "^2.2.4"
 
-expo-notifications@~0.27.3:
-  version "0.27.3"
-  resolved "https://registry.yarnpkg.com/expo-notifications/-/expo-notifications-0.27.3.tgz#18f3d6dadc14aefc32937bddc54572bbf68236a7"
-  integrity sha512-P4zhbVYDhTtV7xCdcxpk4tTbWh33P+A0ZTbpUrp6vcpZk8QprhjhB2okr1/R1z0fpxUPv74KYex5fnAHxTVIvw==
+expo-notifications@~0.27.4:
+  version "0.27.4"
+  resolved "https://registry.yarnpkg.com/expo-notifications/-/expo-notifications-0.27.4.tgz#04f36a8393049ee2fc7658494f1dc58c390da3d9"
+  integrity sha512-CryQvd2x868GpBI2DzabPPRL2HAD8O+rm2hwYH1sN5lTb39kmC9jm2Riu6RdWoL5XYzayCp9IHIjL6Dnu9hHAw==
   dependencies:
     "@expo/image-utils" "^0.4.0"
     "@ide/backoff" "^1.0.0"
@@ -6059,7 +6059,7 @@ react-native-range-slider-expo@^1.4.3:
   resolved "https://registry.yarnpkg.com/react-native-range-slider-expo/-/react-native-range-slider-expo-1.4.3.tgz#d21baab8820d8827992b94d881868d634337de0c"
   integrity sha512-EAIXfuCxJYffi6yqOcmCMWzvPNRSJ7zgDhQtVXXe2fokYaXVLG1uq2jM+cpTStMusIIGIo9HGZAja94N+rnNyg==
 
-react-native-reanimated@~3.6.0:
+react-native-reanimated@^3.6.1:
   version "3.6.1"
   resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-3.6.1.tgz#5add41efafac6d0befd9786e752e7f26dbe903b7"
   integrity sha512-F4vG9Yf9PKmE3GaWtVGUpzj3SM6YY2cx1yRHCwiMd1uY7W0gU017LfcVUorboJnj0y5QZqEriEK1Usq2Y8YZqg==
