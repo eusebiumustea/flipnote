@@ -1,3 +1,4 @@
+import { ColorValue, OpaqueColorValue } from "react-native";
 import { TextNoteStyle, note } from "../screens/note";
 export function toggleArrayElement<T>(array: T[], value: T) {
   const indexOfValue = array.indexOf(value);
@@ -55,12 +56,11 @@ export function reinjectElementInArray(array: note[], newElement: note) {
     ...array.slice(prevIndex + 1),
   ];
 }
-export function reverseArray<T>(array: T[]) {
-  const reversedArr: T[] = [];
-  for (let i = array.length - 1; i >= 0; i++) {
-    reversedArr.push(array[i]);
+export function BGtype(uri: string) {
+  if (uri.includes("/")) {
+    return "img";
   }
-  return reversedArr;
+  return "color";
 }
 export function replaceElementAtIndex<T>(
   array: T[],

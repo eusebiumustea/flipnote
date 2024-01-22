@@ -1,8 +1,7 @@
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
-import { moderateFontScale } from "../../../tools";
 import React, { memo } from "react";
-import { note } from "../..";
+import { Text, TouchableOpacity } from "react-native";
 import { useTheme } from "../../../hooks";
+import { moderateFontScale } from "../../../tools";
 interface filterButtonProps {
   onSelected: () => void;
   selected: boolean;
@@ -73,71 +72,3 @@ export const FilterFavoritesButton = memo(
     );
   }
 );
-interface NoteFilterBarProps {
-  data: note[];
-  onSelected: () => void;
-  onSelectAll: () => void;
-  selected: string[];
-  favorite: boolean;
-  onFavoriteSelected: () => void;
-  notes: string[];
-  selectedAll: boolean;
-}
-// export function NoteFilterBar({
-//   onSelectAll,
-//   onSelected,
-//   selected,
-//   data,
-//   onFavoriteSelected,
-//   favorite,
-//   notes,
-// }: NoteFilterBarProps) {
-//   return (
-//     <FlatList
-//       style={{
-//         width: "100%",
-//         flexGrow: 0,
-//       }}
-//       showsHorizontalScrollIndicator={false}
-//       contentContainerStyle={{
-//         paddingLeft: 14,
-//         columnGap: 12,
-//         flexDirection: "row",
-//         alignItems: "center",
-//       }}
-//       horizontal
-//       ListHeaderComponent={() => (
-//         <View
-//           style={{
-//             flexDirection: "row",
-//             columnGap: 12,
-//             alignItems: "center",
-//           }}
-//         >
-//           <FilterButton
-//             onSelected={onSelectAll}
-//             selected={selected.length > 0 ? false : true}
-//             label="All"
-//           />
-
-//           {data.filter((e) => e.isFavorite === true).length > 0 && (
-//             <FilterFavoritesButton
-//               selected={favorite}
-//               onSelected={onFavoriteSelected}
-//             />
-//           )}
-//         </View>
-//       )}
-//       data={notes}
-//       keyExtractor={(_, index) => index.toString()}
-//       renderItem={({ item }) => (
-//         <FilterButton
-//           key={item}
-//           onSelected={onSelected}
-//           selected={selected.includes(item)}
-//           label={item}
-//         />
-//       )}
-//     />
-//   );
-// }

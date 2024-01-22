@@ -8,5 +8,5 @@ export interface HistoryChangesProps {
   opened: boolean;
   onClose: () => void;
   text: string;
-  background: ColorValue | string;
+  background: string;
 }

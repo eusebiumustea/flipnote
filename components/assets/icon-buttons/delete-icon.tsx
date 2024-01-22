@@ -6,7 +6,7 @@ import { useTheme } from "../../../hooks";
 import { moderateScale, verticalScale } from "../../../tools";
 import { IconButtonBase } from "./types";
 
-export function DeleteIcon({ svgProps, onPress }: IconButtonBase) {
+export function DeleteIcon({ svgProps, onPress, style }: IconButtonBase) {
   const theme = useTheme();
   const { bottom } = useSafeAreaInsets();
   return (
@@ -16,6 +16,7 @@ export function DeleteIcon({ svgProps, onPress }: IconButtonBase) {
       style={{
         width: moderateScale(30),
         height: verticalScale(30),
+        ...style,
       }}
     >
       <Svg

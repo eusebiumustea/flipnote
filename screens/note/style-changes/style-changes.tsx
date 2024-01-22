@@ -20,7 +20,7 @@ import { Swipe } from "../../../components/pan-responder";
 import { ScreenHeader } from "../../../components/screen-header";
 import { BackIcon } from "../../../components/assets";
 
-export const HistoryChanges = memo(
+export const StyleChanges = memo(
   ({
     opened,
     onClose,
@@ -164,7 +164,9 @@ export const HistoryChanges = memo(
                       />
                       <View
                         style={{
-                          backgroundColor: background,
+                          backgroundColor: background.includes("/")
+                            ? theme.primary
+                            : background,
                           padding: 6,
 
                           borderRadius: 16,

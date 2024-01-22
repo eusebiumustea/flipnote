@@ -1,4 +1,4 @@
-import { TouchableOpacity } from "react-native";
+import { Pressable, TouchableOpacity } from "react-native";
 import { moderateScale, verticalScale } from "../../tools";
 import { ColorBoxProps } from "./types";
 import Svg, { Path } from "react-native-svg";
@@ -12,16 +12,15 @@ export function ColorBox({
 }: ColorBoxProps) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
+    <Pressable
       onPress={onPress}
       style={{
         width: moderateScale(40),
-        height: verticalScale(40),
+        height: moderateScale(40),
         backgroundColor: bgColor,
         justifyContent: "center",
         alignItems: "center",
-        borderRadius: 8,
+        borderRadius: 100,
       }}
     >
       {checked && (
@@ -36,6 +35,6 @@ export function ColorBox({
           <Path d="M21 7L9 19l-5.5-5.5 1.41-1.41L9 16.17 19.59 5.59 21 7z" />
         </Svg>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 }

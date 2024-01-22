@@ -20,11 +20,15 @@ export const notesData = atom<UserdataState>({
     data: [],
   },
 });
+export const BackgroundImages = atom<string[]>({
+  key: "background-images",
+  default: [],
+});
 export const receivedNotifications = atom<NotificationProp[]>({
   key: "notifications",
   default: [],
 });
-export const currentPosition = atom<ElementPositionTypes>({
+export const currentElementCoordinates = atom<ElementPositionTypes>({
   key: "currentElementCoords",
   default: {
     relativeX: 0,

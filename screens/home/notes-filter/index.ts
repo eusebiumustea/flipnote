@@ -1,2 +1,2 @@
 export * from "./notes-filter";
-// export * from "./notes-filter-bar";
+export * from "./notes-filter-list";

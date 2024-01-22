@@ -1,7 +1,9 @@
 import Checkbox from "expo-checkbox";
+import { MotiView } from "moti";
 import React, { memo } from "react";
 import {
   GestureResponderEvent,
+  Image,
   Pressable,
   Text,
   View,
@@ -40,13 +42,10 @@ export const NoteCard = memo(
         onLongPress={onLongPress}
         onPress={onPress}
         style={{
-          backgroundColor: item.background,
           height: verticalScale(250),
           width: width / 2 - 16,
           borderRadius: 16,
-
           elevation: 7,
-
           shadowColor: theme.onPrimary,
           shadowOffset: {
             width: 0,
@@ -54,16 +53,27 @@ export const NoteCard = memo(
           },
           shadowOpacity: 0.17,
           shadowRadius: 3.05,
-          padding: 16,
+          backgroundColor: item.background,
         }}
       >
         <View
           style={{
-            height: verticalScale(250),
-            width: width / 2 - 16,
+            height: "100%",
+            width: "100%",
             borderRadius: 16,
             position: "absolute",
-            zIndex: 1,
+            zIndex: 2,
+            top: 0,
+          }}
+        />
+        <Image
+          source={{ uri: item.background }}
+          style={{
+            height: "100%",
+            width: "100%",
+            borderRadius: 16,
+            position: "absolute",
+            zIndex: -1,
             top: 0,
           }}
         />
@@ -74,16 +84,21 @@ export const NoteCard = memo(
               borderRadius: 100,
               top: 0,
               left: 0,
+              zIndex: 2,
             }}
             value={selectedForOptions}
           />
         )}
 
-        <View
+        <MotiView
+          from={{ opacity: 0 }}
+          animate={{ backgroundColor: item.background, opacity: 1 }}
           style={{
             height: "100%",
             width: "100%",
             overflow: "hidden",
+            padding: 16,
+            borderRadius: 16,
           }}
         >
           {item.title && (
@@ -99,7 +114,7 @@ export const NoteCard = memo(
             </Text>
           )}
           {content}
-        </View>
+        </MotiView>
       </Pressable>
     );
   }

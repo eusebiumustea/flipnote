@@ -117,7 +117,9 @@ export const Inbox = ({ navigation }) => {
                 style={{
                   width: "100%",
                   borderRadius: 16,
-                  backgroundColor: note.background,
+                  backgroundColor: note.background.includes("/")
+                    ? theme.primary
+                    : note.background,
                   padding: 16,
                   flexDirection: "column",
                   elevation: 5,

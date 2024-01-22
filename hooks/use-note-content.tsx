@@ -29,7 +29,7 @@ export function useNoteContent(styles: TextNoteStyle[], text: string) {
         </>
       );
     }
-    return <Text>{removeEmptySpace(text).substring(0, 150)}</Text>;
+    return <Text>{removeEmptySpace(text)}</Text>;
   }, [styles, text]);
 }
 export function useEditNoteContent(styles: TextNoteStyle[], text: string) {

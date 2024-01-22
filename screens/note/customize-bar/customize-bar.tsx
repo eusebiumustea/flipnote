@@ -1,6 +1,13 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import { MotiView } from "moti";
-import { PropsWithChildren, ReactNode, useMemo, useState } from "react";
+import {
+  Dispatch,
+  PropsWithChildren,
+  ReactNode,
+  SetStateAction,
+  useMemo,
+  useState,
+} from "react";
 import {
   ColorValue,
   Dimensions,
@@ -61,12 +68,14 @@ export function CustomizeBar({
   const theme = useTheme();
   const keyboard = useKeyboard();
   const { width } = useWindowDimensions();
+
   const paddingTop =
     Platform.OS === "android"
       ? Dimensions.get("screen").height -
         (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height)
       : Dimensions.get("screen").height -
         (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
+
   function optionSizeAdjust() {
     switch (showOption) {
       case "font-color":

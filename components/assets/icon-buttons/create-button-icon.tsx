@@ -24,7 +24,6 @@ export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
         alignItems: "center",
         justifyContent: "center",
         position: "absolute",
-        zIndex: 3,
         bottom: keyboard.keyboardShown ? -keyboard.keyboardHeight : 0,
         right: 0,
         margin: 30,

@@ -96,7 +96,6 @@ export const NoteOptions = memo(
           justifyContent: "space-between",
           position: "absolute",
           backgroundColor: theme.background,
-          zIndex: 1000,
           alignItems: "center",
           flexDirection: "row",
           paddingHorizontal: moderateScale(20),

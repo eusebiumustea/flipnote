@@ -119,6 +119,7 @@ export const Header = memo(
             textContentType="none"
           />
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+            <InboxIcon onPress={onInboxOpen} active={badge} />
             <ImportIcon
               onPress={async () => {
                 const result = await DocumentPicker.getDocumentAsync({});
@@ -142,10 +143,8 @@ export const Header = memo(
                 const zipItems = Object.keys(zip.files);
 
                 Promise.all(
-                  zipItems.map(async (file, i, arr) => {
+                  zipItems.map(async (file) => {
                     const content = await zip.files[file].async("text");
-                    const newNote: note = JSON.parse(content);
-
                     await FileSystem.writeAsStringAsync(
                       `${NOTES_PATH}/${file}`,
                       content
@@ -155,7 +154,6 @@ export const Header = memo(
                 request();
               }}
             />
-            <InboxIcon onPress={onInboxOpen} active={badge} />
           </View>
         </View>
         {children}

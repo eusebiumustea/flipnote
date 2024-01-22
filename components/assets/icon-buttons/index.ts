@@ -20,3 +20,4 @@ export * from "./format-size-icon";
 export * from "./import-icon";
 export * from "./redo-icon";
 export * from "./undo-icon";
+export * from "./image-plus";

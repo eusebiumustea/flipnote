@@ -28,6 +28,7 @@
     "expo-document-picker": "~11.10.1",
     "expo-file-system": "~16.0.4",
     "expo-font": "~11.10.2",
+    "expo-image-picker": "~14.7.1",
     "expo-notifications": "~0.27.4",
     "expo-sharing": "~11.10.0",
     "expo-splash-screen": "~0.26.3",
