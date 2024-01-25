@@ -41,15 +41,6 @@ export function useRequest() {
       setBackgroundImages(imageSources);
     } catch (e) {}
   };
-  const readNotes = async () => {
-    try {
-      const { exists } = await FileSystem.getInfoAsync(NOTES_PATH);
-      if (!exists) {
-        return;
-      }
-      const files = await FileSystem.readDirectoryAsync(NOTES_PATH);
-      return files;
-    } catch (e) {}
-  };
-  return { request, readNotes };
+
+  return { request };
 }

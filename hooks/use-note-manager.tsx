@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useToast } from "../components";
 import { note } from "../screens";
 import * as FileSystem from "expo-file-system";
@@ -11,39 +11,48 @@ export function useNoteStorage(
 ) {
   const toast = useToast();
   const { request } = useRequest();
-  const fileName = `${id}.json`;
-  const notePath = `${NOTES_PATH}/${fileName}`;
+  const notePath = `${NOTES_PATH}/${id}`;
   const noteStateIsEmpty =
     editNote.text.length === 0 && editNote.title.length === 0;
+  const [preventDelete, setPreventDelete] = useState(true);
   useEffect(() => {
     async function getData() {
-      FileSystem.readAsStringAsync(notePath)
-        .then((data) => {
-          const content: note = JSON.parse(data);
-          setTimeout(() => setEditNote(content), 300);
-        })
-        .catch(() => null);
+      try {
+        const { exists } = await FileSystem.getInfoAsync(notePath);
+        if (!exists) {
+          setPreventDelete(false);
+          return;
+        }
+        const data = await FileSystem.readAsStringAsync(notePath);
+        const content: note = JSON.parse(data);
+        setTimeout(() => {
+          setEditNote(content);
+          setPreventDelete(false);
+        }, 300);
+      } catch (error) {
+        console.log(error);
+      }
     }
     getData();
   }, []);
   useEffect(() => {
     async function storeDataConditional() {
       try {
-        if (noteStateIsEmpty) {
+        if (!preventDelete && noteStateIsEmpty) {
           await FileSystem.deleteAsync(notePath, { idempotent: true });
-        } else {
+        }
+        if (!noteStateIsEmpty) {
           await FileSystem.writeAsStringAsync(
             notePath,
             JSON.stringify(editNote)
           );
-          console.log("edited");
         }
       } catch (_) {
         toast({ message: "Failed to save note", textColor: "red" });
       }
     }
     storeDataConditional();
-  }, [editNote]);
+  }, [preventDelete, editNote]);
   useEffect(() => {
     return () => {
       request();

@@ -1,52 +1,49 @@
-import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
-import * as Clipboard from "expo-clipboard";
+import {
+  NavigationHelpers,
+  NavigationProp,
+  NavigatorScreenParams,
+  useNavigation,
+} from "@react-navigation/native";
+import * as FileSystem from "expo-file-system";
+import { SaveFormat, manipulateAsync } from "expo-image-manipulator";
+import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
-
-import { NavigationProp } from "@react-navigation/native";
 import { AnimatePresence, MotiImage, MotiScrollView } from "moti";
 import { memo, useRef, useState } from "react";
 import {
-  Platform,
+  PixelRatio,
+  ScrollView,
   Text,
   TextInput,
-  TextStyle,
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
 import { useRecoilState } from "recoil";
 import { useToast } from "../../components/toast";
-import { fontNames } from "../../constants";
 import { BackgroundImages } from "../../contexts";
 import { useEditNoteContent, useTheme } from "../../hooks";
+import { useLoading } from "../../hooks/use-loading-dialog";
 import { useNoteStorage } from "../../hooks/use-note-manager";
 import { useNoteUtils } from "../../hooks/use-note-utills";
-import { useNoitication } from "../../hooks/use-notification-handler";
-import { moderateFontScale, verticalScale } from "../../tools";
-import { cardColors } from "../../tools/colors";
-import {
-  BackgroundOptions,
-  ColorOptions,
-  CustomizeBar,
-  FontOptions,
-  FontSizeOptions,
-} from "./customize-bar";
-import { DateTimePickerDialog } from "./date-time-picker";
-import { NoteScreenHeader } from "./note-screen-header";
-import { StyleChanges } from "./style-changes";
-import { StyleEvent, onFontColor } from "./style-events";
-import { InputSelectionProps, OptionProps, ReminderProps, note } from "./types";
+import { moderateFontScale, range, verticalScale } from "../../tools";
+import { NoteOverlays } from "./note-overlays";
+import { InputSelectionProps, ReminderProps, note } from "./types";
+import { useBackHandler } from "@react-native-community/hooks";
+import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 interface ParamsProps {
   id: number;
 }
 type NotePageProps = {
-  navigation: NavigationProp<any>;
-  route: {
-    params: ParamsProps;
-  };
+  route: NavigatorScreenParams<{}>;
 };
-export const NotePage = memo(({ route, navigation }: NotePageProps) => {
+export const NotePage = memo(({ route }: NotePageProps) => {
   const { id } = route.params;
+  const navigation = useNavigation<StackNavigationHelpers>();
+  useBackHandler(() => {
+    navigation.popToTop();
+    return true;
+  });
   const { width, height } = useWindowDimensions();
   const theme = useTheme();
 
@@ -60,8 +57,6 @@ export const NotePage = memo(({ route, navigation }: NotePageProps) => {
     styles: [],
     reminder: null,
   });
-  const noteStateIsEmpty =
-    editNote.text.length === 0 && editNote.title.length === 0;
   useNoteStorage(id, editNote, setEditNote);
   const [reminder, setReminder] = useState<ReminderProps>({
     date: new Date(),
@@ -73,49 +68,39 @@ export const NotePage = memo(({ route, navigation }: NotePageProps) => {
     end: 0,
   });
   const [reminderDialog, setReminderDialog] = useState(false);
-  const { currentFocused, openReminder, marginBottom, fontFamilyFocused } =
-    useNoteUtils(id, selection, editNote, setEditNote, setReminderDialog);
-
-  const currentIndex = editNote.styles.indexOf(currentFocused);
+  const { currentFocused, openReminder, marginBottom } = useNoteUtils(
+    id,
+    selection,
+    editNote,
+    setEditNote,
+    setReminderDialog
+  );
 
   const imageRef = useRef<ViewShot>(null);
+  const [scrollHeight, setScrollHeight] = useState(1);
 
   const { top } = useSafeAreaInsets();
   const toast = useToast();
 
-  const [changes, setShowChanges] = useState(false);
-  function setStyleEvent(key: keyof TextStyle, value: string) {
-    return StyleEvent(
-      currentFocused,
-      key,
-      value,
-      selection,
-      setEditNote,
-      currentIndex
-    );
-  }
-  const optionsProps: OptionProps = {
-    selection,
-    currentFocused,
-    currentIndex,
-    setEditNote,
-    colors: cardColors,
-    editNote,
-    fontFamilyFocused,
-    fonts: fontNames,
-  };
   const [capturing, setCapturing] = useState(false);
-  const notification = useNoitication();
-
+  const [showTitle, setShowTitle] = useState(true);
+  const loading = useLoading();
   async function Share() {
     try {
+      loading(true);
+      if (editNote.title.length === 0) {
+        setShowTitle(false);
+      }
       setCapturing(true);
-      const imageUri = await imageRef.current.capture();
+      const image = await imageRef.current.capture();
       setCapturing(false);
-      await Sharing.shareAsync(imageUri);
+      setShowTitle(true);
+      await Sharing.shareAsync(image);
+      loading(false);
     } catch (e) {
       console.log(e);
-      toast({ message: "Note is too large" });
+      toast({ message: String(e) });
+      loading(false);
     }
   }
   const isImgBg = backgroundImages.includes(editNote.background);
@@ -123,11 +108,13 @@ export const NotePage = memo(({ route, navigation }: NotePageProps) => {
     if (capturing && isImgBg) {
       return "#fff";
     }
-    if (!capturing && isImgBg) {
-      return null;
+
+    if (capturing && !isImgBg) {
+      return editNote.background;
     }
-    return editNote.background;
+    return null;
   }
+  const scrollRef = useRef<ScrollView>(null);
   return (
     <>
       <AnimatePresence>
@@ -154,6 +141,7 @@ export const NotePage = memo(({ route, navigation }: NotePageProps) => {
       </AnimatePresence>
 
       <MotiScrollView
+        ref={scrollRef}
         transition={{
           type: "timing",
           duration: 400,
@@ -176,6 +164,7 @@ export const NotePage = memo(({ route, navigation }: NotePageProps) => {
         }}
       >
         <ViewShot
+          onLayout={(e) => setScrollHeight(e.nativeEvent.layout.height)}
           style={{
             flex: 1,
             backgroundColor: captureBackground(),
@@ -187,33 +176,37 @@ export const NotePage = memo(({ route, navigation }: NotePageProps) => {
           options={{
             result: "tmpfile",
             useRenderInContext: true,
-            handleGLSurfaceViewOnAndroid: true,
+            format: "png",
+            fileName: `flipnote-${id}`,
           }}
           ref={imageRef}
         >
-          <TextInput
-            placeholderTextColor={theme.placeholder}
-            onChangeText={(editedTitle) =>
-              setEditNote((prev) => ({
-                ...prev,
-                title: editedTitle,
-              }))
-            }
-            underlineColorAndroid="transparent"
-            cursorColor={"#FFCB09"}
-            placeholder={capturing ? "" : "Title"}
-            multiline
-            style={{
-              color: "#000",
-              fontSize: moderateFontScale(28),
-              fontWeight: "bold",
-              fontFamily: "OpenSans",
-            }}
-          >
-            <Text>{editNote.title}</Text>
-          </TextInput>
+          {showTitle && (
+            <TextInput
+              placeholderTextColor={theme.placeholder}
+              onChangeText={(editedTitle) =>
+                setEditNote((prev) => ({
+                  ...prev,
+                  title: editedTitle,
+                }))
+              }
+              underlineColorAndroid="transparent"
+              cursorColor={"#FFCB09"}
+              placeholder={"Title"}
+              multiline
+              style={{
+                color: "#000",
+                fontSize: moderateFontScale(28),
+                fontWeight: "bold",
+                fontFamily: "OpenSans",
+              }}
+            >
+              <Text>{editNote.title}</Text>
+            </TextInput>
+          )}
 
           <TextInput
+            maxLength={200000}
             onSelectionChange={({ nativeEvent: { selection } }) => {
               setSelection(selection);
             }}
@@ -223,12 +216,50 @@ export const NotePage = memo(({ route, navigation }: NotePageProps) => {
             autoCorrect={false}
             spellCheck={false}
             inputMode="text"
-            onChangeText={(text) =>
+            onChangeText={(text) => {
+              if (text.length > editNote.text.length) {
+                setEditNote((prev) => ({
+                  ...prev,
+                  text,
+                  styles: prev.styles.map((style, i) => {
+                    if (selection.end <= style.interval.start) {
+                      return {
+                        ...style,
+                        interval: {
+                          start: style.interval.start + 1,
+                          end: style.interval.end + 1,
+                        },
+                      };
+                    }
+                    return style;
+                  }),
+                }));
+                return;
+              }
+              if (text.length < editNote.text.length) {
+                setEditNote((prev) => ({
+                  ...prev,
+                  text,
+                  styles: prev.styles.map((style, i) => {
+                    if (selection.end <= style.interval.start) {
+                      return {
+                        ...style,
+                        interval: {
+                          start: style.interval.start - 1,
+                          end: style.interval.end - 1,
+                        },
+                      };
+                    }
+                    return style;
+                  }),
+                }));
+                return;
+              }
               setEditNote((prev) => ({
                 ...prev,
                 text,
-              }))
-            }
+              }));
+            }}
             multiline
             placeholder="Take the note"
           >
@@ -236,111 +267,18 @@ export const NotePage = memo(({ route, navigation }: NotePageProps) => {
           </TextInput>
         </ViewShot>
       </MotiScrollView>
-
-      <DateTimePickerDialog
-        action={() => {
-          notification(
-            editNote.title ? editNote.title : null,
-            editNote.text ? editNote.text : null,
-            id,
-            reminder,
-            setEditNote
-          );
-          setReminderDialog(false);
-        }}
-        onChangeTime={(_, date) =>
-          setReminder((prev) => ({ ...prev, time: date }))
-        }
-        onChangeDate={(_, date) => {
-          setReminder((prev) => ({ ...prev, date }));
-        }}
-        onChangeDateAndroid={(event, date) => {
-          if (event.type === "set") {
-            setReminder((prev) => ({ ...prev, date }));
-            DateTimePickerAndroid.open({
-              is24Hour: true,
-              mode: "time",
-              value: reminder.time,
-              positiveButton: { label: "Finish" },
-              onError(arg) {
-                toast({ message: arg.message });
-              },
-              display: "spinner",
-              onChange(event, date) {
-                if (event.type === "set") {
-                  setReminder((prev) => ({ ...prev, time: date }));
-                }
-              },
-            });
-          }
-        }}
-        show={reminderDialog}
-        time={reminder.time}
-        date={reminder.date}
-        onCencel={() => setReminderDialog(false)}
-      />
-
-      <NoteScreenHeader
-        historyShown={editNote.styles.length > 0}
-        onHistoryOpen={() => setShowChanges(true)}
+      <NoteOverlays
+        reminderDialog={reminderDialog}
+        setReminderDialog={setReminderDialog}
+        id={id}
         onReminderOpen={openReminder}
-        onClipboard={async () => {
-          if (noteStateIsEmpty) {
-            return;
-          }
-          try {
-            await Clipboard.setStringAsync(
-              `${editNote.title}\n${editNote.text}`
-            );
-            toast({
-              message: "Copied",
-              startPositionX: 80,
-              startPositionY: 10,
-              fade: true,
-            });
-          } catch (error) {
-            toast({
-              message: "Note is too large to copy in clipboard",
-              textColor: "orange",
-            });
-          }
-        }}
-        onFavoriteAdd={() =>
-          setEditNote((prev) => ({
-            ...prev,
-            isFavorite: !prev.isFavorite,
-          }))
-        }
-        onBack={() => navigation.goBack()}
-        favorite={editNote.isFavorite}
         onShare={Share}
-      />
-      <StyleChanges
-        background={editNote.background}
-        text={editNote.text}
-        setEditNote={setEditNote}
-        styles={editNote.styles}
-        opened={changes}
-        onClose={() => setShowChanges(false)}
-      />
-      <CustomizeBar
-        focusedColor={currentFocused?.style?.color}
         selection={selection}
-        italicFocused={currentFocused?.style?.fontStyle === "italic"}
-        onItalic={() => setStyleEvent("fontStyle", "italic")}
-        onBold={() => setStyleEvent("fontWeight", "bold")}
-        boldFocused={currentFocused?.style?.fontWeight === "bold"}
-        onUnderline={() => setStyleEvent("textDecorationLine", "underline")}
-        underLinedFocused={
-          currentFocused?.style?.textDecorationLine === "underline"
-        }
-        onFontColor={() =>
-          onFontColor(currentFocused, selection, setEditNote, currentIndex)
-        }
-        fontSizeOptions={<FontSizeOptions {...optionsProps} />}
-        fontColorOptions={<ColorOptions {...optionsProps} />}
-        backgroundOptions={<BackgroundOptions {...optionsProps} />}
-        fontOptions={<FontOptions {...optionsProps} />}
+        setEditNote={setEditNote}
+        setReminder={setReminder}
+        currentFocused={currentFocused}
+        reminder={reminder}
+        editNote={editNote}
       />
     </>
   );

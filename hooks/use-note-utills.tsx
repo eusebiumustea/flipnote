@@ -84,6 +84,6 @@ export function useNoteUtils(
       );
     }
   }, [selection, editNote.styles]);
-  const fontFamilyFocused = currentFocused?.style?.fontFamily;
-  return { currentFocused, openReminder, marginBottom, fontFamilyFocused };
+
+  return { currentFocused, openReminder, marginBottom };
 }

@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
-import { ScreenHeader } from "../../components/screen-header";
 import { useTheme } from "../../hooks";
 import {
   dateTime,
@@ -48,29 +47,6 @@ export const Inbox = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScreenHeader
-        style={{ paddingTop: top + 8 }}
-        children={
-          <View
-            style={{
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text
-              style={{
-                color: theme.onPrimary,
-                fontWeight: "bold",
-                fontSize: moderateFontScale(20),
-              }}
-            >
-              Notifications
-            </Text>
-          </View>
-        }
-        onBack={() => navigation.goBack()}
-      />
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: 16,

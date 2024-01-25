@@ -1,6 +1,6 @@
 import { useRecoilState } from "recoil";
 import * as FileSystem from "expo-file-system";
-import { note, notesData } from "../screens";
+import { EMPTY_NOTE_STATE, note, notesData } from "../screens";
 import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
 import { removeArrayKeyDuplicates } from "../tools";
 import { useToast } from "../components";
@@ -69,29 +69,28 @@ export function useHomeUtils(
     const searchFiltered = notes.data.filter((e) => {
       return (
         e.text.includes(searchQuery.toLowerCase()) ||
-        e.title.includes(searchQuery.toLowerCase()) ||
-        (e.title.includes(searchQuery.toLowerCase()) &&
-          e.text.includes(searchQuery.toLowerCase()))
+        e.title.includes(searchQuery.toLowerCase())
       );
     });
+
     if (searchQuery) {
       return searchFiltered;
     }
     return notes.data;
-  }, [searchQuery, notes.data]);
+  }, [notes, searchQuery]);
   const selectionFiltered = useMemo(() => {
     const newData = searchFilter.filter((e) => selected.includes(e.title));
     if (selected.length > 0) {
       return newData;
     }
     return searchFilter;
-  }, [selected, searchQuery, notes.data]);
+  }, [selected, searchQuery, notes]);
   const data = useMemo(() => {
     if (favorite) {
       return selectionFiltered.filter((e) => e.isFavorite);
     }
     return selectionFiltered;
-  }, [selected, searchQuery, notes.data, favorite]);
+  }, [selected, searchQuery, notes, favorite]);
 
   useEffect(() => {
     if (data.filter((e) => e.isFavorite === true).length === 0) {

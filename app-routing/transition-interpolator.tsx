@@ -1,5 +1,5 @@
-import { verticalScale } from "../tools";
 type InterpolateStylesProps = {
+  overlay?: boolean;
   fade?: boolean;
   initial: {
     x: number;
@@ -11,6 +11,7 @@ type InterpolateStylesProps = {
 };
 export function TransitionInterpolator({
   fade,
+  overlay = true,
   initial: { scale = 0, scaleX = 0, scaleY = 0, x, y },
 }: InterpolateStylesProps) {
   return ({
@@ -20,10 +21,12 @@ export function TransitionInterpolator({
     },
   }) => ({
     overlayStyle: {
-      opacity: current.progress.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0, 0.7],
-      }),
+      opacity: overlay
+        ? current.progress.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 0.7],
+          })
+        : 0,
     },
 
     cardStyle: {

@@ -42,7 +42,6 @@ export function Home() {
         optionsSelection={optionsSelection}
         setOptionsSelection={setOptionsSelection}
       />
-
       <HomeOverlays
         setSearchQuery={setSearchQuery}
         setSelected={setSelected}

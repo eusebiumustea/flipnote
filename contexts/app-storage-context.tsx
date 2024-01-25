@@ -10,6 +10,16 @@ export function AppStorageContext({ children }: PropsWithChildren) {
   const [notes, setNotes] = useRecoilState(notesData);
   const toast = useToast();
 
+  const { request } = useRequest();
+  useEffect(() => {
+    async function getUserData() {
+      setNotes((prev) => ({ ...prev, loading: true }));
+      await request();
+      setNotes((prev) => ({ ...prev, loading: false }));
+    }
+    getUserData();
+  }, []);
+
   Notifications.setNotificationHandler({
     handleError(_, error) {
       toast({ message: `${error.name}: ${error.message}`, textColor: "red" });
@@ -43,10 +53,6 @@ export function AppStorageContext({ children }: PropsWithChildren) {
       }));
     },
   });
-  const { request } = useRequest();
-  useEffect(() => {
-    request();
-  }, []);
 
   return children;
 }

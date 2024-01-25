@@ -17,8 +17,9 @@ import { HistoryChangesProps } from "./types";
 import { useTheme } from "../../../hooks";
 import { BlurView } from "expo-blur";
 import { Swipe } from "../../../components/pan-responder";
-import { ScreenHeader } from "../../../components/screen-header";
+
 import { BackIcon } from "../../../components/assets";
+import { ScreenHeader } from "../../../components";
 
 export const StyleChanges = memo(
   ({

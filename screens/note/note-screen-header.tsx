@@ -1,5 +1,11 @@
 import { BlurView } from "expo-blur";
-import { Dimensions, Platform, View, useColorScheme } from "react-native";
+import {
+  Dimensions,
+  GestureResponderEvent,
+  Platform,
+  View,
+  useColorScheme,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   BackIcon,
@@ -12,12 +18,6 @@ import {
 
 import { memo } from "react";
 import { useTheme } from "../../hooks";
-import { MotiView } from "moti";
-import Animated, {
-  FadeInDown,
-  FadeInUp,
-  FadeOutDown,
-} from "react-native-reanimated";
 
 interface NoteScreenHeaderProps {
   onClipboard: () => void;
@@ -26,7 +26,7 @@ interface NoteScreenHeaderProps {
   onShare: () => void;
   onReminderOpen?: () => void;
   favorite?: boolean;
-  onHistoryOpen?: () => void;
+  onHistoryOpen?: (e: GestureResponderEvent) => void;
   historyShown: boolean;
 }
 export const NoteScreenHeader = memo(

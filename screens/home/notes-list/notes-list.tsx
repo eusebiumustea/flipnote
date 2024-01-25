@@ -1,24 +1,26 @@
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { memo, useCallback, useRef, useState } from "react";
 import {
   FlatList,
   Platform,
   RefreshControl,
-  useAnimatedValue,
   Text,
+  useColorScheme,
+  useWindowDimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRecoilState } from "recoil";
+import { NoteCard } from "../../../components";
+import { useTheme } from "../../../hooks";
+import { useRequest } from "../../../hooks/use-request";
 import {
   moderateFontScale,
   toggleArrayElement,
   verticalScale,
 } from "../../../tools";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { memo, useCallback, useRef, useState } from "react";
-import { useRequest } from "../../../hooks/use-request";
-import { NoteCard } from "../../../components";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { currentElementCoordinates } from "../../note";
-import { useRecoilState } from "recoil";
-import { useTheme } from "../../../hooks";
+import { notesData } from "../../note";
 import { NotesListProps } from "./types";
+import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 
 export const NotesList = memo(
   ({
@@ -28,12 +30,12 @@ export const NotesList = memo(
     scrollY,
     setElementPosition,
   }: NotesListProps) => {
-    const navigation = useNavigation<NavigationProp<any>>();
+    const navigation = useNavigation<StackNavigationHelpers>();
     const theme = useTheme();
-
+    const [notes] = useRecoilState(notesData);
     const { request } = useRequest();
     const scrollRef = useRef<FlatList>(null);
-
+    const { width } = useWindowDimensions();
     const { top } = useSafeAreaInsets();
     const sortedData = data.slice().sort((a, b) => b.id - a.id);
     const [refreshing, setRefreshing] = useState(false);
@@ -52,6 +54,69 @@ export const NotesList = memo(
       "teal",
       "chartreuse",
     ];
+    const colorScheme = useColorScheme();
+    // if (!notes.loading) {
+    //   return (
+    //     <ScrollView
+    //       contentContainerStyle={{
+    //         width: "100%",
+    //         rowGap: 12,
+    //         paddingBottom: verticalScale(125),
+    //         paddingTop: verticalScale(115) + top,
+    //       }}
+    //       style={{
+    //         flex: 1,
+    //         backgroundColor: theme.primary,
+    //       }}
+    //     >
+    //       <View
+    //         style={{
+    //           width: "100%",
+    //           justifyContent: "center",
+    //           paddingHorizontal: 12,
+    //           gap: 12,
+    //           flexWrap: "wrap",
+    //         }}
+    //       >
+    //         {Array(6)
+    //           .fill(null)
+    //           .map((_, i) => (
+    //             <Skeleton
+    //               key={i}
+    //               radius={12}
+    //               colorMode={colorScheme}
+    //               height={verticalScale(250)}
+    //               width={width / 2 - 16}
+    //             />
+    //           ))}
+    //       </View>
+    //     </ScrollView>
+    //     // <FlatList
+    //     //   columnWrapperStyle={{
+    //     // width: "100%",
+    //     // justifyContent: "center",
+    //     // paddingHorizontal: 12,
+    //     // gap: 12,
+    //     //   }}
+    //     //   numColumns={2}
+    //     //   data={new Array(6).fill(null)}
+    //     //   keyExtractor={(_, index) => index.toString()}
+    //     //   renderItem={() => (
+
+    //     //   )}
+    //     // contentContainerStyle={{
+    //     //   width: "100%",
+    //     //   rowGap: 12,
+    //     //   paddingBottom: verticalScale(125),
+    //     //   paddingTop: verticalScale(115) + top,
+    //     // }}
+    //     // style={{
+    //     //   flex: 1,
+    //     //   backgroundColor: theme.primary,
+    //     // }}
+    //     // />
+    //   );
+    // }
     return (
       <FlatList
         refreshControl={
@@ -74,9 +139,9 @@ export const NotesList = memo(
         ref={scrollRef}
         columnWrapperStyle={{
           width: "100%",
-          // justifyContent: "center",
+          justifyContent: "center",
           paddingHorizontal: 12,
-          gap: 8,
+          gap: 12,
         }}
         numColumns={2}
         ListEmptyComponent={
@@ -87,7 +152,7 @@ export const NotesList = memo(
               fontSize: moderateFontScale(20),
             }}
           >
-            No data found
+            Press + to write
           </Text>
         }
         data={sortedData}
@@ -108,13 +173,13 @@ export const NotesList = memo(
                 setOptionsSelection(
                   toggleArrayElement(optionsSelection, item.id).sort()
                 );
-              } else {
-                setElementPosition({
-                  relativeX: pageX - locationX,
-                  relativeY: pageY - locationY,
-                });
-                navigation.navigate("note", { id: item.id });
+                return;
               }
+              setElementPosition({
+                relativeX: pageX - locationX,
+                relativeY: pageY - locationY,
+              });
+              navigation.push("note", { id: item.id });
             }}
             item={item}
           />
@@ -132,7 +197,7 @@ export const NotesList = memo(
         }}
         contentContainerStyle={{
           width: "100%",
-          rowGap: 8,
+          rowGap: 12,
           paddingBottom: verticalScale(125),
           paddingTop: verticalScale(115) + top,
         }}
