@@ -4,7 +4,9 @@ import {
   FlatList,
   Platform,
   RefreshControl,
+  ScrollView,
   Text,
+  View,
   useColorScheme,
   useWindowDimensions,
 } from "react-native";
@@ -21,6 +23,7 @@ import {
 import { notesData } from "../../note";
 import { NotesListProps } from "./types";
 import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
+import { Skeleton } from "moti/skeleton";
 
 export const NotesList = memo(
   ({
@@ -55,68 +58,48 @@ export const NotesList = memo(
       "chartreuse",
     ];
     const colorScheme = useColorScheme();
-    // if (!notes.loading) {
-    //   return (
-    //     <ScrollView
-    //       contentContainerStyle={{
-    //         width: "100%",
-    //         rowGap: 12,
-    //         paddingBottom: verticalScale(125),
-    //         paddingTop: verticalScale(115) + top,
-    //       }}
-    //       style={{
-    //         flex: 1,
-    //         backgroundColor: theme.primary,
-    //       }}
-    //     >
-    //       <View
-    //         style={{
-    //           width: "100%",
-    //           justifyContent: "center",
-    //           paddingHorizontal: 12,
-    //           gap: 12,
-    //           flexWrap: "wrap",
-    //         }}
-    //       >
-    //         {Array(6)
-    //           .fill(null)
-    //           .map((_, i) => (
-    //             <Skeleton
-    //               key={i}
-    //               radius={12}
-    //               colorMode={colorScheme}
-    //               height={verticalScale(250)}
-    //               width={width / 2 - 16}
-    //             />
-    //           ))}
-    //       </View>
-    //     </ScrollView>
-    //     // <FlatList
-    //     //   columnWrapperStyle={{
-    //     // width: "100%",
-    //     // justifyContent: "center",
-    //     // paddingHorizontal: 12,
-    //     // gap: 12,
-    //     //   }}
-    //     //   numColumns={2}
-    //     //   data={new Array(6).fill(null)}
-    //     //   keyExtractor={(_, index) => index.toString()}
-    //     //   renderItem={() => (
-
-    //     //   )}
-    //     // contentContainerStyle={{
-    //     //   width: "100%",
-    //     //   rowGap: 12,
-    //     //   paddingBottom: verticalScale(125),
-    //     //   paddingTop: verticalScale(115) + top,
-    //     // }}
-    //     // style={{
-    //     //   flex: 1,
-    //     //   backgroundColor: theme.primary,
-    //     // }}
-    //     // />
-    //   );
-    // }
+    if (notes.loading) {
+      return (
+        <View
+          style={{
+            backgroundColor: theme.primary,
+            width: "100%",
+            paddingTop: verticalScale(125) + top,
+            paddingHorizontal: 12,
+            rowGap: 12,
+            justifyContent: "center",
+            flexDirection: "column",
+          }}
+        >
+          {Array(3)
+            .fill(null)
+            .map((_, i) => (
+              <View
+                key={i}
+                style={{
+                  width: "100%",
+                  columnGap: 12,
+                  flexDirection: "row",
+                  justifyContent: "center",
+                }}
+              >
+                <Skeleton
+                  radius={12}
+                  colorMode={colorScheme}
+                  height={verticalScale(250)}
+                  width={width / 2 - 16}
+                />
+                <Skeleton
+                  radius={12}
+                  colorMode={colorScheme}
+                  height={verticalScale(250)}
+                  width={width / 2 - 16}
+                />
+              </View>
+            ))}
+        </View>
+      );
+    }
     return (
       <FlatList
         refreshControl={
@@ -198,7 +181,7 @@ export const NotesList = memo(
         contentContainerStyle={{
           width: "100%",
           rowGap: 12,
-          paddingBottom: verticalScale(125),
+          paddingBottom: 16,
           paddingTop: verticalScale(115) + top,
         }}
         style={{

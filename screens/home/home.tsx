@@ -1,13 +1,16 @@
 import { useBackHandler } from "@react-native-community/hooks";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAnimatedValue } from "react-native";
 import { useRecoilState } from "recoil";
 import { useHomeUtils } from "../../hooks/use-home-utils";
 import { currentElementCoordinates } from "../note";
 import { HomeOverlays } from "./home-overlays";
 import { NotesList } from "./notes-list";
+import { useIsFocused } from "@react-navigation/native";
 
 export function Home() {
+  const focused = useIsFocused();
+
   const [selected, setSelected] = useState<string[]>([]);
   const [optionsSelection, setOptionsSelection] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,6 +36,11 @@ export function Home() {
     setSelected
   );
   const scrollY = useAnimatedValue(0);
+  useEffect(() => {
+    if (focused) {
+      scrollY.setValue(0);
+    }
+  }, [focused]);
   return (
     <>
       <NotesList

@@ -1,7 +1,8 @@
+import { Dispatch, SetStateAction } from "react";
 import { TextInput } from "react-native";
 import { useEditNoteContent, useTheme } from "../../hooks";
 import { InputSelectionProps, note } from "./types";
-import { Dispatch, SetStateAction } from "react";
+import { verticalScale } from "../../tools";
 type NoteContentInputProps = {
   setEditNote?: Dispatch<SetStateAction<note>>;
   editNote?: note;
@@ -28,7 +29,9 @@ export function NoteContentInput({
       autoCorrect={false}
       spellCheck={false}
       inputMode="text"
-      style={{ textAlign: editNote.contentPosition }}
+      style={{
+        textAlign: editNote.contentPosition,
+      }}
       onChangeText={(text) => {
         if (text.length > editNote.text.length) {
           setEditNote((prev) => ({

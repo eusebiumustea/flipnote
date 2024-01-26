@@ -15,8 +15,8 @@ export function Screen1({ navigation }) {
     { id: 1, text: "hello1" },
     { id: 2, text: "hello2" },
     { id: 3, text: "hello3" },
-    { id: 3, text: "hello4" },
-    { id: 3, text: "hello5" },
+    { id: 4, text: "hello4" },
+    { id: 5, text: "hello5" },
   ];
   const { width, height } = useWindowDimensions();
   return (
@@ -31,16 +31,19 @@ export function Screen1({ navigation }) {
           <Animated.View
             sharedTransitionTag={index.toString()}
             style={{
-              backgroundColor: "yellow",
-              alignSelf: "center",
               width: width / 2 - 16,
               height: verticalScale(250),
               borderRadius: 16,
+              backgroundColor: "yellow",
+              alignSelf: "center",
             }}
           >
             <TouchableOpacity
               onPress={() =>
-                navigation.push("screen2", { text: item.text, index })
+                navigation.navigate("screen2", {
+                  text: item.text,
+                  index: index.toString(),
+                })
               }
               style={{
                 backgroundColor: "yellow",
@@ -64,7 +67,7 @@ export function Screen2({ navigation, route }) {
     <View style={{ flex: 1, top }}>
       <Text>{text}</Text>
       <Animated.View
-        sharedTransitionTag={index.toString()}
+        sharedTransitionTag={"0"}
         style={{
           width: "100%",
           height: "100%",

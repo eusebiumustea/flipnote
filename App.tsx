@@ -1,4 +1,5 @@
-// import { LinkingOptions, NavigationContainer } from "@react-navigation/native";
+import "react-native-reanimated";
+import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
@@ -11,7 +12,7 @@ import { AppRouting } from "./app-routing";
 import { ToastProvider } from "./components";
 
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { AppStorageContext } from "./contexts";
+import { AnimatedScrollValueProvider, AppStorageContext } from "./contexts";
 import { ThemeProvider } from "./hooks";
 import { StatusBarController } from "./tools";
 import { LoadingDialog } from "./contexts/loading-dialog";
@@ -57,7 +58,9 @@ export default function App() {
               <AppStorageContext>
                 <ThemeProvider>
                   <NavigationContainer>
-                    <StatusBarController />
+                    <AnimatedScrollValueProvider>
+                      <StatusBarController />
+                    </AnimatedScrollValueProvider>
                     <AppRouting />
                   </NavigationContainer>
                 </ThemeProvider>

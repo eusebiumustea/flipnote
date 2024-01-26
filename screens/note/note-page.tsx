@@ -4,7 +4,7 @@ import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/s
 import * as Sharing from "expo-sharing";
 import { MotiScrollView } from "moti";
 import { memo, useRef, useState } from "react";
-import { ScrollView } from "react-native";
+import { Animated, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
 import { useRecoilState } from "recoil";

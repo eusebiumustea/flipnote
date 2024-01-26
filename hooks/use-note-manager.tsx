@@ -1,8 +1,8 @@
+import * as FileSystem from "expo-file-system";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useToast } from "../components";
-import { note } from "../screens";
-import * as FileSystem from "expo-file-system";
 import { NOTES_PATH } from "../constants";
+import { note } from "../screens";
 import { useRequest } from "./use-request";
 export function useNoteStorage(
   id: number,

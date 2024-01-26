@@ -70,11 +70,13 @@ export const Header = memo(
 
           transform: [
             {
-              translateY: Animated.diffClamp(scrollY, 0, 160).interpolate({
-                inputRange: [0, 160],
-                outputRange: [0, -160],
-                extrapolate: "clamp",
-              }),
+              translateY: notes.loading
+                ? 0
+                : Animated.diffClamp(scrollY, 0, 160).interpolate({
+                    inputRange: [0, 160],
+                    outputRange: [0, -160],
+                    extrapolate: "clamp",
+                  }),
             },
           ],
         }}

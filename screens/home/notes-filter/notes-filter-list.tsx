@@ -16,6 +16,7 @@ export const NotesFilterList = memo(
     const notesWithoutCopies = useMemo(() => {
       return removeArrayKeyDuplicates(searchFilter, "title");
     }, [searchFilter, selected]);
+
     return (
       <FlatList
         style={{
