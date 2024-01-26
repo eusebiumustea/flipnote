@@ -40,7 +40,7 @@ export const NotesList = memo(
     const scrollRef = useRef<FlatList>(null);
     const { width } = useWindowDimensions();
     const { top } = useSafeAreaInsets();
-    const sortedData = data.slice().sort((a, b) => b.id - a.id);
+    const sortedData = data.slice().sort();
     const [refreshing, setRefreshing] = useState(false);
     const onRefresh = useCallback(async () => {
       setRefreshing(true);

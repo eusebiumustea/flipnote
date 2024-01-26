@@ -1,21 +1,20 @@
-import "react-native-reanimated";
-import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback, useEffect } from "react";
 import "react-native-gesture-handler";
+import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { RecoilRoot } from "recoil";
 import { AppRouting } from "./app-routing";
 import { ToastProvider } from "./components";
 
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { AnimatedScrollValueProvider, AppStorageContext } from "./contexts";
+import { AppStorageContext } from "./contexts";
+import { LoadingDialog } from "./contexts/loading-dialog";
 import { ThemeProvider } from "./hooks";
 import { StatusBarController } from "./tools";
-import { LoadingDialog } from "./contexts/loading-dialog";
 SplashScreen.preventAutoHideAsync();
 export default function App() {
   useEffect(() => {
@@ -58,9 +57,7 @@ export default function App() {
               <AppStorageContext>
                 <ThemeProvider>
                   <NavigationContainer>
-                    <AnimatedScrollValueProvider>
-                      <StatusBarController />
-                    </AnimatedScrollValueProvider>
+                    <StatusBarController />
                     <AppRouting />
                   </NavigationContainer>
                 </ThemeProvider>
