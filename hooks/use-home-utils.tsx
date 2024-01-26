@@ -8,6 +8,7 @@ import { Alert } from "react-native";
 import { NOTES_PATH } from "../constants";
 import * as Notifications from "expo-notifications";
 import { useRequest } from "./use-request";
+import { useLoading } from "./use-loading-dialog";
 
 export function useHomeUtils(
   searchQuery: string,
@@ -21,6 +22,7 @@ export function useHomeUtils(
   const [notes] = useRecoilState(notesData);
   const toast = useToast();
   const { request } = useRequest();
+  const loading = useLoading();
   function deleteNotes() {
     const noteCount = optionsSelection.length;
     const plural = noteCount === 1 ? "" : "s";
@@ -32,31 +34,30 @@ export function useHomeUtils(
         {
           text: "Delete permanently",
           style: "destructive",
-          onPress: () => {
+          onPress: async () => {
             try {
-              FileSystem.readDirectoryAsync(NOTES_PATH)
-                .then((files) => {
-                  Promise.all(
-                    files.map(async (file) => {
-                      const content = await FileSystem.readAsStringAsync(
-                        `${NOTES_PATH}/${file}`
-                      );
-                      const data: note = JSON.parse(content);
-                      if (optionsSelection.includes(data.id)) {
-                        await FileSystem.deleteAsync(`${NOTES_PATH}/${file}`, {
-                          idempotent: true,
-                        });
-                        await Notifications.cancelScheduledNotificationAsync(
-                          data.id.toString()
-                        );
-                      }
-                    })
+              loading(true);
+              const files = await FileSystem.readDirectoryAsync(NOTES_PATH);
+
+              await Promise.all(
+                files.map(async (file) => {
+                  const content = await FileSystem.readAsStringAsync(
+                    `${NOTES_PATH}/${file}`
                   );
-                  request();
-                  console.log("re");
-                  setOptionsSelection([]);
+                  const data: note = JSON.parse(content);
+                  if (optionsSelection.includes(data.id)) {
+                    await FileSystem.deleteAsync(`${NOTES_PATH}/${file}`, {
+                      idempotent: true,
+                    });
+                    await Notifications.cancelScheduledNotificationAsync(
+                      data.id.toString()
+                    );
+                  }
                 })
-                .catch((e) => console.log(e));
+              );
+              request();
+              setOptionsSelection([]);
+              loading(false);
             } catch (_) {
               toast({ message: "Can't delete notes", textColor: "red" });
             }

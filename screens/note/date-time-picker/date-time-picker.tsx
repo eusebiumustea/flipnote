@@ -61,15 +61,6 @@ export function DateTimePickerDialog({
       )}
       {Platform.OS === "android" && (
         <>
-          <Text
-            style={{
-              fontSize: moderateFontScale(15),
-              color: "green",
-              textAlign: "center",
-            }}
-          >
-            Limited up to 250 words per notification
-          </Text>
           <View
             style={{
               alignItems: "center",

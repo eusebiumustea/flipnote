@@ -18,4 +18,5 @@ export interface NoteOverlaysProps {
   reminderDialog: boolean;
   setReminderDialog: Dispatch<SetStateAction<boolean>>;
   selection: InputSelectionProps;
+  isImageBackground: boolean;
 }

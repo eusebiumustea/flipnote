@@ -1,36 +1,24 @@
-import {
-  NavigationHelpers,
-  NavigationProp,
-  NavigatorScreenParams,
-  useNavigation,
-} from "@react-navigation/native";
-import * as FileSystem from "expo-file-system";
-import { SaveFormat, manipulateAsync } from "expo-image-manipulator";
-import * as Print from "expo-print";
+import { useBackHandler } from "@react-native-community/hooks";
+import { NavigatorScreenParams, useNavigation } from "@react-navigation/native";
+import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 import * as Sharing from "expo-sharing";
-import { AnimatePresence, MotiImage, MotiScrollView } from "moti";
+import { MotiScrollView } from "moti";
 import { memo, useRef, useState } from "react";
-import {
-  PixelRatio,
-  ScrollView,
-  Text,
-  TextInput,
-  useWindowDimensions,
-} from "react-native";
+import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
 import { useRecoilState } from "recoil";
 import { useToast } from "../../components/toast";
 import { BackgroundImages } from "../../contexts";
-import { useEditNoteContent, useTheme } from "../../hooks";
+import { useTheme } from "../../hooks";
 import { useLoading } from "../../hooks/use-loading-dialog";
 import { useNoteStorage } from "../../hooks/use-note-manager";
 import { useNoteUtils } from "../../hooks/use-note-utills";
-import { moderateFontScale, range, verticalScale } from "../../tools";
+import { verticalScale } from "../../tools";
+import { NoteContentInput } from "./note-content-input";
 import { NoteOverlays } from "./note-overlays";
+import { NoteTitleInput } from "./note-title-input";
 import { InputSelectionProps, ReminderProps, note } from "./types";
-import { useBackHandler } from "@react-native-community/hooks";
-import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 interface ParamsProps {
   id: number;
 }
@@ -38,15 +26,13 @@ type NotePageProps = {
   route: NavigatorScreenParams<{}>;
 };
 export const NotePage = memo(({ route }: NotePageProps) => {
-  const { id } = route.params;
+  const { id }: ParamsProps = route.params;
   const navigation = useNavigation<StackNavigationHelpers>();
   useBackHandler(() => {
     navigation.popToTop();
     return true;
   });
-  const { width, height } = useWindowDimensions();
   const theme = useTheme();
-
   const [backgroundImages] = useRecoilState(BackgroundImages);
   const [editNote, setEditNote] = useState<note>({
     id,
@@ -56,6 +42,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     background: "#fff",
     styles: [],
     reminder: null,
+    contentPosition: "justify",
   });
   useNoteStorage(id, editNote, setEditNote);
   const [reminder, setReminder] = useState<ReminderProps>({
@@ -77,8 +64,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   );
 
   const imageRef = useRef<ViewShot>(null);
-  const [scrollHeight, setScrollHeight] = useState(1);
-
+  // const [scrollHeight, setScrollHeight] = useState(1);
   const { top } = useSafeAreaInsets();
   const toast = useToast();
 
@@ -87,16 +73,16 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   const loading = useLoading();
   async function Share() {
     try {
-      loading(true);
       if (editNote.title.length === 0) {
         setShowTitle(false);
       }
+      loading(true);
       setCapturing(true);
       const image = await imageRef.current.capture();
       setCapturing(false);
       setShowTitle(true);
-      await Sharing.shareAsync(image);
       loading(false);
+      await Sharing.shareAsync(image);
     } catch (e) {
       console.log(e);
       toast({ message: String(e) });
@@ -117,29 +103,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   const scrollRef = useRef<ScrollView>(null);
   return (
     <>
-      <AnimatePresence>
-        {isImgBg && (
-          <MotiImage
-            from={{ opacity: 0 }}
-            animate={{ opacity: isImgBg ? 1 : 0 }}
-            transition={{
-              type: "timing",
-              duration: 400,
-              delay: 0,
-            }}
-            width={width}
-            height={height + top}
-            source={{
-              uri: editNote.background,
-            }}
-            style={{
-              zIndex: -1,
-              position: "absolute",
-            }}
-          />
-        )}
-      </AnimatePresence>
-
       <MotiScrollView
         ref={scrollRef}
         transition={{
@@ -164,7 +127,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         }}
       >
         <ViewShot
-          onLayout={(e) => setScrollHeight(e.nativeEvent.layout.height)}
+          // onLayout={(e) => setScrollHeight(e.nativeEvent.layout.height)}
           style={{
             flex: 1,
             backgroundColor: captureBackground(),
@@ -182,92 +145,18 @@ export const NotePage = memo(({ route }: NotePageProps) => {
           ref={imageRef}
         >
           {showTitle && (
-            <TextInput
-              placeholderTextColor={theme.placeholder}
-              onChangeText={(editedTitle) =>
-                setEditNote((prev) => ({
-                  ...prev,
-                  title: editedTitle,
-                }))
-              }
-              underlineColorAndroid="transparent"
-              cursorColor={"#FFCB09"}
-              placeholder={"Title"}
-              multiline
-              style={{
-                color: "#000",
-                fontSize: moderateFontScale(28),
-                fontWeight: "bold",
-                fontFamily: "OpenSans",
-              }}
-            >
-              <Text>{editNote.title}</Text>
-            </TextInput>
+            <NoteTitleInput setEditNote={setEditNote} editNote={editNote} />
           )}
-
-          <TextInput
-            maxLength={200000}
-            onSelectionChange={({ nativeEvent: { selection } }) => {
-              setSelection(selection);
-            }}
-            placeholderTextColor={theme.placeholder}
-            cursorColor={"#FFCB09"}
-            autoCapitalize="sentences"
-            autoCorrect={false}
-            spellCheck={false}
-            inputMode="text"
-            onChangeText={(text) => {
-              if (text.length > editNote.text.length) {
-                setEditNote((prev) => ({
-                  ...prev,
-                  text,
-                  styles: prev.styles.map((style, i) => {
-                    if (selection.end <= style.interval.start) {
-                      return {
-                        ...style,
-                        interval: {
-                          start: style.interval.start + 1,
-                          end: style.interval.end + 1,
-                        },
-                      };
-                    }
-                    return style;
-                  }),
-                }));
-                return;
-              }
-              if (text.length < editNote.text.length) {
-                setEditNote((prev) => ({
-                  ...prev,
-                  text,
-                  styles: prev.styles.map((style, i) => {
-                    if (selection.end <= style.interval.start) {
-                      return {
-                        ...style,
-                        interval: {
-                          start: style.interval.start - 1,
-                          end: style.interval.end - 1,
-                        },
-                      };
-                    }
-                    return style;
-                  }),
-                }));
-                return;
-              }
-              setEditNote((prev) => ({
-                ...prev,
-                text,
-              }));
-            }}
-            multiline
-            placeholder="Take the note"
-          >
-            {useEditNoteContent(editNote.styles, editNote.text)}
-          </TextInput>
+          <NoteContentInput
+            selection={selection}
+            editNote={editNote}
+            setSelection={setSelection}
+            setEditNote={setEditNote}
+          />
         </ViewShot>
       </MotiScrollView>
       <NoteOverlays
+        isImageBackground={isImgBg}
         reminderDialog={reminderDialog}
         setReminderDialog={setReminderDialog}
         id={id}

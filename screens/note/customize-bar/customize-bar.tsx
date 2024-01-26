@@ -18,16 +18,20 @@ import {
 import {
   BackgroundIcon,
   BoldIcon,
+  CenterAlignIcon,
   FontColorIcon,
   FormatSizeIcon,
   ItalicIcon,
+  JustifyAlignIcon,
+  LeftAlignIcon,
   RedoIcon,
+  RightAlignIcon,
   TextIcon,
   UnderlineIcon,
   UndoIcon,
 } from "../../../components/assets";
 import { toggleState } from "../../../tools";
-import { InputSelectionProps } from "../types";
+import { InputSelectionProps, note } from "../types";
 import { OptionContainer } from "./option-container";
 import { useTheme } from "../../../hooks";
 interface CustomizeBarProps {
@@ -46,6 +50,8 @@ interface CustomizeBarProps {
   focusedColor?: ColorValue | string;
   onUndo?: () => void;
   onRedo?: () => void;
+  setEditNote?: Dispatch<SetStateAction<note>>;
+  contentPosition?: "center" | "left" | "right" | "justify";
 }
 export function CustomizeBar({
   backgroundOptions,
@@ -63,6 +69,8 @@ export function CustomizeBar({
   fontSizeOptions,
   onUndo,
   onRedo,
+  setEditNote,
+  contentPosition,
 }: CustomizeBarProps) {
   const [showOption, setShowOption] = useState<string | null>(null);
   const theme = useTheme();
@@ -104,7 +112,8 @@ export function CustomizeBar({
         bottom: 0,
         alignSelf: "center",
         marginBottom: paddingTop + 20,
-        width: width - 30,
+        // width: width - 30,
+        marginHorizontal: 20,
       }}
       from={{ paddingTop: 0 }}
       animate={{
@@ -129,7 +138,6 @@ export function CustomizeBar({
       />
 
       <ScrollView
-        showsHorizontalScrollIndicator={false}
         decelerationRate={"fast"}
         contentContainerStyle={{
           padding: 15,
@@ -137,7 +145,7 @@ export function CustomizeBar({
           flexDirection: "row",
           columnGap: 12,
           alignSelf: "flex-start",
-          width: "100%",
+          // width: "100%",
           alignItems: "center",
         }}
         horizontal
@@ -178,8 +186,32 @@ export function CustomizeBar({
         <BackgroundIcon
           onPress={() => setShowOption(toggleState(null, "background"))}
         />
-        <UndoIcon onPress={onUndo} />
-        <RedoIcon onPress={onRedo} />
+        <JustifyAlignIcon
+          active={contentPosition === "justify"}
+          onPress={() =>
+            setEditNote((prev) => ({ ...prev, contentPosition: "justify" }))
+          }
+        />
+        <LeftAlignIcon
+          active={contentPosition === "left"}
+          onPress={() =>
+            setEditNote((prev) => ({ ...prev, contentPosition: "left" }))
+          }
+        />
+        <CenterAlignIcon
+          active={contentPosition === "center"}
+          onPress={() =>
+            setEditNote((prev) => ({ ...prev, contentPosition: "center" }))
+          }
+        />
+        <RightAlignIcon
+          active={contentPosition === "right"}
+          onPress={() =>
+            setEditNote((prev) => ({ ...prev, contentPosition: "right" }))
+          }
+        />
+        {/* <UndoIcon onPress={onUndo} />
+        <RedoIcon onPress={onRedo} /> */}
       </ScrollView>
     </MotiView>
   );

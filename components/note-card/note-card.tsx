@@ -7,6 +7,7 @@ import {
   Pressable,
   Text,
   View,
+  ViewStyle,
   useWindowDimensions,
 } from "react-native";
 import { useNoteContent, useTheme } from "../../hooks";
@@ -14,10 +15,11 @@ import { note } from "../../screens/note";
 import { moderateFontScale, verticalScale } from "../../tools";
 interface NoteCardProps {
   item: note;
-  onPress: (event: GestureResponderEvent) => void;
-  onLongPress: () => void;
-  selectedForOptions: boolean;
-  options: boolean;
+  onPress?: (event: GestureResponderEvent) => void;
+  onLongPress?: () => void;
+  selectedForOptions?: boolean;
+  options?: boolean;
+  containerStyle?: ViewStyle;
 }
 export const NoteCard = memo(
   ({
@@ -26,6 +28,7 @@ export const NoteCard = memo(
     onLongPress,
     selectedForOptions,
     options,
+    containerStyle,
   }: NoteCardProps) => {
     const content = useNoteContent(item.styles, item.text);
     const { width } = useWindowDimensions();
@@ -54,6 +57,7 @@ export const NoteCard = memo(
           shadowOpacity: 0.17,
           shadowRadius: 3.05,
           backgroundColor: item.background,
+          ...containerStyle,
         }}
       >
         <View

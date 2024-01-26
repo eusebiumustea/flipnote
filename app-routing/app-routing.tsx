@@ -1,5 +1,5 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import { Easing, View, useWindowDimensions } from "react-native";
+import { Easing, useWindowDimensions } from "react-native";
 import { enableFreeze } from "react-native-screens";
 import { useRecoilState } from "recoil";
 import { Inbox, currentElementCoordinates } from "../screens";
@@ -7,14 +7,14 @@ import { Home } from "../screens/home";
 import { NotePage } from "../screens/note/note-page";
 import { moderateScale, verticalScale } from "../tools";
 import { TransitionInterpolator } from "./transition-interpolator";
-import { BlurView } from "expo-blur";
-import { StyleChanges } from "../screens/note/style-changes";
+import { useTheme } from "../hooks";
 
 enableFreeze();
 export function AppRouting() {
   const [elementCoordinates] = useRecoilState(currentElementCoordinates);
   const Stack = createStackNavigator();
   const { width } = useWindowDimensions();
+  const theme = useTheme();
   return (
     <Stack.Navigator
       screenOptions={{
@@ -73,10 +73,12 @@ export function AppRouting() {
         component={Inbox}
         options={{
           headerShown: true,
-          title: "Notifications",
+          title: "Inbox",
           headerTitleAlign: "center",
-          headerShadowVisible: true,
-
+          headerMode: "screen",
+          headerStyle: { backgroundColor: theme.background, borderWidth: 0 },
+          headerTintColor: theme.onBackground,
+          headerShadowVisible: false,
           cardStyleInterpolator: TransitionInterpolator({
             initial: {
               scale: 0,
@@ -88,25 +90,6 @@ export function AppRouting() {
           }),
         }}
         name="inbox"
-      />
-      <Stack.Screen
-        component={StyleChanges}
-        options={{
-          headerShown: true,
-          title: "Text design changes",
-          headerTitleAlign: "center",
-
-          cardStyleInterpolator: TransitionInterpolator({
-            initial: {
-              scale: 0,
-              scaleX: 0.7,
-              scaleY: 0.7,
-              y: elementCoordinates.relativeY + 10,
-              x: elementCoordinates.relativeX,
-            },
-          }),
-        }}
-        name="style-changes"
       />
     </Stack.Navigator>
   );

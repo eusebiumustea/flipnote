@@ -31,6 +31,7 @@ export interface note {
   background: string;
   styles: TextNoteStyle[];
   reminder: number | null;
+  contentPosition: "center" | "left" | "right" | "justify";
 }
 export interface InputSelectionProps {
   start: number;

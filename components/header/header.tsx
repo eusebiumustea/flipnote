@@ -122,36 +122,42 @@ export const Header = memo(
             <InboxIcon onPress={onInboxOpen} active={badge} />
             <ImportIcon
               onPress={async () => {
-                const result = await DocumentPicker.getDocumentAsync({});
-
-                if (result.canceled) {
-                  return;
-                }
-
-                const zipFilePath = result.assets[0].uri;
-
-                const zipFileContents = await FileSystem.readAsStringAsync(
-                  zipFilePath,
-                  {
-                    encoding: FileSystem.EncodingType.Base64,
+                try {
+                  const result = await DocumentPicker.getDocumentAsync({});
+                  if (result.canceled) {
+                    return;
                   }
-                );
-                const zip = await JSZip.loadAsync(zipFileContents, {
-                  base64: true,
-                });
+                  const zipFilePath = result.assets[0].uri;
+                  loading(true);
+                  const zipFileContents = await FileSystem.readAsStringAsync(
+                    zipFilePath,
+                    {
+                      encoding: FileSystem.EncodingType.Base64,
+                    }
+                  );
+                  const zip = await JSZip.loadAsync(zipFileContents, {
+                    base64: true,
+                  });
+                  const zipItems = Object.keys(zip.files);
+                  await Promise.all(
+                    zipItems.map(async (file) => {
+                      const { exists } = await FileSystem.getInfoAsync(
+                        `${NOTES_PATH}/${file}`
+                      );
+                      if (exists) {
+                        return;
+                      }
+                      const content = await zip.files[file].async("text");
 
-                const zipItems = Object.keys(zip.files);
-
-                Promise.all(
-                  zipItems.map(async (file) => {
-                    const content = await zip.files[file].async("text");
-                    await FileSystem.writeAsStringAsync(
-                      `${NOTES_PATH}/${file}`,
-                      content
-                    );
-                  })
-                );
-                request();
+                      await FileSystem.writeAsStringAsync(
+                        `${NOTES_PATH}/${file}`,
+                        content
+                      );
+                    })
+                  );
+                  request();
+                  loading(false);
+                } catch (error) {}
               }}
             />
           </View>

@@ -52,38 +52,35 @@ export const NoteOptions = memo(
     const loading = useLoading();
     const theme = useTheme();
     const { top } = useSafeAreaInsets();
-    const [notes, setNotes] = useRecoilState(notesData);
-    const shareNotes = notes.data.filter((e) => selectedNotes.includes(e.id));
+    const [notes] = useRecoilState(notesData);
+    const shareNotes = useMemo(() => {
+      return notes.data.filter((e) => selectedNotes.includes(e.id));
+    }, [selectedNotes, notes.data]);
 
     async function Share() {
       try {
+        const output = `${FileSystem.cacheDirectory}flipnotebackup.zip`;
+        loading(true);
         const zip = new JSZip();
-
-        shareNotes.forEach((note, i) => {
-          zip.file(`${note.id}.json`, `${JSON.stringify(note)}`);
+        await Promise.all(
+          shareNotes.map((note, i) => {
+            zip.file(`${note.id}`, `${JSON.stringify(note)}`);
+          })
+        );
+        const content = await zip.generateAsync({
+          type: "base64",
+          compression: "STORE",
         });
-        zip
-          .generateAsync({ type: "base64", compression: "STORE" })
-          .then(async function (content) {
-            await FileSystem.writeAsStringAsync(
-              `${FileSystem.documentDirectory}flipnotebackup.zip`,
-              content,
-              {
-                encoding: FileSystem.EncodingType.Base64,
-              }
-            );
 
-            await Sharing.shareAsync(
-              `${FileSystem.documentDirectory}flipnotebackup.zip`,
-              {
-                mimeType: "application/zip",
-              }
-            );
-            await FileSystem.deleteAsync(
-              `${FileSystem.documentDirectory}flipnotebackup.zip`,
-              { idempotent: true }
-            );
-          });
+        await FileSystem.writeAsStringAsync(output, content, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+
+        await Sharing.shareAsync(output, {
+          mimeType: "application/zip",
+        });
+        loading(false);
+        onModalClose();
       } catch (error) {
         console.log(error);
       }

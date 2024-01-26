@@ -15,12 +15,14 @@ import { useToast } from "../../../components";
 import * as Clipboard from "expo-clipboard";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { StyleEvent, onFontColor } from "../style-events";
-import { TextStyle } from "react-native";
+import { TextStyle, useWindowDimensions } from "react-native";
 import { OptionProps } from "../types";
 import { fontNames } from "../../../constants";
 import { cardColors } from "../../../tools/colors";
 import { NoteOverlaysProps } from "./types";
 import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
+import { AnimatePresence, MotiImage } from "moti";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 export function NoteOverlays({
   id,
   editNote,
@@ -33,6 +35,7 @@ export function NoteOverlays({
   selection,
   reminderDialog,
   setReminderDialog,
+  isImageBackground,
 }: NoteOverlaysProps) {
   const notification = useNoitication();
 
@@ -63,8 +66,33 @@ export function NoteOverlays({
     fontFamilyFocused,
     fonts: fontNames,
   };
+  const { width, height } = useWindowDimensions();
+  const { top } = useSafeAreaInsets();
   return (
     <>
+      <AnimatePresence>
+        {isImageBackground && (
+          <MotiImage
+            from={{ opacity: 0 }}
+            animate={{ opacity: isImageBackground ? 1 : 0 }}
+            transition={{
+              type: "timing",
+              duration: 400,
+              delay: 0,
+            }}
+            width={width}
+            height={height + top}
+            source={{
+              uri: editNote.background,
+            }}
+            style={{
+              zIndex: -1,
+              position: "absolute",
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       <DateTimePickerDialog
         action={() => {
           notification(
@@ -151,6 +179,8 @@ export function NoteOverlays({
         onClose={() => setShowChanges(false)}
       />
       <CustomizeBar
+        contentPosition={editNote.contentPosition}
+        setEditNote={setEditNote}
         focusedColor={currentFocused?.style?.color}
         selection={selection}
         italicFocused={currentFocused?.style?.fontStyle === "italic"}

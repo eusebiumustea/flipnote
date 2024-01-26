@@ -21,3 +21,7 @@ export * from "./import-icon";
 export * from "./redo-icon";
 export * from "./undo-icon";
 export * from "./image-plus";
+export * from "./left-align-icon";
+export * from "./right-align-icon";
+export * from "./center-align-icon";
+export * from "./justify-align-icon";
