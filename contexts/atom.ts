@@ -3,6 +3,7 @@ import {
   ElementPositionTypes,
   NotificationProp,
   UserdataState,
+  note,
 } from "../screens/note/types";
 export const EMPTY_NOTE_STATE = {
   id: 0,
@@ -13,12 +14,9 @@ export const EMPTY_NOTE_STATE = {
   styles: [],
   reminder: null,
 };
-export const notesData = atom<UserdataState>({
+export const notesData = atom<note[]>({
   key: "userdata",
-  default: {
-    loading: false,
-    data: [],
-  },
+  default: [],
 });
 export const BackgroundImages = atom<string[]>({
   key: "background-images",

@@ -1,28 +1,21 @@
-import { Fragment, useMemo } from "react";
-import { Pressable, TouchableOpacity, View, Text } from "react-native";
-import {
-  dateTime,
-  moderateFontScale,
-  replaceElementAtId,
-  verticalScale,
-} from "../../tools";
 import * as FileSystem from "expo-file-system";
-import { useRecoilState } from "recoil";
-import { notesData, receivedNotifications } from "../note";
 import * as Notifications from "expo-notifications";
-import { useTheme } from "../../hooks";
-import { NOTES_PATH } from "../../constants";
-import { useRequest } from "../../hooks/use-request";
+import { Fragment, useMemo } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { useRecoilState } from "recoil";
 import { NoteCard } from "../../components";
+import { NOTES_PATH } from "../../constants";
+import { useTheme } from "../../hooks";
+import { useRequest } from "../../hooks/use-request";
+import { dateTime, moderateFontScale, verticalScale } from "../../tools";
+import { notesData, receivedNotifications } from "../note";
 export function UpcomingReminders() {
   const [received] = useRecoilState(receivedNotifications);
   const [notes] = useRecoilState(notesData);
   const theme = useTheme();
   const upcomingNotifications = useMemo(() => {
-    return notes.data.filter(
-      (e) => e.reminder && new Date() < new Date(e.reminder)
-    );
-  }, [notes.data]);
+    return notes.filter((e) => e.reminder && new Date() < new Date(e.reminder));
+  }, [notes]);
   const { request } = useRequest();
   return (
     <>

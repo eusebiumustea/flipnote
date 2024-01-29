@@ -17,6 +17,7 @@ import {
 } from "../../components/assets";
 
 import { memo } from "react";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useTheme } from "../../hooks";
 
 interface NoteScreenHeaderProps {
@@ -28,6 +29,7 @@ interface NoteScreenHeaderProps {
   favorite?: boolean;
   onHistoryOpen?: (e: GestureResponderEvent) => void;
   historyShown: boolean;
+  emptyNote: boolean;
 }
 export const NoteScreenHeader = memo(
   ({
@@ -39,6 +41,7 @@ export const NoteScreenHeader = memo(
     onReminderOpen,
     onHistoryOpen,
     historyShown,
+    emptyNote,
   }: NoteScreenHeaderProps) => {
     const { top } = useSafeAreaInsets();
     const { width } = Dimensions.get("window");
@@ -87,20 +90,29 @@ export const NoteScreenHeader = memo(
           }}
         >
           <BackIcon onPress={onBack} />
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              columnGap: 14,
-              zIndex: 1,
-            }}
-          >
-            {historyShown && <ChangesIcon onPress={onHistoryOpen} />}
-            <ReminderIcon onPress={onReminderOpen} />
-            <ClipboardIcon onPress={onClipboard} />
-            <HeartIcon onPress={onFavoriteAdd} focused={favorite} />
-            <ShareIcon onPress={onShare} />
-          </View>
+
+          {!emptyNote && (
+            <Animated.View
+              entering={FadeIn.delay(100)}
+              exiting={FadeOut.delay(100)}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                columnGap: 14,
+                zIndex: 1,
+              }}
+            >
+              {historyShown && <ChangesIcon onPress={onHistoryOpen} />}
+
+              <ReminderIcon onPress={onReminderOpen} />
+
+              <ClipboardIcon onPress={onClipboard} />
+
+              <HeartIcon onPress={onFavoriteAdd} focused={favorite} />
+
+              <ShareIcon onPress={onShare} />
+            </Animated.View>
+          )}
         </View>
       </View>
     );

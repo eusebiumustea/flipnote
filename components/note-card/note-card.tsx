@@ -88,7 +88,7 @@ export const NoteCard = memo(
               borderRadius: 100,
               top: 0,
               left: 0,
-              zIndex: 2,
+              zIndex: 5,
             }}
             value={selectedForOptions}
           />

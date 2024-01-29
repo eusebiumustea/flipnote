@@ -1,8 +1,7 @@
 import * as FileSystem from "expo-file-system";
-import { BackgroundImages, note, notesData } from "../screens/note";
 import { useRecoilState } from "recoil";
 import { NOTES_PATH, imagesDir } from "../constants";
-import { useLoading } from "./use-loading-dialog";
+import { BackgroundImages, note, notesData } from "../screens/note";
 
 export function useRequest() {
   const [notes, setNotes] = useRecoilState(notesData);
@@ -18,27 +17,24 @@ export function useRequest() {
         );
         return;
       }
-
       const files = await FileSystem.readDirectoryAsync(NOTES_PATH);
 
       if (files.length === 0) {
-        setNotes((prev) => ({ ...prev, data: [] }));
+        setNotes([]);
         return;
       }
-      setNotes((prev) => ({ ...prev, loading: true }));
       const promisesDataFiles = files.map(async (file) => {
         const content = await FileSystem.readAsStringAsync(
           `${NOTES_PATH}/${file}`
         );
         const note: note = JSON.parse(content);
-
         return note;
       });
 
       const notes = await Promise.all(promisesDataFiles);
-      setNotes((prev) => ({ ...prev, data: notes }));
+      setNotes(notes);
       const images = await FileSystem.readDirectoryAsync(imagesDir);
-      setNotes((prev) => ({ ...prev, loading: false }));
+
       if (images.length === backgroundImages.length) {
         return;
       }

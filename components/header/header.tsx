@@ -28,7 +28,6 @@ export const Header = memo(
     const theme = useTheme();
     const { top } = useSafeAreaInsets();
     const [badge, setBadge] = useState(false);
-    const [notes, setNotes] = useRecoilState(notesData);
 
     const [notifications, setNotifications] = useRecoilState(
       receivedNotifications
@@ -70,13 +69,11 @@ export const Header = memo(
 
           transform: [
             {
-              translateY: notes.loading
-                ? 0
-                : Animated.diffClamp(scrollY, 0, 160).interpolate({
-                    inputRange: [0, 160],
-                    outputRange: [0, -160],
-                    extrapolate: "clamp",
-                  }),
+              translateY: Animated.diffClamp(scrollY, 0, 160).interpolate({
+                inputRange: [0, 160],
+                outputRange: [0, -160],
+                extrapolate: "clamp",
+              }),
             },
           ],
         }}
@@ -158,7 +155,6 @@ export const Header = memo(
                     })
                   );
                   request();
-                  loading(false);
                 } catch (error) {}
               }}
             />

@@ -1,12 +1,12 @@
 import { useBackHandler } from "@react-native-community/hooks";
-import React, { useEffect, useState } from "react";
-import { useAnimatedValue } from "react-native";
+import { useIsFocused } from "@react-navigation/native";
+import React, { useEffect, useRef, useState } from "react";
+import { Animated } from "react-native";
 import { useRecoilState } from "recoil";
 import { useHomeUtils } from "../../hooks/use-home-utils";
 import { currentElementCoordinates } from "../note";
 import { HomeOverlays } from "./home-overlays";
 import { NotesList } from "./notes-list";
-import { useIsFocused } from "@react-navigation/native";
 
 export function Home() {
   const focused = useIsFocused();
@@ -35,7 +35,7 @@ export function Home() {
     setFavorite,
     setSelected
   );
-  const scrollY = useAnimatedValue(0);
+  const scrollY = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if (focused) {
       scrollY.setValue(0);

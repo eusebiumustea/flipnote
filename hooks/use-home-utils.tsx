@@ -1,14 +1,13 @@
-import { useRecoilState } from "recoil";
 import * as FileSystem from "expo-file-system";
-import { EMPTY_NOTE_STATE, note, notesData } from "../screens";
-import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
-import { removeArrayKeyDuplicates } from "../tools";
-import { useToast } from "../components";
-import { Alert } from "react-native";
-import { NOTES_PATH } from "../constants";
 import * as Notifications from "expo-notifications";
-import { useRequest } from "./use-request";
+import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
+import { Alert } from "react-native";
+import { useRecoilState } from "recoil";
+import { useToast } from "../components";
+import { NOTES_PATH } from "../constants";
+import { note, notesData } from "../screens";
 import { useLoading } from "./use-loading-dialog";
+import { useRequest } from "./use-request";
 
 export function useHomeUtils(
   searchQuery: string,
@@ -36,7 +35,7 @@ export function useHomeUtils(
           style: "destructive",
           onPress: async () => {
             try {
-              loading(true);
+              loading("Deleting...");
               const files = await FileSystem.readDirectoryAsync(NOTES_PATH);
 
               await Promise.all(
@@ -67,7 +66,7 @@ export function useHomeUtils(
     );
   }
   const searchFilter = useMemo(() => {
-    const searchFiltered = notes.data.filter((e) => {
+    const searchFiltered = notes.filter((e) => {
       return (
         e.text.includes(searchQuery.toLowerCase()) ||
         e.title.includes(searchQuery.toLowerCase())
@@ -77,7 +76,7 @@ export function useHomeUtils(
     if (searchQuery) {
       return searchFiltered;
     }
-    return notes.data;
+    return notes;
   }, [notes, searchQuery]);
   const selectionFiltered = useMemo(() => {
     const newData = searchFilter.filter((e) => selected.includes(e.title));

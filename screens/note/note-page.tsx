@@ -71,6 +71,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   const [capturing, setCapturing] = useState(false);
   const [showTitle, setShowTitle] = useState(true);
   const loading = useLoading();
+
   async function Share() {
     try {
       if (editNote.title.length === 0) {
@@ -101,6 +102,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     return null;
   }
   const scrollRef = useRef<ScrollView>(null);
+  console.log(editNote.text.length);
   return (
     <>
       <MotiScrollView
@@ -133,7 +135,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
             backgroundColor: captureBackground(),
             paddingHorizontal: 16,
             rowGap: verticalScale(12),
-            paddingTop: capturing ? top : undefined,
+            paddingTop: capturing ? top + 50 : 0,
             paddingBottom: capturing ? 0 : verticalScale(200),
           }}
           options={{
@@ -148,9 +150,9 @@ export const NotePage = memo(({ route }: NotePageProps) => {
             <NoteTitleInput setEditNote={setEditNote} editNote={editNote} />
           )}
           <NoteContentInput
-            selection={selection}
+            inputSelection={selection}
             editNote={editNote}
-            setSelection={setSelection}
+            setInputSelection={setSelection}
             setEditNote={setEditNote}
           />
         </ViewShot>

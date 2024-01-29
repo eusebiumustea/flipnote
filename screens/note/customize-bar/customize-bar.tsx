@@ -1,5 +1,5 @@
 import { useKeyboard } from "@react-native-community/hooks";
-import { MotiView } from "moti";
+import { AnimatePresence, MotiView } from "moti";
 import {
   Dispatch,
   PropsWithChildren,
@@ -34,6 +34,7 @@ import { toggleState } from "../../../tools";
 import { InputSelectionProps, note } from "../types";
 import { OptionContainer } from "./option-container";
 import { useTheme } from "../../../hooks";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface CustomizeBarProps {
   boldFocused?: boolean;
   italicFocused?: boolean;
@@ -67,16 +68,13 @@ export function CustomizeBar({
   selection,
   focusedColor,
   fontSizeOptions,
-  onUndo,
-  onRedo,
+
   setEditNote,
   contentPosition,
 }: CustomizeBarProps) {
   const [showOption, setShowOption] = useState<string | null>(null);
   const theme = useTheme();
   const keyboard = useKeyboard();
-  const { width } = useWindowDimensions();
-
   const paddingTop =
     Platform.OS === "android"
       ? Dimensions.get("screen").height -
@@ -104,6 +102,7 @@ export function CustomizeBar({
       transition={{
         type: "timing",
         duration: 300,
+        opacity: { delay: 400 },
       }}
       style={{
         borderRadius: 16,
@@ -112,11 +111,15 @@ export function CustomizeBar({
         bottom: 0,
         alignSelf: "center",
         marginBottom: paddingTop + 20,
-        // width: width - 30,
+        width: "90%",
         marginHorizontal: 20,
       }}
-      from={{ paddingTop: 0 }}
+      from={{
+        opacity: 0,
+        paddingTop: 0,
+      }}
       animate={{
+        opacity: 1,
         paddingTop: showOption ? optionSizeAdjust() : 0,
       }}
     >
@@ -158,8 +161,11 @@ export function CustomizeBar({
         }}
       >
         <BoldIcon active={boldFocused} onPress={onBold} />
+
         <ItalicIcon active={italicFocused} onPress={onItalic} />
+
         <UnderlineIcon active={underLinedFocused} onPress={onUnderline} />
+
         <TextIcon
           onPress={() => {
             if (selection.end !== selection.start) {
@@ -167,6 +173,7 @@ export function CustomizeBar({
             }
           }}
         />
+
         <FontColorIcon
           color={focusedColor}
           onPress={() => {
@@ -183,6 +190,7 @@ export function CustomizeBar({
             }
           }}
         />
+
         <BackgroundIcon
           onPress={() => setShowOption(toggleState(null, "background"))}
         />

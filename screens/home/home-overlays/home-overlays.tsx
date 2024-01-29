@@ -1,12 +1,10 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { memo, useEffect, useState } from "react";
+import { memo, useState } from "react";
 import { CreateIcon, Header } from "../../../components";
 import { moderateScale, verticalScale } from "../../../tools";
 import { NoteOptions } from "../note-options";
 import { NotesFilterList } from "../notes-filter";
 import { HomeOverlaysProps } from "./types";
-import { useRecoilState } from "recoil";
-import { notesData } from "../../note";
 
 export const HomeOverlays = memo(
   ({
@@ -26,23 +24,20 @@ export const HomeOverlays = memo(
   }: HomeOverlaysProps) => {
     const navigation = useNavigation<NavigationProp<any>>();
     const [sharingDialog, setSharingDialog] = useState(false);
-    const [notes] = useRecoilState(notesData);
 
     if (optionsSelection.length === 0) {
       return (
         <>
           <Header
             children={
-              !notes.loading && (
-                <NotesFilterList
-                  setFavorite={setFavorite}
-                  searchFilter={searchFilter}
-                  selected={selected}
-                  data={data}
-                  favorite={favorite}
-                  setSelected={setSelected}
-                />
-              )
+              <NotesFilterList
+                setFavorite={setFavorite}
+                searchFilter={searchFilter}
+                selected={selected}
+                data={data}
+                favorite={favorite}
+                setSelected={setSelected}
+              />
             }
             onInboxOpen={({
               nativeEvent: { pageX, pageY, locationX, locationY },

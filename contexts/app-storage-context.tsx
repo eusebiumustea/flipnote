@@ -5,17 +5,18 @@ import { useToast } from "../components/toast";
 import { useRequest } from "../hooks/use-request";
 import { notesData } from "../screens/note";
 import { changeKeyValuesConditionaly } from "../tools";
+import { useLoading } from "../hooks/use-loading-dialog";
 
 export function AppStorageContext({ children }: PropsWithChildren) {
   const [notes, setNotes] = useRecoilState(notesData);
   const toast = useToast();
-
+  const loading = useLoading();
   const { request } = useRequest();
   useEffect(() => {
     async function getUserData() {
-      setNotes((prev) => ({ ...prev, loading: true }));
+      loading("Loading items");
       await request();
-      setNotes((prev) => ({ ...prev, loading: false }));
+      loading(false);
     }
     getUserData();
   }, []);
@@ -23,16 +24,15 @@ export function AppStorageContext({ children }: PropsWithChildren) {
   Notifications.setNotificationHandler({
     handleError(_, error) {
       toast({ message: `${error.name}: ${error.message}`, textColor: "red" });
-      setNotes((prev) => ({
-        ...prev,
-        data: changeKeyValuesConditionaly(
-          prev.data,
+      setNotes((prevData) =>
+        changeKeyValuesConditionaly(
+          prevData,
           "reminder",
           "lower",
           new Date(),
           null
-        ),
-      }));
+        )
+      );
     },
     handleNotification: async () => ({
       shouldShowAlert: true,
@@ -41,16 +41,9 @@ export function AppStorageContext({ children }: PropsWithChildren) {
       priority: Notifications.AndroidNotificationPriority.MAX,
     }),
     handleSuccess() {
-      setNotes((prev) => ({
-        ...prev,
-        data: changeKeyValuesConditionaly(
-          prev.data,
-          "reminder",
-          "lower",
-          new Date(),
-          null
-        ),
-      }));
+      setNotes((prev) =>
+        changeKeyValuesConditionaly(prev, "reminder", "lower", new Date(), null)
+      );
     },
   });
 

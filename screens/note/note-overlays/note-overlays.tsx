@@ -136,13 +136,11 @@ export function NoteOverlays({
         onCencel={() => setReminderDialog(false)}
       />
       <NoteScreenHeader
+        emptyNote={noteStateIsEmpty}
         historyShown={editNote.styles.length > 0}
         onHistoryOpen={() => setShowChanges(true)}
         onReminderOpen={onReminderOpen}
         onClipboard={async () => {
-          if (noteStateIsEmpty) {
-            return;
-          }
           try {
             await Clipboard.setStringAsync(
               `${editNote.title}\n${editNote.text}`

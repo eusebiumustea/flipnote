@@ -1,10 +1,14 @@
 import { Dispatch, SetStateAction } from "react";
-import { ColorValue, TextStyle } from "react-native";
+import { TextStyle } from "react-native";
 export interface TextNoteStyle {
   interval?: InputSelectionProps;
   style?: TextStyle;
 }
-
+export interface ContentStyled {
+  text: string;
+  styles: TextStyle;
+}
+export type Content = string | ContentStyled[];
 export interface ReminderProps {
   date: Date;
   time: Date;

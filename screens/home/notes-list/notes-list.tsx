@@ -1,17 +1,8 @@
-import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 import { memo, useCallback, useRef, useState } from "react";
-import {
-  FlatList,
-  Platform,
-  RefreshControl,
-  ScrollView,
-  Text,
-  View,
-  useColorScheme,
-  useWindowDimensions,
-} from "react-native";
+import { FlatList, Platform, RefreshControl, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRecoilState } from "recoil";
 import { NoteCard } from "../../../components";
 import { useTheme } from "../../../hooks";
 import { useRequest } from "../../../hooks/use-request";
@@ -20,10 +11,7 @@ import {
   toggleArrayElement,
   verticalScale,
 } from "../../../tools";
-import { notesData } from "../../note";
 import { NotesListProps } from "./types";
-import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
-import { Skeleton } from "moti/skeleton";
 
 export const NotesList = memo(
   ({
@@ -35,12 +23,10 @@ export const NotesList = memo(
   }: NotesListProps) => {
     const navigation = useNavigation<StackNavigationHelpers>();
     const theme = useTheme();
-    const [notes] = useRecoilState(notesData);
     const { request } = useRequest();
     const scrollRef = useRef<FlatList>(null);
-    const { width } = useWindowDimensions();
     const { top } = useSafeAreaInsets();
-    const sortedData = data.slice().sort();
+    const sortedData = data.slice().sort((a, b) => b.id - a.id);
     const [refreshing, setRefreshing] = useState(false);
     const onRefresh = useCallback(async () => {
       setRefreshing(true);
@@ -57,49 +43,7 @@ export const NotesList = memo(
       "teal",
       "chartreuse",
     ];
-    const colorScheme = useColorScheme();
-    if (notes.loading) {
-      return (
-        <View
-          style={{
-            backgroundColor: theme.primary,
-            width: "100%",
-            paddingTop: verticalScale(125) + top,
-            paddingHorizontal: 12,
-            rowGap: 12,
-            justifyContent: "center",
-            flexDirection: "column",
-          }}
-        >
-          {Array(3)
-            .fill(null)
-            .map((_, i) => (
-              <View
-                key={i}
-                style={{
-                  width: "100%",
-                  columnGap: 12,
-                  flexDirection: "row",
-                  justifyContent: "center",
-                }}
-              >
-                <Skeleton
-                  radius={12}
-                  colorMode={colorScheme}
-                  height={verticalScale(250)}
-                  width={width / 2 - 16}
-                />
-                <Skeleton
-                  radius={12}
-                  colorMode={colorScheme}
-                  height={verticalScale(250)}
-                  width={width / 2 - 16}
-                />
-              </View>
-            ))}
-        </View>
-      );
-    }
+
     return (
       <FlatList
         refreshControl={
@@ -145,16 +89,14 @@ export const NotesList = memo(
             options={optionsSelection.length > 0}
             selectedForOptions={optionsSelection.includes(item.id)}
             onLongPress={() =>
-              setOptionsSelection(
-                toggleArrayElement(optionsSelection, item.id).sort()
-              )
+              setOptionsSelection(toggleArrayElement(optionsSelection, item.id))
             }
             onPress={({
               nativeEvent: { pageX, pageY, locationX, locationY },
             }) => {
               if (optionsSelection.length > 0) {
                 setOptionsSelection(
-                  toggleArrayElement(optionsSelection, item.id).sort()
+                  toggleArrayElement(optionsSelection, item.id)
                 );
                 return;
               }
@@ -168,7 +110,6 @@ export const NotesList = memo(
           />
         )}
         scrollEventThrottle={16}
-        windowSize={50}
         directionalLockEnabled
         getItemLayout={(data, index) => ({
           length: verticalScale(250),

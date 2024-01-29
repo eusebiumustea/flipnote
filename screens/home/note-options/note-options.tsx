@@ -16,15 +16,14 @@ import { useRecoilState } from "recoil";
 import { Dialog } from "../../../components";
 import { CloseIcon, DeleteIcon, ExportIcon } from "../../../components/assets";
 import { useTheme } from "../../../hooks";
+import { useLoading } from "../../../hooks/use-loading-dialog";
 import {
   moderateFontScale,
   moderateScale,
   removeEmptySpace,
-  removeObjectKey,
   verticalScale,
 } from "../../../tools";
 import { notesData } from "../../note";
-import { useLoading } from "../../../hooks/use-loading-dialog";
 interface NoteOptionsProps {
   onDelete: () => void;
   onClose: () => void;
@@ -54,8 +53,8 @@ export const NoteOptions = memo(
     const { top } = useSafeAreaInsets();
     const [notes] = useRecoilState(notesData);
     const shareNotes = useMemo(() => {
-      return notes.data.filter((e) => selectedNotes.includes(e.id));
-    }, [selectedNotes, notes.data]);
+      return notes.filter((e) => selectedNotes.includes(e.id));
+    }, [selectedNotes, notes]);
 
     async function Share() {
       try {
