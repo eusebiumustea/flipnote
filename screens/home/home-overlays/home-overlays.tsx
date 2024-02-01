@@ -1,12 +1,10 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { memo, useState } from "react";
 import { CreateIcon, Header } from "../../../components";
-import { moderateScale, verticalScale } from "../../../tools";
+import { verticalScale } from "../../../tools";
 import { NoteOptions } from "../note-options";
 import { NotesFilterList } from "../notes-filter";
 import { HomeOverlaysProps } from "./types";
-import { currentElementCoordinates } from "../../note";
-import { useRecoilState } from "recoil";
 
 export const HomeOverlays = memo(
   ({
@@ -25,9 +23,6 @@ export const HomeOverlays = memo(
   }: HomeOverlaysProps) => {
     const navigation = useNavigation<NavigationProp<any>>();
     const [sharingDialog, setSharingDialog] = useState(false);
-    const [elementPosition, setElementPosition] = useRecoilState(
-      currentElementCoordinates
-    );
     if (optionsSelection.length === 0) {
       return (
         <>
@@ -46,11 +41,10 @@ export const HomeOverlays = memo(
               nativeEvent: { pageX, pageY, locationX, locationY },
             }) => {
               if (navigation.isFocused()) {
-                setElementPosition({
-                  relativeX: pageX - locationX + 15,
+                navigation.navigate("inbox", {
+                  relativeX: pageX - locationX,
                   relativeY: pageY - locationY,
                 });
-                navigation.navigate("inbox");
               }
             }}
             scrollY={scrollY}
@@ -63,11 +57,10 @@ export const HomeOverlays = memo(
               nativeEvent: { pageX, pageY, locationX, locationY },
             }) => {
               if (navigation.isFocused()) {
-                setElementPosition({
-                  relativeX: pageX - locationX + moderateScale(45),
-                  relativeY: pageY - locationY + verticalScale(45),
+                navigation.navigate("note-init", {
+                  relativeX: pageX - locationX,
+                  relativeY: pageY - locationY,
                 });
-                navigation.navigate("note-init");
               }
             }}
           />

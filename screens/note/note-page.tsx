@@ -3,7 +3,7 @@ import { useCardAnimation } from "@react-navigation/stack";
 import * as Sharing from "expo-sharing";
 import { MotiScrollView } from "moti";
 import { memo, useMemo, useRef, useState } from "react";
-import { Animated, ScrollView } from "react-native";
+import { Animated, ScrollView, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
 import { useRecoilState } from "recoil";
@@ -95,7 +95,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     return null;
   }, [capturing, isImgBg]);
   const scrollRef = useRef<ScrollView>(null);
-
   return (
     <Animated.View
       style={{
@@ -104,7 +103,9 @@ export const NotePage = memo(({ route }: NotePageProps) => {
           inputRange: [0, 1],
           outputRange: [0, 1],
         }),
-        backgroundColor: "#fff",
+        backgroundColor: editNote.background.includes("/")
+          ? "#ffffff"
+          : editNote.background,
       }}
     >
       <MotiScrollView

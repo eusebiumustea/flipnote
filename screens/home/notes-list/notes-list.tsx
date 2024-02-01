@@ -3,7 +3,6 @@ import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/s
 import { memo, useCallback, useRef, useState } from "react";
 import { FlatList, Platform, RefreshControl, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRecoilState } from "recoil";
 import { NoteCard } from "../../../components";
 import { useTheme } from "../../../hooks";
 import { useRequest } from "../../../hooks/use-request";
@@ -12,7 +11,6 @@ import {
   toggleArrayElement,
   verticalScale,
 } from "../../../tools";
-import { currentElementCoordinates } from "../../note";
 import { NotesListProps } from "./types";
 
 export const NotesList = memo(
@@ -22,9 +20,6 @@ export const NotesList = memo(
     setOptionsSelection,
     scrollY,
   }: NotesListProps) => {
-    const [elementPosition, setElementPosition] = useRecoilState(
-      currentElementCoordinates
-    );
     const navigation = useNavigation<StackNavigationHelpers>();
     const theme = useTheme();
     const scrollRef = useRef<FlatList>(null);
@@ -108,12 +103,11 @@ export const NotesList = memo(
                   return;
                 }
                 if (navigation.isFocused()) {
-                  setElementPosition({
+                  navigation.navigate("note", {
+                    id: item.id,
                     relativeX: pageX - locationX,
                     relativeY: pageY - locationY,
                   });
-
-                  navigation.navigate("note", { id: item.id });
                 }
               }}
               item={item}

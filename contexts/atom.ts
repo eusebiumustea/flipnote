@@ -1,11 +1,5 @@
 import { atom, selector } from "recoil";
-import {
-  ElementPositionTypes,
-  NotePreviewTypes,
-  NotificationProp,
-  UserdataState,
-  note,
-} from "../screens/note/types";
+import { NotePreviewTypes, NotificationProp } from "../screens/note/types";
 export const EMPTY_NOTE_STATE = {
   id: 0,
   title: "",
@@ -23,12 +17,7 @@ export const notesValue = selector({
       .sort((a, b) => b.id - a.id);
   },
 });
-export const elementCoordinatesValue = selector({
-  key: "coordinatesValue",
-  get: ({ get }) => {
-    return get(currentElementCoordinates);
-  },
-});
+
 export const notesData = atom<NotePreviewTypes[]>({
   key: "userdata",
   default: [],
@@ -40,11 +29,4 @@ export const BackgroundImages = atom<string[]>({
 export const receivedNotifications = atom<NotificationProp[]>({
   key: "notifications",
   default: [],
-});
-export const currentElementCoordinates = atom<ElementPositionTypes>({
-  key: "currentElementCoords",
-  default: {
-    relativeX: 0,
-    relativeY: 0,
-  },
 });
