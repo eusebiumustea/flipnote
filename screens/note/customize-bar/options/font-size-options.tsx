@@ -62,22 +62,17 @@ export function FontSizeOptions({
       <Slider
         onSlidingComplete={(valueArr) => {
           const value = valueArr[0];
-          if (value < 15) {
-            if (currentFocused?.style?.fontSize) {
-              setEditNote((prev) => ({
-                ...prev,
-                styles:
-                  Object.keys(currentFocused.style).length === 1
-                    ? prev.styles.filter((e) => e !== currentFocused)
-                    : replaceElementAtIndex(prev.styles, currentIndex, {
-                        ...currentFocused,
-                        style: removeObjectKey(
-                          currentFocused.style,
-                          "fontSize"
-                        ),
-                      }),
-              }));
-            }
+          if (value < 15 && currentFocused?.style?.fontSize) {
+            setEditNote((prev) => ({
+              ...prev,
+              styles:
+                Object.keys(currentFocused?.style).length === 1
+                  ? prev.styles.filter((e) => e !== currentFocused)
+                  : replaceElementAtIndex(prev.styles, currentIndex, {
+                      ...currentFocused,
+                      style: removeObjectKey(currentFocused?.style, "fontSize"),
+                    }),
+            }));
 
             return;
           }

@@ -28,6 +28,7 @@ export function AppRouting() {
         headerShown: false,
         cardOverlayEnabled: true,
         detachPreviousScreen: true,
+        gestureVelocityImpact: 0.5,
       }}
       initialRouteName="Home"
     >
@@ -78,9 +79,6 @@ export function AppRouting() {
             },
           }),
         })}
-        initialParams={{
-          id: new Date().getTime(),
-        }}
         component={NotePage}
         name="note-init"
       />

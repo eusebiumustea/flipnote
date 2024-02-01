@@ -24,7 +24,7 @@ export function TransitionInterpolator({
       opacity: overlay
         ? current.progress.interpolate({
             inputRange: [0, 1],
-            outputRange: [0, 0.7],
+            outputRange: [0, 1],
           })
         : 0,
     },

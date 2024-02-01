@@ -1,5 +1,5 @@
 import { DependencyList, Fragment, useMemo } from "react";
-import { Text } from "react-native";
+import { Text, TextStyle } from "react-native";
 import { InputSelectionProps, TextNoteStyle } from "../screens";
 import { darkCardColors } from "../tools/colors";
 
@@ -15,6 +15,22 @@ export function useEditNoteContent(
       return "#000000";
     }
   }, [bg]);
+  function font(fontName: string, style: TextStyle) {
+    const weight = style?.fontWeight;
+    const italic = style?.fontStyle;
+    if (weight && !italic) {
+      return fontName + "-bold";
+    }
+    if (italic && !weight) {
+      return fontName + "-italic";
+    }
+    if (italic && weight) {
+      return fontName + "-bold-italic";
+    }
+
+    return fontName;
+  }
+
   return useMemo(() => {
     const isStyled = styles.length > 0;
     if (isStyled) {
@@ -30,7 +46,16 @@ export function useEditNoteContent(
             const style = e?.style;
             return (
               <Fragment key={i}>
-                <Text style={{ color: defaultThemeText, ...style }}>
+                <Text
+                  style={{
+                    color: defaultThemeText,
+                    ...style,
+                    fontFamily:
+                      style?.fontFamily !== undefined
+                        ? font(style.fontFamily, style)
+                        : undefined,
+                  }}
+                >
                   {text.slice(start, end)}
                 </Text>
                 <Text style={{ color: defaultThemeText }}>

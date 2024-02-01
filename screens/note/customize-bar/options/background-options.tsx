@@ -42,14 +42,13 @@ export function BackgroundOptions({
         return;
       }
 
-      if (backgroundImages.includes(result.assets[0].uri)) {
-        return;
+      if (!backgroundImages.includes(result.assets[0].uri)) {
+        setBackgroundImages((prev) => [...prev, result.assets[0].uri]);
+        await FileSystem.writeAsStringAsync(
+          imagesData,
+          JSON.stringify(backgroundImages)
+        );
       }
-      await FileSystem.writeAsStringAsync(
-        imagesData,
-        JSON.stringify([...backgroundImages, result.assets[0].uri])
-      );
-      setBackgroundImages((prev) => [...prev, result.assets[0].uri]);
     } catch (error) {}
   }
 

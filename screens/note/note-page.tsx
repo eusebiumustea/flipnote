@@ -1,9 +1,8 @@
 import { NavigatorScreenParams } from "@react-navigation/native";
-import { useCardAnimation } from "@react-navigation/stack";
 import * as Sharing from "expo-sharing";
-import { MotiScrollView } from "moti";
+import { MotiView } from "moti";
 import { memo, useMemo, useRef, useState } from "react";
-import { Animated, ScrollView, useWindowDimensions } from "react-native";
+import { ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
 import { useRecoilState } from "recoil";
@@ -26,7 +25,6 @@ type NotePageProps = {
 export const NotePage = memo(({ route }: NotePageProps) => {
   const { id }: ParamsProps = route.params;
 
-  const { current } = useCardAnimation();
   const [backgroundImages] = useRecoilState(BackgroundImages);
   const [editNote, setEditNote] = useState<note>({
     id,
@@ -96,39 +94,29 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   }, [capturing, isImgBg]);
   const scrollRef = useRef<ScrollView>(null);
   return (
-    <Animated.View
-      style={{
-        flex: 1,
-        opacity: current.progress.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, 1],
-        }),
-        backgroundColor: editNote.background.includes("/")
-          ? "#ffffff"
-          : editNote.background,
+    <MotiView
+      style={{ flex: 1 }}
+      transition={{
+        type: "timing",
+        duration: 300,
+        delay: 300,
+        backgroundColor: { delay: 0 },
+      }}
+      from={{ opacity: 0, backgroundColor: "transparent" }}
+      animate={{
+        opacity: 1,
+        backgroundColor: !isImgBg ? editNote.background : "transparent",
       }}
     >
-      <MotiScrollView
-        ref={scrollRef}
-        transition={{
-          type: "timing",
-          duration: 300,
-          delay: 300,
-          backgroundColor: { delay: 0 },
-        }}
-        from={{ opacity: 0, backgroundColor: "transparent" }}
-        animate={{
-          opacity: 1,
-          backgroundColor: !isImgBg ? editNote.background : "transparent",
-        }}
+      <ScrollView
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="always"
         contentContainerStyle={{
           paddingTop: verticalScale(70) + top,
-          marginBottom,
         }}
         style={{
           flex: 1,
+          marginBottom: !capturing ? marginBottom + verticalScale(95) : 0,
         }}
       >
         <ViewShot
@@ -139,7 +127,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
             paddingHorizontal: 16,
             rowGap: verticalScale(12),
             paddingTop: capturing ? top + 50 : 0,
-            paddingBottom: capturing ? 0 : verticalScale(200),
           }}
           options={{
             result: "tmpfile",
@@ -162,7 +149,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
             setEditNote={setEditNote}
           />
         </ViewShot>
-      </MotiScrollView>
+      </ScrollView>
       <NoteOverlays
         isImageBackground={isImgBg}
         reminderDialog={reminderDialog}
@@ -177,6 +164,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         reminder={reminder}
         editNote={editNote}
       />
-    </Animated.View>
+    </MotiView>
   );
 });

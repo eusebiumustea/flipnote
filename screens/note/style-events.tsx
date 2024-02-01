@@ -17,19 +17,19 @@ export function FontColorEvent(
   if (!currentFocused && selection.end !== selection.start) {
     setEditNote((prev) => ({
       ...prev,
-      styles: [
+      styles: sortStyles([
         ...prev.styles,
         {
           interval: selection,
           style: { color: hex },
         },
-      ],
+      ]),
     }));
   }
   if (
     currentFocused &&
-    !currentFocused?.style?.color &&
-    Object.keys(currentFocused.style).length >= 1
+    !Object.keys(currentFocused.style).includes("color") &&
+    Object.keys(currentFocused.style).length > 0
   ) {
     setEditNote((prev) => ({
       ...prev,
@@ -45,8 +45,8 @@ export function FontColorEvent(
 
   if (
     currentFocused &&
-    currentFocused?.style?.color &&
-    Object.keys(currentFocused.style).length >= 1
+    Object.keys(currentFocused.style).includes("color") &&
+    Object.keys(currentFocused.style).length > 0
   ) {
     setEditNote((prev) => ({
       ...prev,
@@ -67,37 +67,17 @@ export function FontSizeEvent(
   if (!currentFocused && selection.end !== selection.start) {
     setEditNote((prev) => ({
       ...prev,
-      styles: [
+      styles: sortStyles([
         ...prev.styles,
         {
           interval: selection,
           style: { fontSize: value },
         },
-      ],
-    }));
-  }
-  if (
-    currentFocused &&
-    !currentFocused?.style?.fontSize &&
-    Object.keys(currentFocused.style).length >= 1
-  ) {
-    setEditNote((prev) => ({
-      ...prev,
-      styles: replaceElementAtIndex(prev.styles, currentIndex, {
-        ...currentFocused,
-        style: {
-          ...currentFocused.style,
-          fontSize: value,
-        },
-      }),
+      ]),
     }));
   }
 
-  if (
-    currentFocused &&
-    currentFocused?.style?.fontSize &&
-    Object.keys(currentFocused.style).length >= 1
-  ) {
+  if (currentFocused && Object.keys(currentFocused?.style).length > 0) {
     setEditNote((prev) => ({
       ...prev,
       styles: replaceElementAtIndex(prev.styles, currentIndex, {
@@ -127,7 +107,7 @@ export function StyleEvent(
   if (
     currentFocused &&
     !Object.keys(currentFocused.style).includes(keyStyle) &&
-    Object.keys(currentFocused.style).length >= 1
+    Object.keys(currentFocused.style).length > 0
   ) {
     setEditNote((prev) => ({
       ...prev,
@@ -153,7 +133,6 @@ export function StyleEvent(
 }
 export function FontFamilyEvent(
   currentFocused: TextNoteStyle | undefined,
-
   e: string,
   selection: InputSelectionProps,
   setEditNote: React.Dispatch<React.SetStateAction<note>>,
@@ -174,58 +153,19 @@ export function FontFamilyEvent(
   if (currentFocused?.style?.fontFamily === e) {
     return;
   }
-  if (
-    currentFocused &&
-    currentFocused?.style?.fontFamily &&
-    Object.keys(currentFocused.style).length >= 1
-  ) {
-    setEditNote((prev) => ({
-      ...prev,
-      styles: replaceElementAtIndex(prev.styles, currentIndex, {
-        ...currentFocused,
-        style: {
-          ...currentFocused.style,
-          fontFamily: e,
-        },
-      }),
-    }));
-  }
-  if (
-    currentFocused &&
-    currentFocused?.style?.fontFamily &&
-    Object.keys(currentFocused.style).length >= 1
-  ) {
-    setEditNote((prev) => ({
-      ...prev,
-      styles: replaceElementAtIndex(prev.styles, currentIndex, {
-        ...currentFocused,
-        style: {
-          ...currentFocused.style,
-          fontFamily: e,
-        },
-      }),
-    }));
-  }
 
-  // if (
-  //   currentFocused &&
-  //   currentFocused?.style?.fontFamily !== undefined &&
-  //   Object.keys(currentFocused.style).length >= 1
-  // ) {
-  //   setEditNote((prev) => ({
-  //     ...prev,
-  //     styles:
-  //       Object.keys(currentFocused.style).length === 1
-  //         ? prev.styles.filter((e) => e !== currentFocused)
-  //         : replaceElementAtIndex(prev.styles, currentIndex, {
-  //             ...currentFocused,
-  //             style: removeObjectKey(
-  //               currentFocused.style,
-  //               "fontFamily"
-  //             ),
-  //           }),
-  //   }));
-  // }
+  if (Object.keys(currentFocused?.style).length > 0) {
+    setEditNote((prev) => ({
+      ...prev,
+      styles: replaceElementAtIndex(prev.styles, currentIndex, {
+        ...currentFocused,
+        style: {
+          ...currentFocused.style,
+          fontFamily: e,
+        },
+      }),
+    }));
+  }
 }
 export function onFontColor(
   currentFocused: TextNoteStyle | undefined,
@@ -248,7 +188,7 @@ export function onFontColor(
   if (
     currentFocused &&
     !Object.keys(currentFocused.style).includes("color") &&
-    Object.keys(currentFocused.style).length >= 1
+    Object.keys(currentFocused.style).length > 0
   ) {
     setEditNote((prev) => ({
       ...prev,

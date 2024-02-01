@@ -58,6 +58,7 @@ export const HomeOverlays = memo(
             }) => {
               if (navigation.isFocused()) {
                 navigation.navigate("note-init", {
+                  id: new Date().getTime(),
                   relativeX: pageX - locationX,
                   relativeY: pageY - locationY,
                 });

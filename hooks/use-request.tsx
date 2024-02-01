@@ -75,17 +75,7 @@ export function useRequest() {
     }
     const data = await FileSystem.readAsStringAsync(imagesData);
     const images: string[] = JSON.parse(data);
-    await Promise.all(
-      images.map((uri) => {
-        FileSystem.getInfoAsync(uri).then(({ exists }) => {
-          if (exists && !img.includes(uri)) {
-            setImg((prev) => [...prev, uri]);
-          }
-        });
-      })
-    );
-
-    await FileSystem.writeAsStringAsync(imagesData, JSON.stringify(img));
+    setImg(images);
   };
   return { syncState, syncImagesState };
 }

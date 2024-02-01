@@ -18,26 +18,6 @@ export function FontOptions({
   selection,
 }: OptionProps) {
   const theme = useTheme();
-  // const Font = useCallback(
-  //   (fontName: string) => {
-  //     const weight = currentFocused?.style?.fontWeight === "bold";
-  //     const italic = currentFocused?.style?.fontStyle === "italic";
-  //     if (weight && !italic) {
-  //       return fontName + "-bold";
-  //     }
-  //     if (italic && !weight) {
-  //       return fontName + "-italic";
-  //     }
-  //     if (italic && weight) {
-  //       console.log("both");
-
-  //       return fontName + "-bold-italic";
-  //     }
-  //     return fontName;
-  //   },
-  //   [editNote.styles, currentFocused.style]
-  // );
-  // console.log(Font("Tinos"));
 
   return (
     <>
