@@ -1,11 +1,10 @@
 import { Dispatch, SetStateAction } from "react";
-import { ElementPositionTypes, note } from "../../note";
 import { Animated } from "react-native";
+import { NotePreviewTypes } from "../../note";
 
 export type NotesListProps = {
-  data?: note[];
+  data?: NotePreviewTypes[];
   optionsSelection?: number[];
   setOptionsSelection?: Dispatch<SetStateAction<number[]>>;
   scrollY?: Animated.Value;
-  setElementPosition?: Dispatch<SetStateAction<ElementPositionTypes>>;
 };

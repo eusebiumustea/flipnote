@@ -5,6 +5,8 @@ import { moderateScale, verticalScale } from "../../../tools";
 import { NoteOptions } from "../note-options";
 import { NotesFilterList } from "../notes-filter";
 import { HomeOverlaysProps } from "./types";
+import { currentElementCoordinates } from "../../note";
+import { useRecoilState } from "recoil";
 
 export const HomeOverlays = memo(
   ({
@@ -20,11 +22,12 @@ export const HomeOverlays = memo(
     setFavorite,
     searchQuery,
     setSearchQuery,
-    setElementPosition,
   }: HomeOverlaysProps) => {
     const navigation = useNavigation<NavigationProp<any>>();
     const [sharingDialog, setSharingDialog] = useState(false);
-
+    const [elementPosition, setElementPosition] = useRecoilState(
+      currentElementCoordinates
+    );
     if (optionsSelection.length === 0) {
       return (
         <>
@@ -42,11 +45,13 @@ export const HomeOverlays = memo(
             onInboxOpen={({
               nativeEvent: { pageX, pageY, locationX, locationY },
             }) => {
-              setElementPosition({
-                relativeX: pageX - locationX + 15,
-                relativeY: pageY - locationY,
-              });
-              navigation.navigate("inbox");
+              if (navigation.isFocused()) {
+                setElementPosition({
+                  relativeX: pageX - locationX + 15,
+                  relativeY: pageY - locationY,
+                });
+                navigation.navigate("inbox");
+              }
             }}
             scrollY={scrollY}
             searchValue={searchQuery}
@@ -57,11 +62,13 @@ export const HomeOverlays = memo(
             onPress={({
               nativeEvent: { pageX, pageY, locationX, locationY },
             }) => {
-              setElementPosition({
-                relativeX: pageX - locationX + moderateScale(45),
-                relativeY: pageY - locationY + verticalScale(45),
-              });
-              navigation.navigate("note-init");
+              if (navigation.isFocused()) {
+                setElementPosition({
+                  relativeX: pageX - locationX + moderateScale(45),
+                  relativeY: pageY - locationY + verticalScale(45),
+                });
+                navigation.navigate("note-init");
+              }
             }}
           />
         </>

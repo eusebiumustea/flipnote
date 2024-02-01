@@ -69,6 +69,10 @@ export function TransitionInterpolator({
               : 1,
         },
       ],
+      borderRadius: current.progress.interpolate({
+        inputRange: [0, 1],
+        outputRange: [width, 0],
+      }),
     },
   });
 }

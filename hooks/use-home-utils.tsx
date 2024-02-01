@@ -2,10 +2,10 @@ import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
 import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
 import { Alert } from "react-native";
-import { useRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { useToast } from "../components";
 import { NOTES_PATH } from "../constants";
-import { note, notesData } from "../screens";
+import { note, notesValue } from "../screens";
 import { useLoading } from "./use-loading-dialog";
 import { useRequest } from "./use-request";
 
@@ -18,10 +18,10 @@ export function useHomeUtils(
   setFavorite: Dispatch<SetStateAction<boolean>>,
   setSelected: Dispatch<SetStateAction<string[]>>
 ) {
-  const [notes] = useRecoilState(notesData);
+  const notes = useRecoilValue(notesValue);
   const toast = useToast();
-  const { request } = useRequest();
   const loading = useLoading();
+  const { syncState } = useRequest();
   function deleteNotes() {
     const noteCount = optionsSelection.length;
     const plural = noteCount === 1 ? "" : "s";
@@ -35,26 +35,20 @@ export function useHomeUtils(
           style: "destructive",
           onPress: async () => {
             try {
-              loading("Deleting...");
-              const files = await FileSystem.readDirectoryAsync(NOTES_PATH);
-
               await Promise.all(
-                files.map(async (file) => {
-                  const content = await FileSystem.readAsStringAsync(
-                    `${NOTES_PATH}/${file}`
+                optionsSelection.map(async (id, index) => {
+                  loading("Deleting..." + (index + 1));
+                  await FileSystem.deleteAsync(`${NOTES_PATH}/${id}`, {
+                    idempotent: true,
+                  });
+                  await Notifications.cancelScheduledNotificationAsync(
+                    id.toString()
                   );
-                  const data: note = JSON.parse(content);
-                  if (optionsSelection.includes(data.id)) {
-                    await FileSystem.deleteAsync(`${NOTES_PATH}/${file}`, {
-                      idempotent: true,
-                    });
-                    await Notifications.cancelScheduledNotificationAsync(
-                      data.id.toString()
-                    );
-                  }
                 })
               );
-              request();
+              console.log("sync");
+              await syncState();
+
               setOptionsSelection([]);
               loading(false);
             } catch (_) {

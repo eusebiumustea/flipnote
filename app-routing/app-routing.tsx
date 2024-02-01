@@ -1,20 +1,23 @@
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { Easing, useWindowDimensions } from "react-native";
+import { Easing, useWindowDimensions, Text } from "react-native";
 import { enableFreeze } from "react-native-screens";
-import { useRecoilState } from "recoil";
-import { Inbox, currentElementCoordinates } from "../screens";
+import { useRecoilValue } from "recoil";
+import { useTheme } from "../hooks";
+import { Inbox, elementCoordinatesValue } from "../screens";
 import { Home } from "../screens/home";
 import { NotePage } from "../screens/note/note-page";
 import { moderateScale, verticalScale } from "../tools";
 import { TransitionInterpolator } from "./transition-interpolator";
-import { useTheme } from "../hooks";
 
 enableFreeze();
 export function AppRouting() {
-  const [elementCoordinates] = useRecoilState(currentElementCoordinates);
+  const elementCoordinates = useRecoilValue(elementCoordinatesValue);
   const Stack = createStackNavigator();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const theme = useTheme();
+  const nav = useNavigation();
+  let currentId;
   return (
     <Stack.Navigator
       screenOptions={{
@@ -37,14 +40,13 @@ export function AppRouting() {
       <Stack.Screen component={Home} name="Home" />
       <Stack.Screen
         options={{
-          gestureEnabled: false,
           cardStyleInterpolator: TransitionInterpolator({
             initial: {
-              scale: 0.68,
-              scaleX: 0.65,
-              scaleY: 0.41,
+              scale: 1,
+              scaleX: (width / 2 - 16) / width,
+              scaleY: verticalScale(250) / height,
               y: verticalScale(125) + elementCoordinates.relativeY,
-              x: elementCoordinates.relativeX + width / 4.3,
+              x: elementCoordinates.relativeX + (width / 2 - 16) / 2,
             },
           }),
         }}
@@ -53,12 +55,11 @@ export function AppRouting() {
       />
       <Stack.Screen
         options={{
-          gestureEnabled: false,
           cardStyleInterpolator: TransitionInterpolator({
             initial: {
               scale: 0,
-              y: elementCoordinates.relativeY - verticalScale(27),
-              x: elementCoordinates.relativeX - moderateScale(22),
+              y: elementCoordinates.relativeY - moderateScale(20),
+              x: elementCoordinates.relativeX - moderateScale(20),
             },
           }),
         }}

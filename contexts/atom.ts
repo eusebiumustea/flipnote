@@ -1,6 +1,7 @@
-import { atom } from "recoil";
+import { atom, selector } from "recoil";
 import {
   ElementPositionTypes,
+  NotePreviewTypes,
   NotificationProp,
   UserdataState,
   note,
@@ -14,7 +15,21 @@ export const EMPTY_NOTE_STATE = {
   styles: [],
   reminder: null,
 };
-export const notesData = atom<note[]>({
+export const notesValue = selector({
+  key: "notesValue",
+  get: ({ get }) => {
+    return get(notesData)
+      .slice()
+      .sort((a, b) => b.id - a.id);
+  },
+});
+export const elementCoordinatesValue = selector({
+  key: "coordinatesValue",
+  get: ({ get }) => {
+    return get(currentElementCoordinates);
+  },
+});
+export const notesData = atom<NotePreviewTypes[]>({
   key: "userdata",
   default: [],
 });

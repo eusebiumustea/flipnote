@@ -2834,7 +2834,7 @@ base64-arraybuffer@^1.0.2:
   resolved "https://registry.yarnpkg.com/base64-arraybuffer/-/base64-arraybuffer-1.0.2.tgz#1c37589a7c4b0746e34bd1feb951da2df01c1bdc"
   integrity sha512-I3yl4r9QB5ZRY3XuJVEPfc2XhZO6YweFPI+UovAzn+8/hb3oJ6lnysaFcjVpkCPfVWFUDvoZ8kmVDP7WyRtYtQ==
 
-base64-js@^1.2.3, base64-js@^1.3.1, base64-js@^1.5.1:
+base64-js@^1.2.3, base64-js@^1.3.0, base64-js@^1.3.1, base64-js@^1.5.1:
   version "1.5.1"
   resolved "https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz"
   integrity sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==
@@ -3758,6 +3758,13 @@ expo-constants@~15.4.0:
   dependencies:
     "@expo/config" "~8.5.0"
 
+expo-crypto@~12.8.0:
+  version "12.8.0"
+  resolved "https://registry.yarnpkg.com/expo-crypto/-/expo-crypto-12.8.0.tgz#dc06793bd569401995225cb2f8783e49e3090ed8"
+  integrity sha512-67CoxXz+b4VU1zMo/2kUp+9t6TiVs8HvCvHsW8zoLLAZkVNa3YW1l0arLtQ4oR4HQpEr1i9rAZhP0/mvo+fg5A==
+  dependencies:
+    base64-js "^1.3.0"
+
 expo-dev-client@~3.3.7:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/expo-dev-client/-/expo-dev-client-3.3.7.tgz#3d1fab382d5fb0d7670025e6d05ff3ec9cccd2c9"
@@ -3843,6 +3850,13 @@ expo-image-picker@~14.7.1:
   integrity sha512-ILQVOJgI3aEzrDmCFGDPtpAepYkn8mot8G7vfQ51BfFdQbzL6N3Wm1fS/ofdWlAZJl/qT2DwaIh5xYmf3SyGZA==
   dependencies:
     expo-image-loader "~4.6.0"
+
+expo-image@~1.10.5:
+  version "1.10.5"
+  resolved "https://registry.yarnpkg.com/expo-image/-/expo-image-1.10.5.tgz#3ed592ab1e30a3f2df94eafc47f66d4c3b18d577"
+  integrity sha512-IiqSU9FxpoNeSFbtVLHdLq9MIHtAUYI1hcNGXoj3fpNpPEUdjN41mPftLQPIszfWWBxgrjUu4trIVXuf/Ijy+w==
+  dependencies:
+    "@react-native/assets-registry" "~0.73.1"
 
 expo-json-utils@~0.12.0:
   version "0.12.3"

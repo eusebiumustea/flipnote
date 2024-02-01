@@ -28,7 +28,7 @@ export function FontColorEvent(
   }
   if (
     currentFocused &&
-    currentFocused?.style?.color === undefined &&
+    !currentFocused?.style?.color &&
     Object.keys(currentFocused.style).length >= 1
   ) {
     setEditNote((prev) => ({
@@ -45,7 +45,7 @@ export function FontColorEvent(
 
   if (
     currentFocused &&
-    currentFocused?.style?.color !== undefined &&
+    currentFocused?.style?.color &&
     Object.keys(currentFocused.style).length >= 1
   ) {
     setEditNote((prev) => ({
@@ -78,7 +78,7 @@ export function FontSizeEvent(
   }
   if (
     currentFocused &&
-    currentFocused?.style?.fontSize === undefined &&
+    !currentFocused?.style?.fontSize &&
     Object.keys(currentFocused.style).length >= 1
   ) {
     setEditNote((prev) => ({
@@ -95,7 +95,7 @@ export function FontSizeEvent(
 
   if (
     currentFocused &&
-    currentFocused?.style?.fontSize !== undefined &&
+    currentFocused?.style?.fontSize &&
     Object.keys(currentFocused.style).length >= 1
   ) {
     setEditNote((prev) => ({
@@ -176,7 +176,7 @@ export function FontFamilyEvent(
   }
   if (
     currentFocused &&
-    currentFocused?.style?.fontFamily !== undefined &&
+    currentFocused?.style?.fontFamily &&
     Object.keys(currentFocused.style).length >= 1
   ) {
     setEditNote((prev) => ({
@@ -192,7 +192,7 @@ export function FontFamilyEvent(
   }
   if (
     currentFocused &&
-    currentFocused?.style?.fontFamily === undefined &&
+    currentFocused?.style?.fontFamily &&
     Object.keys(currentFocused.style).length >= 1
   ) {
     setEditNote((prev) => ({

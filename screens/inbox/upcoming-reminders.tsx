@@ -1,22 +1,37 @@
 import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
 import { Fragment, useMemo } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
-import { useRecoilState } from "recoil";
+import {
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { NoteCard } from "../../components";
 import { NOTES_PATH } from "../../constants";
 import { useTheme } from "../../hooks";
 import { useRequest } from "../../hooks/use-request";
 import { dateTime, moderateFontScale, verticalScale } from "../../tools";
-import { notesData, receivedNotifications } from "../note";
+import { notesValue, receivedNotifications } from "../note";
+export async function removeReceivedReminder(id: number) {
+  await Notifications.cancelScheduledNotificationAsync(id.toString());
+  const data = await FileSystem.readAsStringAsync(`${NOTES_PATH}/${id}`);
+  const parsedNote = JSON.parse(data);
+  await FileSystem.writeAsStringAsync(
+    `${NOTES_PATH}/${id}`,
+    JSON.stringify({ ...parsedNote, reminder: null })
+  );
+}
 export function UpcomingReminders() {
   const [received] = useRecoilState(receivedNotifications);
-  const [notes] = useRecoilState(notesData);
+  const notes = useRecoilValue(notesValue);
   const theme = useTheme();
   const upcomingNotifications = useMemo(() => {
     return notes.filter((e) => e.reminder && new Date() < new Date(e.reminder));
   }, [notes]);
-  const { request } = useRequest();
+  const { syncState } = useRequest();
+  const { width } = useWindowDimensions();
   return (
     <>
       {upcomingNotifications.length === 0 && received.length === 0 && (
@@ -47,10 +62,7 @@ export function UpcomingReminders() {
 
         return (
           <Fragment key={i}>
-            <NoteCard
-              containerStyle={{ width: "100%", height: verticalScale(125) }}
-              item={note}
-            />
+            <NoteCard containerStyle={{ width: width - 32 }} item={note} />
             <View
               style={{
                 flexDirection: "row",
@@ -61,14 +73,8 @@ export function UpcomingReminders() {
             >
               <TouchableOpacity
                 onPress={async () => {
-                  await Notifications.cancelScheduledNotificationAsync(
-                    note.id.toString()
-                  );
-                  await FileSystem.writeAsStringAsync(
-                    `${NOTES_PATH}/${note.id}`,
-                    JSON.stringify({ ...note, reminder: null })
-                  );
-                  await request();
+                  removeReceivedReminder(note.id);
+                  await syncState();
                 }}
               >
                 <Text

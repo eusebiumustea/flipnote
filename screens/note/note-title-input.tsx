@@ -3,6 +3,7 @@ import { moderateFontScale } from "../../tools";
 import { useTheme } from "../../hooks";
 import { note } from "./types";
 import { Dispatch, SetStateAction } from "react";
+import { darkCardColors } from "../../tools/colors";
 type NoteTitleProps = {
   editNote: note;
   setEditNote: Dispatch<SetStateAction<note>>;
@@ -24,7 +25,9 @@ export function NoteTitleInput({ editNote, setEditNote }: NoteTitleProps) {
       placeholder={"Title"}
       multiline
       style={{
-        color: "#000",
+        color: darkCardColors.includes(editNote.background)
+          ? "#ffffff"
+          : "#000000",
         fontSize: moderateFontScale(30),
         fontWeight: "bold",
         fontFamily: "OpenSans",

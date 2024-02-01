@@ -1,16 +1,14 @@
-import { useBackHandler } from "@react-native-community/hooks";
-import { NavigatorScreenParams, useNavigation } from "@react-navigation/native";
-import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
+import { NavigatorScreenParams } from "@react-navigation/native";
+import { useCardAnimation } from "@react-navigation/stack";
 import * as Sharing from "expo-sharing";
 import { MotiScrollView } from "moti";
-import { memo, useRef, useState } from "react";
+import { memo, useMemo, useRef, useState } from "react";
 import { Animated, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
 import { useRecoilState } from "recoil";
 import { useToast } from "../../components/toast";
 import { BackgroundImages } from "../../contexts";
-import { useTheme } from "../../hooks";
 import { useLoading } from "../../hooks/use-loading-dialog";
 import { useNoteStorage } from "../../hooks/use-note-manager";
 import { useNoteUtils } from "../../hooks/use-note-utills";
@@ -27,12 +25,8 @@ type NotePageProps = {
 };
 export const NotePage = memo(({ route }: NotePageProps) => {
   const { id }: ParamsProps = route.params;
-  const navigation = useNavigation<StackNavigationHelpers>();
-  useBackHandler(() => {
-    navigation.popToTop();
-    return true;
-  });
-  const theme = useTheme();
+
+  const { current } = useCardAnimation();
   const [backgroundImages] = useRecoilState(BackgroundImages);
   const [editNote, setEditNote] = useState<note>({
     id,
@@ -42,7 +36,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     background: "#fff",
     styles: [],
     reminder: null,
-    contentPosition: "justify",
+    contentPosition: "left",
   });
   useNoteStorage(id, editNote, setEditNote);
   const [reminder, setReminder] = useState<ReminderProps>({
@@ -91,25 +85,33 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     }
   }
   const isImgBg = backgroundImages.includes(editNote.background);
-  function captureBackground() {
+  const captureBackground = useMemo(() => {
     if (capturing && isImgBg) {
       return "#fff";
     }
-
     if (capturing && !isImgBg) {
       return editNote.background;
     }
     return null;
-  }
+  }, [capturing, isImgBg]);
   const scrollRef = useRef<ScrollView>(null);
-  console.log(editNote.text.length);
+
   return (
-    <>
+    <Animated.View
+      style={{
+        flex: 1,
+        opacity: current.progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 1],
+        }),
+        backgroundColor: "#fff",
+      }}
+    >
       <MotiScrollView
         ref={scrollRef}
         transition={{
           type: "timing",
-          duration: 400,
+          duration: 300,
           delay: 300,
           backgroundColor: { delay: 0 },
         }}
@@ -122,17 +124,17 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         keyboardShouldPersistTaps="always"
         contentContainerStyle={{
           paddingTop: verticalScale(70) + top,
+          marginBottom,
         }}
         style={{
           flex: 1,
-          marginBottom,
         }}
       >
         <ViewShot
           // onLayout={(e) => setScrollHeight(e.nativeEvent.layout.height)}
           style={{
             flex: 1,
-            backgroundColor: captureBackground(),
+            backgroundColor: captureBackground,
             paddingHorizontal: 16,
             rowGap: verticalScale(12),
             paddingTop: capturing ? top + 50 : 0,
@@ -140,8 +142,8 @@ export const NotePage = memo(({ route }: NotePageProps) => {
           }}
           options={{
             result: "tmpfile",
+
             useRenderInContext: true,
-            format: "png",
             fileName: `flipnote-${id}`,
           }}
           ref={imageRef}
@@ -150,7 +152,10 @@ export const NotePage = memo(({ route }: NotePageProps) => {
             <NoteTitleInput setEditNote={setEditNote} editNote={editNote} />
           )}
           <NoteContentInput
-            inputSelection={selection}
+            inputProps={{
+              caretHidden: capturing,
+            }}
+            currentFocused={currentFocused}
             editNote={editNote}
             setInputSelection={setSelection}
             setEditNote={setEditNote}
@@ -171,6 +176,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         reminder={reminder}
         editNote={editNote}
       />
-    </>
+    </Animated.View>
   );
 });

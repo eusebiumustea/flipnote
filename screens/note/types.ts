@@ -35,7 +35,15 @@ export interface note {
   background: string;
   styles: TextNoteStyle[];
   reminder: number | null;
-  contentPosition: "center" | "left" | "right" | "justify";
+  contentPosition: "center" | "left" | "right";
+}
+export interface NotePreviewTypes {
+  id: number;
+  title: string;
+  text: string;
+  isFavorite: boolean;
+  background: string;
+  reminder: number | null;
 }
 export interface InputSelectionProps {
   start: number;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNoitication } from "../../../hooks/use-notification-handler";
+import { Image } from "expo-image";
 import {
   BackgroundOptions,
   ColorOptions,
@@ -70,28 +71,23 @@ export function NoteOverlays({
   const { top } = useSafeAreaInsets();
   return (
     <>
-      <AnimatePresence>
-        {isImageBackground && (
-          <MotiImage
-            from={{ opacity: 0 }}
-            animate={{ opacity: isImageBackground ? 1 : 0 }}
-            transition={{
-              type: "timing",
-              duration: 400,
-              delay: 0,
-            }}
-            width={width}
-            height={height + top}
-            source={{
-              uri: editNote.background,
-            }}
-            style={{
-              zIndex: -1,
-              position: "absolute",
-            }}
-          />
-        )}
-      </AnimatePresence>
+      {isImageBackground && (
+        <Image
+          transition={{
+            duration: 400,
+            timing: "ease-in-out",
+          }}
+          source={{
+            uri: editNote.background,
+          }}
+          style={{
+            zIndex: -2,
+            position: "absolute",
+            height: height + top,
+            width,
+          }}
+        />
+      )}
 
       <DateTimePickerDialog
         action={() => {
@@ -136,6 +132,7 @@ export function NoteOverlays({
         onCencel={() => setReminderDialog(false)}
       />
       <NoteScreenHeader
+        textLength={editNote.text.length + editNote.title.length}
         emptyNote={noteStateIsEmpty}
         historyShown={editNote.styles.length > 0}
         onHistoryOpen={() => setShowChanges(true)}
@@ -164,7 +161,7 @@ export function NoteOverlays({
             isFavorite: !prev.isFavorite,
           }))
         }
-        onBack={() => navigation.popToTop()}
+        onBack={() => navigation.goBack()}
         favorite={editNote.isFavorite}
         onShare={onShare}
       />

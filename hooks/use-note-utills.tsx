@@ -19,7 +19,6 @@ export function useNoteUtils(
         (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height)
       : Dimensions.get("screen").height -
         (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
-  const textSelected = selection.end !== selection.start;
   const noteStateIsEmpty =
     editNote.text.length === 0 && editNote.title.length === 0;
   const toast = useToast();
@@ -69,7 +68,7 @@ export function useNoteUtils(
   //         Object.keys(e.style).length > 0)
   //   );
   const currentFocused = useMemo(() => {
-    if (textSelected) {
+    if (selection.end !== selection.start) {
       return editNote.styles.find(
         (e) =>
           (selection.start < e.interval.start &&

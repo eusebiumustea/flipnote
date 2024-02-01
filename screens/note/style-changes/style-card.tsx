@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import { BackIcon } from "../../../components";
 import { TextNoteStyle, note } from "../types";
+import { darkCardColors } from "../../../tools/colors";
 type StyleCardProps = {
   text: string;
   item: TextNoteStyle;
@@ -55,7 +56,12 @@ export function StyleCard({
             margin: 6,
           }}
         >
-          <Text style={item.style}>
+          <Text
+            style={{
+              color: darkCardColors.includes(background) ? "#fff" : "#000",
+              ...item.style,
+            }}
+          >
             {text.slice(item.interval.start, item.interval.end)}
           </Text>
         </View>

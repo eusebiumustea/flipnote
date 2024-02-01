@@ -1,20 +1,20 @@
 import Checkbox from "expo-checkbox";
-import { MotiView } from "moti";
 import React, { memo } from "react";
 import {
   GestureResponderEvent,
-  Image,
   Pressable,
   Text,
   View,
   ViewStyle,
   useWindowDimensions,
 } from "react-native";
-import { useNoteContent, useTheme } from "../../hooks";
-import { note } from "../../screens/note";
+import { Image } from "expo-image";
+import { useTheme } from "../../hooks";
+import { NotePreviewTypes } from "../../screens/note";
 import { moderateFontScale, verticalScale } from "../../tools";
+import { darkCardColors } from "../../tools/colors";
 interface NoteCardProps {
-  item: note;
+  item: NotePreviewTypes;
   onPress?: (event: GestureResponderEvent) => void;
   onLongPress?: () => void;
   selectedForOptions?: boolean;
@@ -30,15 +30,7 @@ export const NoteCard = memo(
     options,
     containerStyle,
   }: NoteCardProps) => {
-    const content = useNoteContent(item.styles, item.text);
     const { width } = useWindowDimensions();
-
-    function scale() {
-      if (selectedForOptions) {
-        return 0.93;
-      }
-      return 1;
-    }
     const theme = useTheme();
     return (
       <Pressable
@@ -48,6 +40,7 @@ export const NoteCard = memo(
           height: verticalScale(250),
           width: width / 2 - 16,
           borderRadius: 16,
+          padding: 16,
           elevation: 7,
           shadowColor: theme.onPrimary,
           shadowOffset: {
@@ -56,31 +49,57 @@ export const NoteCard = memo(
           },
           shadowOpacity: 0.17,
           shadowRadius: 3.05,
-          backgroundColor: item.background,
+          backgroundColor: item.background.includes("/")
+            ? "#fff"
+            : item.background,
           ...containerStyle,
         }}
       >
-        <View
-          style={{
-            height: "100%",
-            width: "100%",
-            borderRadius: 16,
-            position: "absolute",
-            zIndex: 2,
-            top: 0,
-          }}
-        />
-        <Image
-          source={{ uri: item.background }}
-          style={{
-            height: "100%",
-            width: "100%",
-            borderRadius: 16,
-            position: "absolute",
-            zIndex: -1,
-            top: 0,
-          }}
-        />
+        {item.background.includes("/") && (
+          <Image
+            transition={{ duration: 500 }}
+            source={{ uri: item.background }}
+            style={{
+              height: containerStyle?.height
+                ? containerStyle?.height
+                : verticalScale(250),
+              width: containerStyle?.width
+                ? containerStyle?.width
+                : width / 2 - 16,
+              borderRadius: 16,
+              position: "absolute",
+              zIndex: -1,
+              top: 0,
+            }}
+          />
+        )}
+        <View style={{ overflow: "hidden", flex: 1 }}>
+          {item.title && (
+            <Text
+              style={{
+                color: darkCardColors.includes(item.background)
+                  ? "#ffffff"
+                  : "#000000",
+                fontSize: moderateFontScale(20),
+                fontWeight: "bold",
+                fontFamily: "OpenSans",
+                maxHeight: verticalScale(250),
+              }}
+            >
+              {item.title}
+            </Text>
+          )}
+          <Text
+            style={{
+              fontSize: moderateFontScale(14),
+              fontFamily: "OpenSans",
+              color: darkCardColors.includes(item.background) ? "#fff" : "#000",
+            }}
+          >
+            {item.text}
+          </Text>
+        </View>
+
         {options && (
           <Checkbox
             style={{
@@ -88,37 +107,22 @@ export const NoteCard = memo(
               borderRadius: 100,
               top: 0,
               left: 0,
-              zIndex: 5,
+              zIndex: 2,
+              margin: 2,
             }}
             value={selectedForOptions}
           />
         )}
-
-        <MotiView
-          from={{ opacity: 0 }}
-          animate={{ backgroundColor: item.background, opacity: 1 }}
+        <View
           style={{
-            height: "100%",
-            width: "100%",
-            overflow: "hidden",
-            padding: 16,
+            height: verticalScale(250),
+            width: width / 2 - 16,
             borderRadius: 16,
+            position: "absolute",
+            zIndex: 1,
+            top: 0,
           }}
-        >
-          {item.title && (
-            <Text
-              style={{
-                color: "#000",
-                fontSize: moderateFontScale(20),
-                fontWeight: "bold",
-                fontFamily: "OpenSans",
-              }}
-            >
-              {item.title}
-            </Text>
-          )}
-          {content}
-        </MotiView>
+        />
       </Pressable>
     );
   }

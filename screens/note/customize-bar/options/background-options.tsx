@@ -4,6 +4,7 @@ import { Linking } from "react-native";
 import { useRecoilState } from "recoil";
 import { ImageBox, ImagePlusIcon, useToast } from "../../../../components";
 import { ColorBox } from "../../../../components/color-box";
+import { imagesData } from "../../../../constants";
 import { BackgroundImages } from "../../../../contexts/atom";
 import { useTheme } from "../../../../hooks";
 import { OptionProps } from "../../types";
@@ -15,14 +16,9 @@ export function BackgroundOptions({
   const theme = useTheme();
   const [backgroundImages, setBackgroundImages] =
     useRecoilState(BackgroundImages);
-  const imagesDir = `${FileSystem.documentDirectory}images`;
+
   const toast = useToast();
-  async function checkImagesDir() {
-    const { exists } = await FileSystem.getInfoAsync(imagesDir);
-    if (!exists) {
-      await FileSystem.makeDirectoryAsync(imagesDir);
-    }
-  }
+
   async function openImagePicker() {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync(
@@ -38,7 +34,6 @@ export function BackgroundOptions({
         });
         return;
       }
-      await checkImagesDir();
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -47,19 +42,17 @@ export function BackgroundOptions({
         return;
       }
 
-      const newImage = `${imagesDir}/${result.assets[0].fileName}`;
-      if (backgroundImages.includes(newImage)) {
+      if (backgroundImages.includes(result.assets[0].uri)) {
         return;
       }
-      console.log("picked", result.assets[0].uri);
-      await FileSystem.copyAsync({
-        from: result.assets[0].uri,
-        to: newImage,
-      });
-      console.log("moved to", newImage);
-      setBackgroundImages((prev) => [...prev, newImage]);
+      await FileSystem.writeAsStringAsync(
+        imagesData,
+        JSON.stringify([...backgroundImages, result.assets[0].uri])
+      );
+      setBackgroundImages((prev) => [...prev, result.assets[0].uri]);
     } catch (error) {}
   }
+
   return (
     <>
       <ImagePlusIcon

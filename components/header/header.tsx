@@ -7,15 +7,15 @@ import { Animated, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 
-import { notesData, receivedNotifications } from "../../contexts/atom";
+import { NOTES_PATH } from "../../constants";
+import { receivedNotifications } from "../../contexts/atom";
 import { useTheme } from "../../hooks";
+import { useLoading } from "../../hooks/use-loading-dialog";
 import { useRequest } from "../../hooks/use-request";
-import { note } from "../../screens";
 import { moderateFontScale, moderateScale, verticalScale } from "../../tools";
 import { ImportIcon, InboxIcon, SearchIcon } from "../assets";
 import { HeaderProps } from "./types";
-import { NOTES_PATH } from "../../constants";
-import { useLoading } from "../../hooks/use-loading-dialog";
+import { removeReceivedReminder } from "../../screens/inbox/upcoming-reminders";
 export const Header = memo(
   ({
     searchValue,
@@ -32,19 +32,25 @@ export const Header = memo(
     const [notifications, setNotifications] = useRecoilState(
       receivedNotifications
     );
+
     useEffect(() => {
-      const listen = Notifications.addNotificationReceivedListener((e) => {
-        setNotifications((data) => [
-          ...data,
-          {
-            content: e.request.content.body,
-            time: new Date(e.date),
-            title: e.request.content.title,
-          },
-        ]);
-        setBadge(true);
-        setTimeout(() => setBadge(false), 120000);
-      });
+      const listen = Notifications.addNotificationReceivedListener(
+        async (e) => {
+          setNotifications((data) => [
+            ...data,
+            {
+              content: e.request.content.body,
+              time: new Date(e.date),
+              title: e.request.content.title,
+            },
+          ]);
+          setBadge(true);
+          setTimeout(() => setBadge(false), 120000);
+          await removeReceivedReminder(+e.request.identifier);
+          await syncState();
+        }
+      );
+
       return () => {
         listen.remove();
       };
@@ -55,7 +61,7 @@ export const Header = memo(
         setBadge(false);
       }
     }, [notifications]);
-    const { request } = useRequest();
+    const { syncState } = useRequest();
     return (
       <Animated.View
         style={{
@@ -138,6 +144,7 @@ export const Header = memo(
                     base64: true,
                   });
                   const zipItems = Object.keys(zip.files);
+                  loading(`Loading ${zipItems.length} items`);
                   await Promise.all(
                     zipItems.map(async (file) => {
                       const { exists } = await FileSystem.getInfoAsync(
@@ -154,7 +161,8 @@ export const Header = memo(
                       );
                     })
                   );
-                  request();
+                  await syncState();
+                  loading(false);
                 } catch (error) {}
               }}
             />

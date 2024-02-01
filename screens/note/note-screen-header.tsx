@@ -6,6 +6,7 @@ import {
   View,
   useColorScheme,
 } from "react-native";
+import { Text } from "react-native-fast-text";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   BackIcon,
@@ -19,6 +20,7 @@ import {
 import { memo } from "react";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useTheme } from "../../hooks";
+import { contentLengthLimit } from "../../tools";
 
 interface NoteScreenHeaderProps {
   onClipboard: () => void;
@@ -30,6 +32,7 @@ interface NoteScreenHeaderProps {
   onHistoryOpen?: (e: GestureResponderEvent) => void;
   historyShown: boolean;
   emptyNote: boolean;
+  textLength: number;
 }
 export const NoteScreenHeader = memo(
   ({
@@ -42,6 +45,7 @@ export const NoteScreenHeader = memo(
     onHistoryOpen,
     historyShown,
     emptyNote,
+    textLength,
   }: NoteScreenHeaderProps) => {
     const { top } = useSafeAreaInsets();
     const { width } = Dimensions.get("window");
@@ -102,6 +106,9 @@ export const NoteScreenHeader = memo(
                 zIndex: 1,
               }}
             >
+              <Text
+                style={{ color: theme.onPrimary }}
+              >{`${textLength} / ${contentLengthLimit()}`}</Text>
               {historyShown && <ChangesIcon onPress={onHistoryOpen} />}
 
               <ReminderIcon onPress={onReminderOpen} />

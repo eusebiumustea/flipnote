@@ -12,7 +12,7 @@ import * as Sharing from "expo-sharing";
 import JSZip from "jszip";
 import { memo, useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { Dialog } from "../../../components";
 import { CloseIcon, DeleteIcon, ExportIcon } from "../../../components/assets";
 import { useTheme } from "../../../hooks";
@@ -23,7 +23,8 @@ import {
   removeEmptySpace,
   verticalScale,
 } from "../../../tools";
-import { notesData } from "../../note";
+import { note, notesValue } from "../../note";
+import { NOTES_PATH } from "../../../constants";
 interface NoteOptionsProps {
   onDelete: () => void;
   onClose: () => void;
@@ -51,37 +52,49 @@ export const NoteOptions = memo(
     const loading = useLoading();
     const theme = useTheme();
     const { top } = useSafeAreaInsets();
-    const [notes] = useRecoilState(notesData);
+    const notes = useRecoilValue(notesValue);
     const shareNotes = useMemo(() => {
       return notes.filter((e) => selectedNotes.includes(e.id));
     }, [selectedNotes, notes]);
 
     async function Share() {
       try {
-        const output = `${FileSystem.cacheDirectory}flipnotebackup.zip`;
         loading(true);
+        const output = `${FileSystem.cacheDirectory}flipnotebackup.zip`;
         const zip = new JSZip();
         await Promise.all(
-          shareNotes.map((note, i) => {
-            zip.file(`${note.id}`, `${JSON.stringify(note)}`);
+          shareNotes.map(async (note, i) => {
+            const noteStorageContent = await FileSystem.readAsStringAsync(
+              `${NOTES_PATH}/${note.id}`
+            );
+            const parsedNote: note = JSON.parse(noteStorageContent);
+            if (parsedNote.background.includes("/")) {
+              zip.file(
+                `${note.id}`,
+                JSON.stringify({ ...parsedNote, background: "#fff" })
+              );
+              return;
+            }
+            zip.file(`${note.id}`, noteStorageContent);
           })
         );
-        const content = await zip.generateAsync({
+        const zipContent = await zip.generateAsync({
           type: "base64",
           compression: "STORE",
         });
 
-        await FileSystem.writeAsStringAsync(output, content, {
+        await FileSystem.writeAsStringAsync(output, zipContent, {
           encoding: FileSystem.EncodingType.Base64,
         });
 
         await Sharing.shareAsync(output, {
           mimeType: "application/zip",
         });
-        loading(false);
-        onModalClose();
       } catch (error) {
         console.log(error);
+      } finally {
+        onModalClose();
+        loading(false);
       }
     }
 
@@ -196,6 +209,11 @@ export const NoteOptions = memo(
               Select all
             </Text>
           </TouchableOpacity>
+          <Text
+            style={{ color: theme.onPrimary, fontSize: moderateFontScale(18) }}
+          >
+            {selectedNotes.length}/{notes.length}
+          </Text>
         </View>
 
         <View

@@ -194,12 +194,6 @@ export function CustomizeBar({
         <BackgroundIcon
           onPress={() => setShowOption(toggleState(null, "background"))}
         />
-        <JustifyAlignIcon
-          active={contentPosition === "justify"}
-          onPress={() =>
-            setEditNote((prev) => ({ ...prev, contentPosition: "justify" }))
-          }
-        />
         <LeftAlignIcon
           active={contentPosition === "left"}
           onPress={() =>
