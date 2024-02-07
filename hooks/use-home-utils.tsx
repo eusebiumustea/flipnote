@@ -5,7 +5,7 @@ import { Alert } from "react-native";
 import { useRecoilValue } from "recoil";
 import { useToast } from "../components";
 import { NOTES_PATH } from "../constants";
-import { note, notesValue } from "../screens";
+import { notesValue } from "../screens";
 import { useLoading } from "./use-loading-dialog";
 import { useRequest } from "./use-request";
 

@@ -12,6 +12,7 @@ import {
   verticalScale,
 } from "../../../tools";
 import { NotesListProps } from "./types";
+import { MotiPressable } from "moti/interactions";
 
 export const NotesList = memo(
   ({
@@ -24,12 +25,11 @@ export const NotesList = memo(
     const theme = useTheme();
     const scrollRef = useRef<FlatList>(null);
     const { top } = useSafeAreaInsets();
-    const { syncState, syncImagesState } = useRequest();
+    const { syncState } = useRequest();
 
     const [refreshing, setRefreshing] = useState(false);
     const onRefresh = useCallback(async () => {
       setRefreshing(true);
-      await syncImagesState();
       await syncState();
       setRefreshing(false);
     }, []);
@@ -114,11 +114,15 @@ export const NotesList = memo(
             />
           )}
           scrollEventThrottle={16}
+          initialNumToRender={6}
+          keyboardDismissMode="interactive"
+          updateCellsBatchingPeriod={300}
           getItemLayout={(data, index) => ({
             length: verticalScale(250),
             offset: verticalScale(250) * index,
             index,
           })}
+          maxToRenderPerBatch={6}
           onScroll={(e) => {
             scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y));
           }}

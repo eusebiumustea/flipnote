@@ -13,6 +13,8 @@ import { useTheme } from "../../hooks";
 import { NotePreviewTypes } from "../../screens/note";
 import { moderateFontScale, verticalScale } from "../../tools";
 import { darkCardColors } from "../../tools/colors";
+import { noteCardStyles } from "./styles";
+import { useStyle } from "../../hooks/use-style";
 interface NoteCardProps {
   item: NotePreviewTypes;
   onPress?: (event: GestureResponderEvent) => void;
@@ -32,28 +34,12 @@ export const NoteCard = memo(
   }: NoteCardProps) => {
     const { width } = useWindowDimensions();
     const theme = useTheme();
+    const styles = useStyle(noteCardStyles);
     return (
       <Pressable
         onLongPress={onLongPress}
         onPress={onPress}
-        style={{
-          height: verticalScale(250),
-          width: width / 2 - 16,
-          borderRadius: 16,
-          padding: 16,
-          elevation: 7,
-          shadowColor: theme.onPrimary,
-          shadowOffset: {
-            width: 0,
-            height: 3,
-          },
-          shadowOpacity: 0.17,
-          shadowRadius: 3.05,
-          backgroundColor: item.background.includes("/")
-            ? "#fff"
-            : item.background,
-          ...containerStyle,
-        }}
+        style={styles.root({ width, item, containerStyle })}
       >
         {item.background.includes("/") && (
           <Image

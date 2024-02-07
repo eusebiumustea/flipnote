@@ -154,7 +154,7 @@ export function FontFamilyEvent(
     return;
   }
 
-  if (Object.keys(currentFocused?.style).length > 0) {
+  if (currentFocused && Object.keys(currentFocused?.style).length > 0) {
     setEditNote((prev) => ({
       ...prev,
       styles: replaceElementAtIndex(prev.styles, currentIndex, {

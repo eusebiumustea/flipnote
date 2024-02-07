@@ -1,4 +1,8 @@
-import { createStackNavigator } from "@react-navigation/stack";
+import {
+  TransitionPresets,
+  TransitionSpecs,
+  createStackNavigator,
+} from "@react-navigation/stack";
 import { Easing, useWindowDimensions } from "react-native";
 import { enableFreeze } from "react-native-screens";
 import { useTheme } from "../hooks";
@@ -29,78 +33,72 @@ export function AppRouting() {
         cardOverlayEnabled: true,
         detachPreviousScreen: true,
         gestureVelocityImpact: 0.5,
+        transitionSpec: {
+          open: TransitionPresets.DefaultTransition.transitionSpec.open,
+          close: {
+            animation: "timing",
+            config: { duration: 160, easing: Easing.out(Easing.linear) },
+          },
+        },
       }}
       initialRouteName="Home"
     >
       <Stack.Screen component={Home} name="Home" />
 
       <Stack.Screen
-        options={({ route }: any) => ({
-          transitionSpec: {
-            open: {
-              animation: "timing",
-              config: { duration: 300, easing: Easing.inOut(Easing.ease) },
-            },
-            close: {
-              animation: "timing",
-              config: { duration: 150, easing: Easing.inOut(Easing.ease) },
-            },
-          },
-          cardStyleInterpolator: TransitionInterpolator({
-            initial: {
-              scale: 1,
-              scaleX: (width / 2 - 16) / width,
-              scaleY: verticalScale(250) / height,
-              y: verticalScale(125) + route.params.relativeY,
-              x: route.params.relativeX + (width / 2 - 16) / 2,
-            },
-          }),
-        })}
+        options={({ route }: any) =>
+          ({
+            cardStyleInterpolator: TransitionInterpolator({
+              // fade: true,
+              initial: {
+                scale: 1,
+                scaleX: (width / 2 - 16) / width,
+                scaleY: verticalScale(250) / height,
+                y: verticalScale(125) + route.params.relativeY,
+                x: (width / 2 - 16) / 2 + route.params.relativeX,
+              },
+            }),
+          } as unknown)
+        }
         component={NotePage}
         name="note"
       />
       <Stack.Screen
-        options={({ route }: any) => ({
-          transitionSpec: {
-            open: {
-              animation: "timing",
-              config: { duration: 300, easing: Easing.inOut(Easing.ease) },
-            },
-            close: {
-              animation: "timing",
-              config: { duration: 300, easing: Easing.inOut(Easing.ease) },
-            },
-          },
-          cardStyleInterpolator: TransitionInterpolator({
-            initial: {
-              scale: 0,
-              y: route.params.relativeY + moderateScale(20),
-              x: route.params.relativeX + moderateScale(20),
-            },
-          }),
-        })}
+        options={({ route }: any) =>
+          ({
+            cardStyleInterpolator: TransitionInterpolator({
+              initial: {
+                scale: 0,
+                y: route.params.relativeY + moderateScale(20),
+                x: route.params.relativeX + moderateScale(20),
+              },
+            }),
+          } as unknown)
+        }
         component={NotePage}
         name="note-init"
       />
 
       <Stack.Screen
         component={Inbox}
-        options={({ route }: any) => ({
-          headerShown: true,
-          title: "Inbox",
-          headerTitleAlign: "center",
-          headerMode: "screen",
-          headerStyle: { backgroundColor: theme.background, borderWidth: 0 },
-          headerTintColor: theme.onBackground,
-          headerShadowVisible: false,
-          cardStyleInterpolator: TransitionInterpolator({
-            initial: {
-              scale: 0,
-              y: route.params.relativeY,
-              x: route.params.relativeX + 15,
-            },
-          }),
-        })}
+        options={({ route }: any) =>
+          ({
+            headerShown: true,
+            title: "Inbox",
+            headerTitleAlign: "center",
+            headerMode: "screen",
+            headerStyle: { backgroundColor: theme.background, borderWidth: 0 },
+            headerTintColor: theme.onBackground,
+            headerShadowVisible: false,
+            cardStyleInterpolator: TransitionInterpolator({
+              initial: {
+                scale: 0,
+                y: route.params.relativeY,
+                x: route.params.relativeX + 15,
+              },
+            }),
+          } as unknown)
+        }
         name="inbox"
       />
     </Stack.Navigator>

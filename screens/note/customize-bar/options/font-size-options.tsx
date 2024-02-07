@@ -20,6 +20,7 @@ export function FontSizeOptions({
         flexDirection: "column",
         gap: 8,
         borderRadius: 8,
+        width: "100%",
       }}
     >
       {/* <Slider
@@ -88,7 +89,7 @@ export function FontSizeOptions({
         thumbStyle={{ backgroundColor: "teal" }}
         maximumTrackTintColor={theme.primary}
         minimumTrackTintColor={"#007AFF"}
-        trackStyle={{ width: width - 60 }}
+        trackStyle={{ width: "100%" }}
         minimumValue={14}
         maximumValue={70}
       />

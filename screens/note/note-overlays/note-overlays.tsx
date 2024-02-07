@@ -1,6 +1,19 @@
+import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
+import * as Clipboard from "expo-clipboard";
+import { Image, ImageBackground } from "expo-image";
 import { useState } from "react";
+import {
+  InputAccessoryView,
+  TextStyle,
+  useWindowDimensions,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useToast } from "../../../components";
+import { fontNames } from "../../../constants";
 import { useNoitication } from "../../../hooks/use-notification-handler";
-import { Image } from "expo-image";
+import { cardColors } from "../../../tools/colors";
 import {
   BackgroundOptions,
   ColorOptions,
@@ -11,19 +24,9 @@ import {
 import { DateTimePickerDialog } from "../date-time-picker";
 import { NoteScreenHeader } from "../note-screen-header";
 import { StyleChanges } from "../style-changes";
-import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
-import { useToast } from "../../../components";
-import * as Clipboard from "expo-clipboard";
-import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { StyleEvent, onFontColor } from "../style-events";
-import { TextStyle, useWindowDimensions } from "react-native";
 import { OptionProps } from "../types";
-import { fontNames } from "../../../constants";
-import { cardColors } from "../../../tools/colors";
 import { NoteOverlaysProps } from "./types";
-import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
-import { AnimatePresence, MotiImage } from "moti";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 export function NoteOverlays({
   id,
   editNote,
@@ -74,17 +77,17 @@ export function NoteOverlays({
       {isImageBackground && (
         <Image
           transition={{
-            duration: 400,
+            duration: 300,
             timing: "ease-in-out",
           }}
           source={{
             uri: editNote.background,
           }}
           style={{
-            zIndex: -2,
-            position: "absolute",
             height: height + top,
             width,
+            position: "absolute",
+            zIndex: -2,
           }}
         />
       )}
@@ -135,7 +138,7 @@ export function NoteOverlays({
         textLength={editNote.text.length + editNote.title.length}
         emptyNote={noteStateIsEmpty}
         historyShown={editNote.styles.length > 0}
-        onHistoryOpen={() => setShowChanges(true)}
+        // onHistoryOpen={() => setShowChanges(true)}
         onReminderOpen={onReminderOpen}
         onClipboard={async () => {
           try {
@@ -165,14 +168,15 @@ export function NoteOverlays({
         favorite={editNote.isFavorite}
         onShare={onShare}
       />
-      <StyleChanges
+      {/* <StyleChanges
         background={editNote.background}
         text={editNote.text}
         setEditNote={setEditNote}
         styles={editNote.styles}
         opened={changes}
         onClose={() => setShowChanges(false)}
-      />
+      /> */}
+
       <CustomizeBar
         contentPosition={editNote.contentPosition}
         setEditNote={setEditNote}

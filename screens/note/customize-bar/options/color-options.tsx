@@ -4,10 +4,10 @@ import ColorPicker, {
   HueSlider,
   SaturationSlider,
 } from "reanimated-color-picker";
+import { useTheme } from "../../../../hooks";
 import { removeObjectKey, replaceElementAtIndex } from "../../../../tools";
 import { FontColorEvent } from "../../style-events";
 import { OptionProps } from "../../types";
-import { useTheme } from "../../../../hooks";
 
 export function ColorOptions({
   currentFocused,
@@ -16,12 +16,15 @@ export function ColorOptions({
   setEditNote,
 }: OptionProps) {
   const theme = useTheme();
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   return (
     <ColorPicker
       style={{
         rowGap: 10,
-        width: width - 60,
+        width: "100%",
+        alignSelf: "center",
+        justifyContent: "center",
+        flexDirection: "column",
       }}
       thumbShape="circle"
       onComplete={({ hex }) =>

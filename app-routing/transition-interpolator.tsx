@@ -1,3 +1,5 @@
+import { Animated } from "react-native";
+
 type InterpolateStylesProps = {
   overlay?: boolean;
   fade?: boolean;
@@ -19,18 +21,19 @@ export function TransitionInterpolator({
     layouts: {
       screen: { width, height },
     },
+    next,
   }) => ({
     overlayStyle: {
       opacity: overlay
         ? current.progress.interpolate({
             inputRange: [0, 1],
-            outputRange: [0, 1],
+            outputRange: [0, 0.5],
           })
         : 0,
     },
 
     cardStyle: {
-      opacity: fade ? current.progress : 1,
+      opacity: fade ? current.progress : undefined,
       transform: [
         {
           translateX: current.progress.interpolate({

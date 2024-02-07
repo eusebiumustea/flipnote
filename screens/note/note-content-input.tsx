@@ -4,13 +4,14 @@ import {
   SetStateAction,
   forwardRef,
   memo,
+  useEffect,
   useRef,
 } from "react";
 
 import { TextInput, TextInputProps } from "react-native";
 import { useToast } from "../../components";
 import { useEditNoteContent, useTheme } from "../../hooks";
-import { contentLengthLimit, range } from "../../tools";
+import { contentLengthLimit, range, verticalScale } from "../../tools";
 import { InputSelectionProps, TextNoteStyle, note } from "./types";
 type NoteContentInputProps = {
   setEditNote?: Dispatch<SetStateAction<note>>;
@@ -32,9 +33,10 @@ export const NoteContentInput = memo(
       start: 0,
       end: 0,
     }).current;
-    const toast = useToast();
+    const inputRef = useRef<TextInput>(null);
     return (
       <TextInput
+        ref={inputRef}
         maxLength={contentLengthLimit()}
         onSelectionChange={({ nativeEvent: { selection } }) => {
           selectionRef.start = selection.start;
@@ -42,24 +44,16 @@ export const NoteContentInput = memo(
           setInputSelection(selection);
         }}
         placeholderTextColor={theme.placeholder}
-        cursorColor={"#FFCB09"}
-        contextMenuHidden
         scrollEnabled={false}
-        selectionColor={"#FFF3C7"}
         autoCorrect={false}
         spellCheck={false}
         autoComplete="off"
         secureTextEntry={false}
         textAlign={editNote.contentPosition}
         textContentType="none"
+        allowFontScaling={false}
+        style={{ paddingBottom: verticalScale(50) }}
         onChangeText={(text) => {
-          if (text.length >= contentLengthLimit()) {
-            toast({
-              message: "You reached max limit. Start a new note",
-              textColor: "orange",
-            });
-          }
-
           const textSelected = selectionRef.start !== selectionRef.end;
           const increment = text.length > editNote.text.length;
           const decrement = text.length < editNote.text.length;
@@ -93,43 +87,43 @@ export const NoteContentInput = memo(
             ...prev,
             text,
             styles: prev.styles.map((style, i) => {
+              // if (
+              //   !textSelected &&
+              //   decrement &&
+              //   range(style.interval.start + 1, style.interval.end).includes(
+              //     selectionRef.end
+              //   )
+              // ) {
+              //   return {
+              //     ...style,
+              //     interval: {
+              //       ...style.interval,
+              //       end:
+              //         style.interval.end - (editNote.text.length - text.length),
+              //     },
+              //   };
+              // }
+              // if (
+              //   !textSelected &&
+              //   increment &&
+              //   range(
+              //     style.interval.start + 1,
+              //     style.interval.end - 1
+              //   ).includes(selectionRef.end)
+              // ) {
+              //   return {
+              //     ...style,
+              //     interval: {
+              //       ...style.interval,
+              //       end:
+              //         style.interval.end + (text.length - editNote.text.length),
+              //     },
+              //   };
+              // }
               if (
                 !textSelected &&
-                decrement &&
-                range(style.interval.start + 1, style.interval.end).includes(
-                  selectionRef.end
-                )
-              ) {
-                return {
-                  ...style,
-                  interval: {
-                    ...style.interval,
-                    end:
-                      style.interval.end - (editNote.text.length - text.length),
-                  },
-                };
-              }
-              if (
-                !textSelected &&
-                increment &&
-                range(
-                  style.interval.start + 1,
-                  style.interval.end - 1
-                ).includes(selectionRef.end)
-              ) {
-                return {
-                  ...style,
-                  interval: {
-                    ...style.interval,
-                    end:
-                      style.interval.end + (text.length - editNote.text.length),
-                  },
-                };
-              }
-              if (
-                !textSelected &&
-                decrement &&
-                selectionRef.end <= style.interval.start
+                selectionRef.end <= style.interval.start &&
+                decrement
               ) {
                 return {
                   ...style,
@@ -144,8 +138,8 @@ export const NoteContentInput = memo(
               }
               if (
                 !textSelected &&
-                increment &&
-                selectionRef.end <= style.interval.start
+                selectionRef.end <= style.interval.start &&
+                increment
               ) {
                 return {
                   ...style,
@@ -164,8 +158,6 @@ export const NoteContentInput = memo(
         }}
         multiline
         placeholder="Take the note"
-        clearButtonMode="always"
-        smartInsertDelete={false}
         {...inputProps}
       >
         {useEditNoteContent(

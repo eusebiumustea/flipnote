@@ -1,12 +1,11 @@
 import { useBackHandler } from "@react-native-community/hooks";
-import { useIsFocused } from "@react-navigation/native";
-import React, { useEffect, useRef, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useRef, useState } from "react";
 import { Animated } from "react-native";
 import { useHomeUtils } from "../../hooks/use-home-utils";
 import { HomeOverlays } from "./home-overlays";
 import { NotesList } from "./notes-list";
 export function Home() {
-  const focused = useIsFocused();
   const [selected, setSelected] = useState<string[]>([]);
   const [optionsSelection, setOptionsSelection] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,11 +29,15 @@ export function Home() {
     setSelected
   );
   const scrollY = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    if (focused) {
-      scrollY.setValue(0);
-    }
-  }, [focused]);
+  useFocusEffect(
+    useCallback(() => {
+      return Animated.timing(scrollY, {
+        toValue: 0,
+        useNativeDriver: true,
+        duration: 100,
+      }).start();
+    }, [])
+  );
 
   return (
     <>

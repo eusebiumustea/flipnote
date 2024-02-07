@@ -1,19 +1,13 @@
 import * as FileSystem from "expo-file-system";
 import { useRecoilState } from "recoil";
-import { NOTES_PATH, imagesData } from "../constants";
-import {
-  BackgroundImages,
-  NotePreviewTypes,
-  note,
-  notesData,
-} from "../screens";
+import { NOTES_PATH } from "../constants";
+import { NotePreviewTypes, note, notesData } from "../screens";
 type RequestTypes = {
   path: string;
   contents?: boolean;
 };
 export function useRequest() {
   const [notes, setNotes] = useRecoilState(notesData);
-  const [img, setImg] = useRecoilState(BackgroundImages);
   // const request = async ({ path, contents = true }: RequestTypes) => {
   //   try {
   //     const { exists, isDirectory } = await FileSystem.getInfoAsync(path);
@@ -68,14 +62,5 @@ export function useRequest() {
     const data = await Promise.all(promisesDataFiles);
     setNotes(data);
   };
-  const syncImagesState = async () => {
-    const imgInfo = await FileSystem.getInfoAsync(imagesData);
-    if (!imgInfo.exists) {
-      return;
-    }
-    const data = await FileSystem.readAsStringAsync(imagesData);
-    const images: string[] = JSON.parse(data);
-    setImg(images);
-  };
-  return { syncState, syncImagesState };
+  return { syncState };
 }

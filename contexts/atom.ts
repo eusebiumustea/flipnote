@@ -22,10 +22,7 @@ export const notesData = atom<NotePreviewTypes[]>({
   key: "userdata",
   default: [],
 });
-export const BackgroundImages = atom<string[]>({
-  key: "background-images",
-  default: [],
-});
+
 export const receivedNotifications = atom<NotificationProp[]>({
   key: "notifications",
   default: [],

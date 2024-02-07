@@ -1,9 +1,9 @@
+import * as Notifications from "expo-notifications";
 import { Dispatch, SetStateAction, useMemo } from "react";
+import { useToast } from "../components";
 import { InputSelectionProps, note } from "../screens";
 import { dateTime, moderateScale, range } from "../tools";
-import { useToast } from "../components";
-import * as Notifications from "expo-notifications";
-import { Dimensions, Platform } from "react-native";
+import { Dimensions } from "react-native";
 import { useKeyboard } from "@react-native-community/hooks";
 export function useNoteUtils(
   id: number,
@@ -13,12 +13,9 @@ export function useNoteUtils(
   setReminderDialog: Dispatch<SetStateAction<boolean>>
 ) {
   const keyboard = useKeyboard();
-  const marginBottom =
-    Platform.OS === "android"
-      ? Dimensions.get("screen").height -
-        (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height)
-      : Dimensions.get("screen").height -
-        (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
+  const keyboardHeight =
+    Dimensions.get("screen").height -
+    (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
   const noteStateIsEmpty =
     editNote.text.length === 0 && editNote.title.length === 0;
   const toast = useToast();
@@ -84,5 +81,5 @@ export function useNoteUtils(
     }
   }, [selection, editNote.styles]);
 
-  return { currentFocused, openReminder, marginBottom };
+  return { currentFocused, openReminder, keyboardHeight };
 }

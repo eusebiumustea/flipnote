@@ -30,11 +30,12 @@ import {
   UnderlineIcon,
   UndoIcon,
 } from "../../../components/assets";
-import { toggleState } from "../../../tools";
+import { toggleState, verticalScale } from "../../../tools";
 import { InputSelectionProps, note } from "../types";
 import { OptionContainer } from "./option-container";
 import { useTheme } from "../../../hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useCardAnimation } from "@react-navigation/stack";
 interface CustomizeBarProps {
   boldFocused?: boolean;
   italicFocused?: boolean;
@@ -75,12 +76,11 @@ export function CustomizeBar({
   const [showOption, setShowOption] = useState<string | null>(null);
   const theme = useTheme();
   const keyboard = useKeyboard();
-  const paddingTop =
-    Platform.OS === "android"
-      ? Dimensions.get("screen").height -
-        (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height)
-      : Dimensions.get("screen").height -
-        (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
+  const keyboardHeight =
+    Dimensions.get("screen").height -
+    (Platform.OS === "ios"
+      ? keyboard.coordinates.end?.screenY
+      : keyboard.coordinates.start?.screenY || Dimensions.get("screen").height);
 
   function optionSizeAdjust() {
     switch (showOption) {
@@ -97,12 +97,12 @@ export function CustomizeBar({
       setShowOption(null);
     }
   }, [selection]);
+  const { width, height } = useWindowDimensions();
   return (
     <MotiView
       transition={{
         type: "timing",
         duration: 300,
-        opacity: { delay: 400 },
       }}
       style={{
         borderRadius: 16,
@@ -110,16 +110,13 @@ export function CustomizeBar({
         position: "absolute",
         bottom: 0,
         alignSelf: "center",
-        marginBottom: paddingTop + 20,
-        width: "90%",
-        marginHorizontal: 20,
+        marginBottom: keyboardHeight,
+        width: width - 15,
       }}
       from={{
-        opacity: 0,
         paddingTop: 0,
       }}
       animate={{
-        opacity: 1,
         paddingTop: showOption ? optionSizeAdjust() : 0,
       }}
     >
@@ -131,11 +128,13 @@ export function CustomizeBar({
       <OptionContainer children={fontOptions} show={showOption === "font"} />
 
       <OptionContainer
+        scroll={false}
         children={fontColorOptions}
         show={showOption === "font-color"}
       />
 
       <OptionContainer
+        scroll={false}
         children={fontSizeOptions}
         show={showOption === "font-size"}
       />
@@ -143,19 +142,15 @@ export function CustomizeBar({
       <ScrollView
         decelerationRate={"fast"}
         contentContainerStyle={{
-          padding: 15,
-
+          padding: 12,
           flexDirection: "row",
           columnGap: 12,
-          alignSelf: "flex-start",
-          // width: "100%",
           alignItems: "center",
         }}
         horizontal
         keyboardShouldPersistTaps="always"
         keyboardDismissMode="interactive"
         style={{
-          backgroundColor: theme.customizeBarColor,
           alignSelf: "center",
           borderRadius: 16,
         }}

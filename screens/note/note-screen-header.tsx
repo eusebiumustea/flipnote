@@ -20,7 +20,11 @@ import {
 import { memo } from "react";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useTheme } from "../../hooks";
-import { contentLengthLimit } from "../../tools";
+import {
+  contentLengthLimit,
+  moderateFontScale,
+  moderateScale,
+} from "../../tools";
 
 interface NoteScreenHeaderProps {
   onClipboard: () => void;
@@ -97,19 +101,22 @@ export const NoteScreenHeader = memo(
 
           {!emptyNote && (
             <Animated.View
-              entering={FadeIn.delay(100)}
-              exiting={FadeOut.delay(100)}
+              entering={FadeIn.duration(300).delay(100)}
+              exiting={FadeOut.duration(300).delay(100)}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                columnGap: 14,
+                gap: 6,
                 zIndex: 1,
               }}
             >
               <Text
-                style={{ color: theme.onPrimary }}
+                style={{
+                  color: theme.onPrimary,
+                  fontSize: moderateFontScale(13),
+                }}
               >{`${textLength} / ${contentLengthLimit()}`}</Text>
-              {historyShown && <ChangesIcon onPress={onHistoryOpen} />}
+              {/* {historyShown && <ChangesIcon onPress={onHistoryOpen} />} */}
 
               <ReminderIcon onPress={onReminderOpen} />
 

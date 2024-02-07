@@ -1,13 +1,17 @@
 import { NavigatorScreenParams } from "@react-navigation/native";
 import * as Sharing from "expo-sharing";
 import { MotiView } from "moti";
-import { memo, useMemo, useRef, useState } from "react";
-import { ScrollView } from "react-native";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ScrollView,
+  useWindowDimensions,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
-import { useRecoilState } from "recoil";
 import { useToast } from "../../components/toast";
-import { BackgroundImages } from "../../contexts";
 import { useLoading } from "../../hooks/use-loading-dialog";
 import { useNoteStorage } from "../../hooks/use-note-manager";
 import { useNoteUtils } from "../../hooks/use-note-utills";
@@ -25,7 +29,6 @@ type NotePageProps = {
 export const NotePage = memo(({ route }: NotePageProps) => {
   const { id }: ParamsProps = route.params;
 
-  const [backgroundImages] = useRecoilState(BackgroundImages);
   const [editNote, setEditNote] = useState<note>({
     id,
     title: "",
@@ -47,7 +50,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     end: 0,
   });
   const [reminderDialog, setReminderDialog] = useState(false);
-  const { currentFocused, openReminder, marginBottom } = useNoteUtils(
+  const { currentFocused, openReminder } = useNoteUtils(
     id,
     selection,
     editNote,
@@ -82,7 +85,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
       loading(false);
     }
   }
-  const isImgBg = backgroundImages.includes(editNote.background);
+  const isImgBg = editNote.background.includes("/");
   const captureBackground = useMemo(() => {
     if (capturing && isImgBg) {
       return "#fff";
@@ -92,7 +95,8 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     }
     return null;
   }, [capturing, isImgBg]);
-  const scrollRef = useRef<ScrollView>(null);
+
+  const { height } = useWindowDimensions();
   return (
     <MotiView
       style={{ flex: 1 }}
@@ -108,48 +112,54 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         backgroundColor: !isImgBg ? editNote.background : "transparent",
       }}
     >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="always"
-        contentContainerStyle={{
-          paddingTop: verticalScale(70) + top,
-        }}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{
           flex: 1,
-          marginBottom: !capturing ? marginBottom + verticalScale(95) : 0,
         }}
+        keyboardVerticalOffset={height / 16}
       >
-        <ViewShot
-          // onLayout={(e) => setScrollHeight(e.nativeEvent.layout.height)}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="always"
+          contentContainerStyle={{
+            paddingTop: verticalScale(70) + top,
+          }}
           style={{
             flex: 1,
-            backgroundColor: captureBackground,
-            paddingHorizontal: 16,
-            rowGap: verticalScale(12),
-            paddingTop: capturing ? top + 50 : 0,
           }}
-          options={{
-            result: "tmpfile",
-
-            useRenderInContext: true,
-            fileName: `flipnote-${id}`,
-          }}
-          ref={imageRef}
         >
-          {showTitle && (
-            <NoteTitleInput setEditNote={setEditNote} editNote={editNote} />
-          )}
-          <NoteContentInput
-            inputProps={{
-              caretHidden: capturing,
+          <ViewShot
+            style={{
+              flex: 1,
+              backgroundColor: captureBackground,
+              paddingHorizontal: 16,
+              rowGap: verticalScale(12),
+              paddingTop: capturing ? top + 50 : 0,
             }}
-            currentFocused={currentFocused}
-            editNote={editNote}
-            setInputSelection={setSelection}
-            setEditNote={setEditNote}
-          />
-        </ViewShot>
-      </ScrollView>
+            options={{
+              result: "tmpfile",
+              useRenderInContext: true,
+              fileName: `flipnote-${id}`,
+            }}
+            ref={imageRef}
+          >
+            {showTitle && (
+              <NoteTitleInput setEditNote={setEditNote} editNote={editNote} />
+            )}
+            <NoteContentInput
+              inputProps={{
+                caretHidden: capturing,
+              }}
+              currentFocused={currentFocused}
+              editNote={editNote}
+              setInputSelection={setSelection}
+              setEditNote={setEditNote}
+            />
+          </ViewShot>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
       <NoteOverlays
         isImageBackground={isImgBg}
         reminderDialog={reminderDialog}
