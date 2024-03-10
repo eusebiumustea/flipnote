@@ -11,4 +11,8 @@ Screenshots:
 
 <img src="https://github.com/eusebiumustea/flipnote/assets/117436465/e7dd90f3-cbc4-4bb7-8361-afad37279ffe" width="392" height="844">
 
+<img src="https://github.com/eusebiumustea/flipnote/assets/117436465/ff559bf7-e977-4236-9274-9978d6441d3e" width="392" height="844">
+
+<img src="https://github.com/eusebiumustea/flipnote/assets/117436465/7fcdf9ff-2a19-4790-9e8b-94365d32d7aa" width="392" height="844">
+
 <img src="https://github.com/eusebiumustea/flipnote/assets/117436465/089c6cdc-3b5f-4366-b959-e323305ee769"  width="392" height="844">
