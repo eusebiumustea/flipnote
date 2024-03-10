@@ -3,8 +3,12 @@ Flipnote is a versatile note-taking app that blends functionality with personali
 Key features include exporting notes in JPG format or as a ZIP archive for easy sharing and backup. Flipnote supports importing notes too, facilitating collaboration. With dark mode fully integrated, users enjoy a comfortable viewing experience. Notes are easily organized by title on the home screen, making management straightforward. Flipnote is ideal for anyone looking for a comprehensive yet intuitive note-taking solution.
 
 Screenshots:
+
+
 <img src="https://github.com/eusebiumustea/flipnote/assets/117436465/53648a76-1f77-4484-8622-a49c98d1223b" width="392" height="844">
+
 <img src="https://github.com/eusebiumustea/flipnote/assets/117436465/c1947b73-1cd2-4dc5-aa4f-77dd3cc669d6"  width="392" height="844">
+
 <img src="https://github.com/eusebiumustea/flipnote/assets/117436465/e7dd90f3-cbc4-4bb7-8361-afad37279ffe" width="392" height="844">
+
 <img src="https://github.com/eusebiumustea/flipnote/assets/117436465/089c6cdc-3b5f-4366-b959-e323305ee769"  width="392" height="844">
-<img src="https://github.com/eusebiumustea/flipnote/assets/117436465/adb7ab8a-d216-4199-b085-a26cdf562bd4"  width="392" height="844">
