@@ -83,6 +83,7 @@ export const NotesList = memo(
             </Text>
           }
           data={data}
+          scrollEnabled={navigation.isFocused()}
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item }) => (
             <NoteCard

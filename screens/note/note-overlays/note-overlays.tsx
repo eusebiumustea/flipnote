@@ -10,7 +10,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useToast } from "../../../components";
+import { ChevronDownIcon, useToast } from "../../../components";
 import { fontNames } from "../../../constants";
 import { useNoitication } from "../../../hooks/use-notification-handler";
 import { cardColors } from "../../../tools/colors";
@@ -39,11 +39,8 @@ export function NoteOverlays({
   selection,
   reminderDialog,
   setReminderDialog,
-  isImageBackground,
 }: NoteOverlaysProps) {
   const notification = useNoitication();
-
-  const [changes, setShowChanges] = useState(false);
   const toast = useToast();
   const currentIndex = editNote.styles.indexOf(currentFocused);
   const fontFamilyFocused = currentFocused?.style?.fontFamily;
@@ -70,28 +67,8 @@ export function NoteOverlays({
     fontFamilyFocused,
     fonts: fontNames,
   };
-  const { width, height } = useWindowDimensions();
-  const { top } = useSafeAreaInsets();
   return (
     <>
-      {isImageBackground && (
-        <Image
-          transition={{
-            duration: 300,
-            timing: "ease-in-out",
-          }}
-          source={{
-            uri: editNote.background,
-          }}
-          style={{
-            height: height + top,
-            width,
-            position: "absolute",
-            zIndex: -2,
-          }}
-        />
-      )}
-
       <DateTimePickerDialog
         action={() => {
           notification(
@@ -134,6 +111,7 @@ export function NoteOverlays({
         date={reminder.date}
         onCencel={() => setReminderDialog(false)}
       />
+
       <NoteScreenHeader
         textLength={editNote.text.length + editNote.title.length}
         emptyNote={noteStateIsEmpty}

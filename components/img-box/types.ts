@@ -2,6 +2,6 @@ export type ImgBoxProps = {
   checked: boolean;
   svgProps?: any;
   uri: string;
-  onPress: () => void;
+  onPress?: () => void;
   onLongPress?: () => void;
 };

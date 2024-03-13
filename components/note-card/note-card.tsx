@@ -33,7 +33,6 @@ export const NoteCard = memo(
     containerStyle,
   }: NoteCardProps) => {
     const { width } = useWindowDimensions();
-    const theme = useTheme();
     const styles = useStyle(noteCardStyles);
     return (
       <Pressable

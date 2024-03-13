@@ -6,4 +6,5 @@ export interface ColorBoxProps {
   bgColor: ColorValue;
   checked: boolean;
   svgProps?: any;
+  checkedColor?: string;
 }

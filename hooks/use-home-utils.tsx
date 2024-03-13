@@ -35,9 +35,9 @@ export function useHomeUtils(
           style: "destructive",
           onPress: async () => {
             try {
+              loading("Deleting...");
               await Promise.all(
                 optionsSelection.map(async (id, index) => {
-                  loading("Deleting..." + (index + 1));
                   await FileSystem.deleteAsync(`${NOTES_PATH}/${id}`, {
                     idempotent: true,
                   });

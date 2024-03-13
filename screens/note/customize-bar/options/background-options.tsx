@@ -1,9 +1,10 @@
 import * as ImagePicker from "expo-image-picker";
 import { Linking } from "react-native";
-import { ImagePlusIcon, useToast } from "../../../../components";
+import { ImageBox, ImagePlusIcon, useToast } from "../../../../components";
 import { ColorBox } from "../../../../components/color-box";
 import { useTheme } from "../../../../hooks";
 import { OptionProps } from "../../types";
+import { darkCardColors } from "../../../../tools/colors";
 export function BackgroundOptions({
   colors,
   setEditNote,
@@ -45,6 +46,9 @@ export function BackgroundOptions({
         onPress={openImagePicker}
         svgProps={{ fill: theme.primary }}
       />
+      {editNote.background.includes("/") && (
+        <ImageBox checked uri={editNote.background} />
+      )}
       {colors.map((e, i) => {
         return (
           <ColorBox
@@ -52,6 +56,7 @@ export function BackgroundOptions({
             bgColor={e}
             key={i}
             checked={editNote.background === e}
+            checkedColor={darkCardColors.includes(e) ? "#fff" : "#000"}
           />
         );
       })}

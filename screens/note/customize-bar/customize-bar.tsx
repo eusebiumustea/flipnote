@@ -5,6 +5,7 @@ import {
   PropsWithChildren,
   ReactNode,
   SetStateAction,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -13,12 +14,14 @@ import {
   Dimensions,
   Platform,
   ScrollView,
+  View,
   useWindowDimensions,
 } from "react-native";
 import {
   BackgroundIcon,
   BoldIcon,
   CenterAlignIcon,
+  ChevronDownIcon,
   FontColorIcon,
   FormatSizeIcon,
   ItalicIcon,
@@ -30,12 +33,13 @@ import {
   UnderlineIcon,
   UndoIcon,
 } from "../../../components/assets";
-import { toggleState, verticalScale } from "../../../tools";
+import { moderateScale, toggleState, verticalScale } from "../../../tools";
 import { InputSelectionProps, note } from "../types";
 import { OptionContainer } from "./option-container";
 import { useTheme } from "../../../hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCardAnimation } from "@react-navigation/stack";
+import { useNoteUtils } from "../../../hooks/use-note-utills";
 interface CustomizeBarProps {
   boldFocused?: boolean;
   italicFocused?: boolean;
@@ -77,11 +81,11 @@ export function CustomizeBar({
   const theme = useTheme();
   const keyboard = useKeyboard();
   const keyboardHeight =
-    Dimensions.get("screen").height -
-    (Platform.OS === "ios"
-      ? keyboard.coordinates.end?.screenY
-      : keyboard.coordinates.start?.screenY || Dimensions.get("screen").height);
-
+    Platform.OS === "android"
+      ? Dimensions.get("screen").height -
+        (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height)
+      : Dimensions.get("screen").height -
+        (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
   function optionSizeAdjust() {
     switch (showOption) {
       case "font-color":
@@ -92,7 +96,7 @@ export function CustomizeBar({
         return 60;
     }
   }
-  useMemo(() => {
+  useEffect(() => {
     if (selection.end === selection.start && showOption) {
       setShowOption(null);
     }
@@ -110,8 +114,8 @@ export function CustomizeBar({
         position: "absolute",
         bottom: 0,
         alignSelf: "center",
-        marginBottom: keyboardHeight,
-        width: width - 15,
+        marginBottom: keyboardHeight + 12,
+        width: width - 16,
       }}
       from={{
         paddingTop: 0,

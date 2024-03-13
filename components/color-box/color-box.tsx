@@ -9,6 +9,7 @@ export function ColorBox({
   checked,
   svgProps,
   onPress,
+  checkedColor = "#000",
 }: ColorBoxProps) {
   const theme = useTheme();
   return (
@@ -25,7 +26,7 @@ export function ColorBox({
     >
       {checked && (
         <Svg
-          fill={"#000"}
+          fill={checkedColor}
           width={"80%"}
           height={"80%"}
           xmlns="http://www.w3.org/2000/svg"

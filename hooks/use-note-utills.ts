@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction, useMemo } from "react";
 import { useToast } from "../components";
 import { InputSelectionProps, note } from "../screens";
 import { dateTime, moderateScale, range } from "../tools";
-import { Dimensions } from "react-native";
+import { Dimensions, Platform } from "react-native";
 import { useKeyboard } from "@react-native-community/hooks";
 export function useNoteUtils(
   id: number,
@@ -14,8 +14,11 @@ export function useNoteUtils(
 ) {
   const keyboard = useKeyboard();
   const keyboardHeight =
-    Dimensions.get("screen").height -
-    (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
+    Platform.OS === "android"
+      ? Dimensions.get("screen").height -
+        (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height)
+      : Dimensions.get("screen").height -
+        (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
   const noteStateIsEmpty =
     editNote.text.length === 0 && editNote.title.length === 0;
   const toast = useToast();
