@@ -1,20 +1,19 @@
 import { useKeyboard } from "@react-native-community/hooks";
-import { AnimatePresence, MotiView } from "moti";
+import { MotiView } from "moti";
 import {
   Dispatch,
   PropsWithChildren,
   ReactNode,
   SetStateAction,
   useEffect,
-  useMemo,
   useState,
 } from "react";
 import {
   ColorValue,
   Dimensions,
+  Keyboard,
   Platform,
   ScrollView,
-  View,
   useWindowDimensions,
 } from "react-native";
 import {
@@ -25,21 +24,15 @@ import {
   FontColorIcon,
   FormatSizeIcon,
   ItalicIcon,
-  JustifyAlignIcon,
   LeftAlignIcon,
-  RedoIcon,
   RightAlignIcon,
   TextIcon,
   UnderlineIcon,
-  UndoIcon,
 } from "../../../components/assets";
-import { moderateScale, toggleState, verticalScale } from "../../../tools";
+import { useTheme } from "../../../hooks";
+import { toggleState, verticalScale } from "../../../tools";
 import { InputSelectionProps, note } from "../types";
 import { OptionContainer } from "./option-container";
-import { useTheme } from "../../../hooks";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useCardAnimation } from "@react-navigation/stack";
-import { useNoteUtils } from "../../../hooks/use-note-utills";
 interface CustomizeBarProps {
   boldFocused?: boolean;
   italicFocused?: boolean;
@@ -58,6 +51,7 @@ interface CustomizeBarProps {
   onRedo?: () => void;
   setEditNote?: Dispatch<SetStateAction<note>>;
   contentPosition?: "center" | "left" | "right" | "justify";
+  isImgBg: boolean;
 }
 export function CustomizeBar({
   backgroundOptions,
@@ -73,7 +67,7 @@ export function CustomizeBar({
   selection,
   focusedColor,
   fontSizeOptions,
-
+  isImgBg,
   setEditNote,
   contentPosition,
 }: CustomizeBarProps) {
@@ -88,6 +82,8 @@ export function CustomizeBar({
         (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
   function optionSizeAdjust() {
     switch (showOption) {
+      case "background":
+        return isImgBg ? 100 : 60;
       case "font-color":
         return 160;
       case "font-size":
@@ -101,12 +97,12 @@ export function CustomizeBar({
       setShowOption(null);
     }
   }, [selection]);
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   return (
     <MotiView
       transition={{
         type: "timing",
-        duration: 300,
+        duration: 200,
       }}
       style={{
         borderRadius: 16,
@@ -114,7 +110,7 @@ export function CustomizeBar({
         position: "absolute",
         bottom: 0,
         alignSelf: "center",
-        marginBottom: keyboardHeight + 12,
+        marginBottom: keyboardHeight + 8,
         width: width - 16,
       }}
       from={{
@@ -127,6 +123,7 @@ export function CustomizeBar({
       <OptionContainer
         children={backgroundOptions}
         show={showOption === "background"}
+        scroll={false}
       />
 
       <OptionContainer children={fontOptions} show={showOption === "font"} />
@@ -148,7 +145,7 @@ export function CustomizeBar({
         contentContainerStyle={{
           padding: 12,
           flexDirection: "row",
-          columnGap: 12,
+          columnGap: 10,
           alignItems: "center",
         }}
         horizontal
@@ -159,6 +156,13 @@ export function CustomizeBar({
           borderRadius: 16,
         }}
       >
+        {keyboard.keyboardShown && (
+          <ChevronDownIcon
+            onPress={() => Keyboard.dismiss()}
+            svgProps={{ fill: theme.primary }}
+            style={{ position: "absolute" }}
+          />
+        )}
         <BoldIcon active={boldFocused} onPress={onBold} />
 
         <ItalicIcon active={italicFocused} onPress={onItalic} />

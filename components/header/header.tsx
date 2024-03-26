@@ -36,6 +36,8 @@ export const Header = memo(
     useEffect(() => {
       const listen = Notifications.addNotificationReceivedListener(
         async (e) => {
+          try {
+          } catch (error) {}
           setNotifications((data) => [
             ...data,
             {

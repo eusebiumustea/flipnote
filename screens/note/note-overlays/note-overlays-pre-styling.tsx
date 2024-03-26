@@ -18,8 +18,8 @@ import { DateTimePickerDialog } from "../date-time-picker";
 import { NoteScreenHeader } from "../note-screen-header";
 import { StyleEvent, onFontColor } from "../style-events";
 import { OptionProps } from "../types";
-import { NoteOverlaysProps } from "./types";
-export function NoteOverlays({
+import { NoteOverlaysPreStylingProps, NoteOverlaysProps } from "./types";
+export function NoteOverlaysPreStyling({
   id,
   editNote,
   reminder,
@@ -31,7 +31,7 @@ export function NoteOverlays({
   selection,
   reminderDialog,
   setReminderDialog,
-}: NoteOverlaysProps) {
+}: NoteOverlaysPreStylingProps) {
   const notification = useNoitication();
   const toast = useToast();
   const currentIndex = editNote.styles.indexOf(currentFocused);

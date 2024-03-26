@@ -36,6 +36,7 @@ export interface note {
   styles: TextNoteStyle[];
   reminder: number | null;
   contentPosition: "center" | "left" | "right";
+  imageOpacity?: number;
 }
 export interface NotePreviewTypes {
   id: number;

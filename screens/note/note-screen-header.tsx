@@ -33,8 +33,6 @@ interface NoteScreenHeaderProps {
   onShare: () => void;
   onReminderOpen?: () => void;
   favorite?: boolean;
-  onHistoryOpen?: (e: GestureResponderEvent) => void;
-  historyShown: boolean;
   emptyNote: boolean;
   textLength: number;
 }
@@ -46,8 +44,6 @@ export const NoteScreenHeader = memo(
     onShare,
     favorite,
     onReminderOpen,
-    onHistoryOpen,
-    historyShown,
     emptyNote,
     textLength,
   }: NoteScreenHeaderProps) => {
@@ -116,7 +112,6 @@ export const NoteScreenHeader = memo(
                   fontSize: moderateFontScale(13),
                 }}
               >{`${textLength} / ${contentLengthLimit()}`}</Text>
-              {/* {historyShown && <ChangesIcon onPress={onHistoryOpen} />} */}
 
               <ReminderIcon onPress={onReminderOpen} />
 

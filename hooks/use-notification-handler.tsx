@@ -13,14 +13,15 @@ export function useNoitication() {
     reminderState: ReminderProps,
     onReminderSet: Dispatch<SetStateAction<note>>
   ) => {
-    const reminderSplit: Date = new Date(
-      [
-        reminderState.date.toJSON().slice(0, 10),
-
-        reminderState.time.toJSON().slice(11),
-      ].join("T")
-    );
     try {
+      const reminderSplit: Date = new Date(
+        [
+          reminderState.date.toJSON().slice(0, 10),
+
+          reminderState.time.toJSON().slice(11),
+        ].join("T")
+      );
+
       let { status: newStatus } = await Notifications.getPermissionsAsync();
       if (newStatus !== "granted") {
         toast({
@@ -54,6 +55,7 @@ export function useNoitication() {
       }
       if (reminderSplit < new Date()) {
         await Notifications.scheduleNotificationAsync({
+          identifier: id.toString(),
           content: {
             title,
             body,

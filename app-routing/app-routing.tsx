@@ -1,4 +1,5 @@
 import {
+  CardStyleInterpolators,
   TransitionPresets,
   TransitionSpecs,
   createStackNavigator,
@@ -6,7 +7,7 @@ import {
 import { Easing, useWindowDimensions } from "react-native";
 import { enableFreeze } from "react-native-screens";
 import { useTheme } from "../hooks";
-import { Inbox } from "../screens";
+import { ImagePreview, Inbox } from "../screens";
 import { Home } from "../screens/home";
 import { NotePage } from "../screens/note/note-page";
 import { moderateScale, verticalScale } from "../tools";
@@ -44,6 +45,14 @@ export function AppRouting() {
       initialRouteName="Home"
     >
       <Stack.Screen component={Home} name="Home" />
+      <Stack.Screen
+        component={ImagePreview}
+        name="image-preview"
+        options={{
+          cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+        }}
+        initialParams={{ uri: "not_found" }}
+      />
 
       <Stack.Screen
         options={({ route }: any) =>

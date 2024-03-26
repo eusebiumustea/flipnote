@@ -17,7 +17,7 @@ import { notesValue, receivedNotifications } from "../note";
 export async function removeReceivedReminder(id: number) {
   await Notifications.cancelScheduledNotificationAsync(id.toString());
   const data = await FileSystem.readAsStringAsync(`${NOTES_PATH}/${id}`);
-  const parsedNote = JSON.parse(data);
+  const parsedNote = await JSON.parse(data);
   await FileSystem.writeAsStringAsync(
     `${NOTES_PATH}/${id}`,
     JSON.stringify({ ...parsedNote, reminder: null })

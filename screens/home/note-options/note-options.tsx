@@ -63,7 +63,7 @@ export const NoteOptions = memo(
         const output = `${FileSystem.cacheDirectory}flipnotebackup.zip`;
         const zip = new JSZip();
         await Promise.all(
-          shareNotes.map(async (note, i) => {
+          shareNotes.map(async (note) => {
             const noteStorageContent = await FileSystem.readAsStringAsync(
               `${NOTES_PATH}/${note.id}`
             );
@@ -71,7 +71,11 @@ export const NoteOptions = memo(
             if (parsedNote.background.includes("/")) {
               zip.file(
                 `${note.id}`,
-                JSON.stringify({ ...parsedNote, background: "#fff" })
+                JSON.stringify({
+                  ...parsedNote,
+                  background: "#fff",
+                  imageOpacity: 0,
+                })
               );
               return;
             }

@@ -1,20 +1,24 @@
-import { DependencyList, Fragment, useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import { Text, TextStyle } from "react-native";
-import { InputSelectionProps, TextNoteStyle } from "../screens";
+import { TextNoteStyle } from "../screens";
 import { darkCardColors } from "../tools/colors";
 
 export function useEditNoteContent(
   styles: TextNoteStyle[],
   text: string,
-  bg: string
+  bg: string,
+  imageOpacity?: number
 ) {
   const defaultThemeText = useMemo(() => {
+    if (imageOpacity > 0.4) {
+      return "#ffffff";
+    }
     if (darkCardColors.includes(bg)) {
       return "#ffffff";
     } else {
       return "#000000";
     }
-  }, [bg]);
+  }, [imageOpacity, bg]);
   function font(fontName: string, style: TextStyle) {
     const weight = style?.fontWeight;
     const italic = style?.fontStyle;
@@ -68,5 +72,5 @@ export function useEditNoteContent(
       );
     }
     return <Text style={{ color: defaultThemeText }}>{text}</Text>;
-  }, [styles, text, bg]);
+  }, [styles, text, bg, imageOpacity]);
 }

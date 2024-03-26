@@ -1,17 +1,12 @@
-import {
-  Dispatch,
-  LegacyRef,
-  SetStateAction,
-  forwardRef,
-  memo,
-  useEffect,
-  useRef,
-} from "react";
+import { Dispatch, SetStateAction, memo, useRef } from "react";
 
 import { TextInput, TextInputProps } from "react-native";
-import { useToast } from "../../components";
 import { useEditNoteContent, useTheme } from "../../hooks";
-import { contentLengthLimit, range, verticalScale } from "../../tools";
+import {
+  contentLengthLimit,
+  removeElementAtIndex,
+  verticalScale,
+} from "../../tools";
 import { InputSelectionProps, TextNoteStyle, note } from "./types";
 type NoteContentInputProps = {
   setEditNote?: Dispatch<SetStateAction<note>>;
@@ -34,6 +29,8 @@ export const NoteContentInput = memo(
       end: 0,
     }).current;
     const inputRef = useRef<TextInput>(null);
+    console.log(editNote.styles);
+
     return (
       <TextInput
         ref={inputRef}
@@ -41,6 +38,7 @@ export const NoteContentInput = memo(
         onSelectionChange={({ nativeEvent: { selection } }) => {
           selectionRef.start = selection.start;
           selectionRef.end = selection.end;
+          console.log("selection", selection);
           setInputSelection(selection);
         }}
         placeholderTextColor={theme.placeholder}
@@ -48,32 +46,40 @@ export const NoteContentInput = memo(
         autoCorrect={false}
         spellCheck={false}
         autoComplete="off"
-        secureTextEntry={false}
         textAlign={editNote.contentPosition}
         textContentType="none"
         allowFontScaling={false}
-        style={{ paddingBottom: verticalScale(50) }}
         onChangeText={(text) => {
           const textSelected = selectionRef.start !== selectionRef.end;
           const increment = text.length > editNote.text.length;
           const decrement = text.length < editNote.text.length;
+          editNote.styles.map((style, i) => {
+            if (style.interval.start === style.interval.end) {
+              setEditNote((prev) => ({
+                ...prev,
+                text,
+                styles: removeElementAtIndex(prev.styles, i),
+              }));
+              return;
+            }
+          });
           // editNote.styles.map((style, i) => {
-          //   if (text.slice(style.interval.start).length === 0) {
-          //     setEditNote((prev) => ({
-          //       ...prev,
-          //       text,
-          //       styles: removeElementAtIndex(prev.styles, i),
-          //     }));
-          //     return;
-          //   }
-          //   if (style.interval.start === style.interval.end) {
-          //     setEditNote((prev) => ({
-          //       ...prev,
-          //       text,
-          //       styles: removeElementAtIndex(prev.styles, i),
-          //     }));
-          //     return;
-          //   }
+          // if (text.slice(style.interval.start).length === 0) {
+          //   setEditNote((prev) => ({
+          //     ...prev,
+          //     text,
+          //     styles: removeElementAtIndex(prev.styles, i),
+          //   }));
+          //   return;
+          // }
+          // if (style.interval.start === style.interval.end) {
+          //   setEditNote((prev) => ({
+          //     ...prev,
+          //     text,
+          //     styles: removeElementAtIndex(prev.styles, i),
+          //   }));
+          //   return;
+          // }
           //   if (decrement && style.interval.end - style.interval.start === 1) {
           //     setEditNote((prev) => ({
           //       ...prev,
@@ -83,10 +89,71 @@ export const NoteContentInput = memo(
           //     return;
           //   }
           // });
+          console.log(editNote.text.length - text.length);
           setEditNote((prev) => ({
             ...prev,
             text,
             styles: prev.styles.map((style, i) => {
+              if (
+                decrement &&
+                textSelected &&
+                selectionRef.end >= style.interval.start &&
+                selectionRef.end <= style.interval.end &&
+                selectionRef.start < style.interval.start
+              ) {
+                return {
+                  ...style,
+                  interval: {
+                    start:
+                      selectionRef.end === style.interval.end
+                        ? 0
+                        : style.interval.start -
+                          (editNote.text.length - text.length) +
+                          selectionRef.end -
+                          style.interval.start,
+                    end:
+                      selectionRef.end === style.interval.end
+                        ? 0
+                        : style.interval.end -
+                          (editNote.text.length - text.length),
+                  },
+                };
+              }
+              // if (
+              //   textSelected &&
+              //   decrement &&
+              //   selectionRef.start >= style.interval.start &&
+              //   selectionRef.end >= style.interval.end
+              // ) {
+              //   return {
+              //     ...style,
+              //     interval: {
+              //       start:
+              //         selectionRef.start === style.interval.start
+              //           ? 0
+              //           : style.interval.start,
+              //       end:
+              //         selectionRef.start === style.interval.start
+              //           ? 0
+              //           : style.interval.end -
+              //             (style.interval.end - selectionRef.start),
+              //     },
+              //   };
+              // }
+              // if (
+              //   textSelected &&
+              //   decrement &&
+              //   selectionRef === style.interval
+              // ) {
+              //   return {
+              //     ...style,
+              //     interval: {
+              //       start: 0,
+              //       end: 0,
+              //     },
+              //   };
+              // }
+
               // if (
               //   !textSelected &&
               //   decrement &&
@@ -163,7 +230,8 @@ export const NoteContentInput = memo(
         {useEditNoteContent(
           editNote.styles,
           editNote.text,
-          editNote.background
+          editNote.background,
+          editNote.imageOpacity
         )}
       </TextInput>
     );

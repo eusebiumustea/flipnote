@@ -10,6 +10,7 @@ import { DialogProps } from "./types";
 import { BlurView } from "expo-blur";
 import { useTheme } from "../../hooks";
 import { memo } from "react";
+import { Button } from "../button";
 
 export const Dialog = memo(
   ({
@@ -88,7 +89,7 @@ export const Dialog = memo(
               ...styles,
             }}
           >
-            <View style={{ width: "100%", padding: 20, paddingTop: 30 }}>
+            <View style={{ width: "100%", padding: 30, paddingTop: 30 }}>
               {children}
             </View>
             <Text
@@ -114,30 +115,8 @@ export const Dialog = memo(
                 margin: 10,
               }}
             >
-              <TouchableOpacity onPress={onCencel}>
-                <Text
-                  style={{
-                    fontSize: moderateFontScale(15),
-                    fontFamily: "OpenSans",
-                    fontWeight: "bold",
-                    color: theme.onPrimary,
-                  }}
-                >
-                  Cencel
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={action}>
-                <Text
-                  style={{
-                    fontSize: moderateFontScale(15),
-                    fontFamily: "OpenSans",
-                    fontWeight: "bold",
-                    color: theme.onPrimary,
-                  }}
-                >
-                  {actionLabel}
-                </Text>
-              </TouchableOpacity>
+              <Button onPress={onCencel}>Cencel</Button>
+              <Button onPress={action}>{actionLabel}</Button>
             </View>
           </View>
         </View>

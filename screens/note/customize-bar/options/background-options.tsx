@@ -1,10 +1,12 @@
 import * as ImagePicker from "expo-image-picker";
-import { Linking } from "react-native";
+import { Linking, ScrollView, View } from "react-native";
 import { ImageBox, ImagePlusIcon, useToast } from "../../../../components";
 import { ColorBox } from "../../../../components/color-box";
 import { useTheme } from "../../../../hooks";
 import { OptionProps } from "../../types";
 import { darkCardColors } from "../../../../tools/colors";
+import ColorPicker, { OpacitySlider } from "reanimated-color-picker";
+import { Slider } from "@miblanchard/react-native-slider";
 export function BackgroundOptions({
   colors,
   setEditNote,
@@ -41,25 +43,58 @@ export function BackgroundOptions({
   }
 
   return (
-    <>
-      <ImagePlusIcon
-        onPress={openImagePicker}
-        svgProps={{ fill: theme.primary }}
-      />
+    <View style={{ flexDirection: "column" }}>
+      <ScrollView
+        keyboardShouldPersistTaps="always"
+        keyboardDismissMode="interactive"
+        style={{ flex: 1 }}
+        bounces={false}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 12,
+        }}
+      >
+        <ImagePlusIcon
+          onPress={openImagePicker}
+          svgProps={{ fill: theme.primary }}
+        />
+        {editNote.background.includes("/") && (
+          <ImageBox checked uri={editNote.background} />
+        )}
+        {colors.map((e, i) => {
+          return (
+            <ColorBox
+              onPress={() => {
+                setEditNote((prev) => ({
+                  ...prev,
+                  imageOpacity: 0,
+                  background: e,
+                }));
+              }}
+              bgColor={e}
+              key={i}
+              checked={editNote.background === e}
+              checkedColor={darkCardColors.includes(e) ? "#fff" : "#000"}
+            />
+          );
+        })}
+      </ScrollView>
       {editNote.background.includes("/") && (
-        <ImageBox checked uri={editNote.background} />
+        <Slider
+          value={editNote.imageOpacity}
+          maximumValue={1}
+          minimumValue={0}
+          onSlidingComplete={(value) =>
+            setEditNote((prev) => ({
+              ...prev,
+              imageOpacity: value[0],
+            }))
+          }
+        />
       )}
-      {colors.map((e, i) => {
-        return (
-          <ColorBox
-            onPress={() => setEditNote((prev) => ({ ...prev, background: e }))}
-            bgColor={e}
-            key={i}
-            checked={editNote.background === e}
-            checkedColor={darkCardColors.includes(e) ? "#fff" : "#000"}
-          />
-        );
-      })}
-    </>
+    </View>
   );
 }

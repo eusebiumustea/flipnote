@@ -1,6 +1,6 @@
-import { Text } from "react-native";
+import { Text, View } from "react-native";
 import { useRecoilState } from "recoil";
-import { NoteCard } from "../../components";
+import { Button, NoteCard } from "../../components";
 import { useTheme } from "../../hooks";
 import { moderateFontScale, verticalScale } from "../../tools";
 import { EMPTY_NOTE_STATE, receivedNotifications } from "../note";
@@ -21,6 +21,12 @@ export function ReceivedReminders() {
           Received notifications
         </Text>
       )}
+      {received.length > 0 && (
+        <View style={{ flexDirection: "row" }}>
+          <Button onPress={() => setReceived([])}>Clear all</Button>
+        </View>
+      )}
+
       {received.map((item, i) => {
         return (
           <NoteCard

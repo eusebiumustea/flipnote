@@ -8,4 +8,4 @@ export * from "./dialog";
 export * from "./pan-responder";
 export * from "./img-box";
 export * from "./screen";
-export * from "./note-sharing-dialog";
+export * from "./button";

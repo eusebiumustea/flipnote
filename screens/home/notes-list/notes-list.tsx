@@ -12,7 +12,6 @@ import {
   verticalScale,
 } from "../../../tools";
 import { NotesListProps } from "./types";
-import { MotiPressable } from "moti/interactions";
 
 export const NotesList = memo(
   ({

@@ -12,7 +12,7 @@ import { useNoteStorage } from "../../hooks/use-note-manager";
 import { useNoteUtils } from "../../hooks/use-note-utills";
 import { verticalScale } from "../../tools";
 import { NoteContentInput } from "./note-content-input";
-import { NoteOverlays } from "./note-overlays";
+import { NoteOverlaysPreStyling } from "./note-overlays/note-overlays-pre-styling";
 import { NoteTitleInput } from "./note-title-input";
 import { InputSelectionProps, ReminderProps, note } from "./types";
 interface ParamsProps {
@@ -21,7 +21,7 @@ interface ParamsProps {
 type NotePageProps = {
   route: NavigatorScreenParams<{}>;
 };
-export const NotePage = memo(({ route }: NotePageProps) => {
+export const NotePagePreStyling = memo(({ route }: NotePageProps) => {
   const { id }: ParamsProps = route.params;
 
   const [editNote, setEditNote] = useState<note>({
@@ -46,7 +46,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     end: 0,
   });
   const [reminderDialog, setReminderDialog] = useState(false);
-  const { currentFocused, openReminder } = useNoteUtils(
+  const { currentFocused, openReminder, keyboardHeight } = useNoteUtils(
     id,
     selection,
     editNote,
@@ -122,7 +122,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         ref={isImgBg ? viewShotRef : null}
         style={{
           flex: 1,
-          marginBottom: verticalScale(65),
+          marginBottom: verticalScale(70),
         }}
       >
         <>
@@ -204,7 +204,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
           </ScrollView>
         </>
       </ViewShot>
-      <NoteOverlays
+      <NoteOverlaysPreStyling
         reminderDialog={reminderDialog}
         setReminderDialog={setReminderDialog}
         id={id}
