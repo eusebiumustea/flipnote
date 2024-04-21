@@ -1,6 +1,6 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import * as React from "react";
-import { TouchableOpacity } from "react-native";
+import { Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { moderateScale } from "../../../tools";
@@ -13,7 +13,7 @@ export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
   const { bottom } = useSafeAreaInsets();
   const keyboard = useKeyboard();
   return (
-    <TouchableOpacity
+    <Pressable
       activeOpacity={1}
       onPress={onPress}
       style={{
@@ -53,6 +53,6 @@ export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
           strokeLinejoin="round"
         />
       </Svg>
-    </TouchableOpacity>
+    </Pressable>
   );
 }

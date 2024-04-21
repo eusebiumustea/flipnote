@@ -1,6 +1,6 @@
 import {
   FlatList,
-  TouchableOpacity,
+  Pressable,
   View,
   Text,
   useWindowDimensions,
@@ -38,7 +38,7 @@ export function Screen1({ navigation }) {
               alignSelf: "center",
             }}
           >
-            <TouchableOpacity
+            <Pressable
               onPress={() =>
                 navigation.navigate("screen2", {
                   text: item.text,
@@ -75,7 +75,7 @@ export function Screen2({ navigation, route }) {
           backgroundColor: "red",
         }}
       >
-        <TouchableOpacity
+        <Pressable
           onPress={() => navigation.goBack()}
           style={{ width: 50, height: 50, backgroundColor: "green" }}
         />

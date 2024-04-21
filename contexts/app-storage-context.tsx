@@ -4,10 +4,12 @@ import { PropsWithChildren, useEffect } from "react";
 import { NOTES_PATH } from "../constants";
 import { useLoading } from "../hooks/use-loading-dialog";
 import { useRequest } from "../hooks/use-request";
+import { PermissionsAndroid } from "react-native";
 
 export function AppStorageContext({ children }: PropsWithChildren) {
   const loading = useLoading();
   const { syncState } = useRequest();
+
   useEffect(() => {
     async function getUserData() {
       const { exists } = await getInfoAsync(NOTES_PATH);

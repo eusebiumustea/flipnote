@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TouchableOpacity } from "react-native";
+import { Pressable } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { moderateScale, verticalScale } from "../../../tools";
 import { IconButtonBase } from "./types";
@@ -13,9 +13,8 @@ export function HeartIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
+    <Pressable
       {...btnProps}
-      activeOpacity={0.5}
       onPress={onPress}
       style={{ width: moderateScale(30), height: verticalScale(30) }}
     >
@@ -36,6 +35,6 @@ export function HeartIcon({
           strokeLinejoin="round"
         />
       </Svg>
-    </TouchableOpacity>
+    </Pressable>
   );
 }

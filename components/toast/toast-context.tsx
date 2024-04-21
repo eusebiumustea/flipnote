@@ -1,6 +1,6 @@
 import { AnimatePresence, MotiView } from "moti";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
-import { ColorValue, Text, TouchableOpacity } from "react-native";
+import { ColorValue, Text, Pressable } from "react-native";
 import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../hooks";
@@ -88,7 +88,7 @@ function ToastComponent({
             {message}
           </Text>
           {button && (
-            <TouchableOpacity onPress={button.onPress}>
+            <Pressable onPress={button.onPress}>
               <Text
                 style={{
                   fontSize: moderateFontScale(16),
@@ -99,7 +99,7 @@ function ToastComponent({
               >
                 {button.title}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           )}
         </MotiView>
       )}

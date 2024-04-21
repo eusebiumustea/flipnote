@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TouchableOpacity } from "react-native";
+import { Pressable } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { moderateScale, verticalScale } from "../../../tools";
 import { IconButtonBase } from "./types";
@@ -10,8 +10,7 @@ export function ChevronDownIcon({
   btnProps,
 }: IconButtonBase) {
   return (
-    <TouchableOpacity
-      activeOpacity={0.5}
+    <Pressable
       onPress={onPress}
       style={{
         width: moderateScale(30),
@@ -29,6 +28,6 @@ export function ChevronDownIcon({
       >
         <Path d="M7.41 8.58L12 13.17l4.59-4.59L18 10l-6 6-6-6 1.41-1.42z" />
       </Svg>
-    </TouchableOpacity>
+    </Pressable>
   );
 }

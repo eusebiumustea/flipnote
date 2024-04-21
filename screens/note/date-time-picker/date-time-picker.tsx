@@ -1,4 +1,4 @@
-import { Platform, TouchableOpacity, View, Text } from "react-native";
+import { Platform, Pressable, View, Text } from "react-native";
 import DateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
@@ -84,7 +84,7 @@ export function DateTimePickerDialog({
               }}
             >{`Hour: ${dateTime(time).split(" ")[1]}`}</Text>
           </View>
-          <TouchableOpacity
+          <Pressable
             style={{ alignSelf: "center" }}
             onPress={() => {
               DateTimePickerAndroid.open({
@@ -106,7 +106,7 @@ export function DateTimePickerDialog({
             >
               Change
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </>
       )}
     </Dialog>

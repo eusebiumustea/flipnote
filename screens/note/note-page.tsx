@@ -15,6 +15,7 @@ import { NoteContentInput } from "./note-content-input";
 import { NoteOverlays } from "./note-overlays";
 import { NoteTitleInput } from "./note-title-input";
 import { InputSelectionProps, ReminderProps, note } from "./types";
+import { useKeyboard } from "@react-native-community/hooks";
 interface ParamsProps {
   id: number;
 }
@@ -53,6 +54,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     setEditNote,
     setReminderDialog
   );
+
   const nav = useNavigation<StackNavigationHelpers>();
   const viewShotRef = useRef<ViewShot>(null);
   const { top } = useSafeAreaInsets();
@@ -61,7 +63,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   const [capturing, setCapturing] = useState(false);
   const [showTitle, setShowTitle] = useState(true);
   const loading = useLoading();
-
+  const keyboard = useKeyboard();
   async function Share() {
     loading("Preparing image...");
     Keyboard.dismiss();
@@ -96,7 +98,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     }
     return null;
   }, [capturing, isImgBg]);
-  console.log(editNote);
+  console.log(JSON.stringify(editNote.styles));
   const { height, width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
   return (
@@ -122,7 +124,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         ref={isImgBg ? viewShotRef : null}
         style={{
           flex: 1,
-          marginBottom: verticalScale(65),
+          marginBottom: verticalScale(55),
         }}
       >
         <>
@@ -166,8 +168,10 @@ export const NotePage = memo(({ route }: NotePageProps) => {
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="always"
             automaticallyAdjustKeyboardInsets
+            keyboardDismissMode="interactive"
             contentContainerStyle={{
-              paddingTop: capturing ? 16 : verticalScale(70) + top,
+              paddingTop: capturing ? 0 : verticalScale(70) + top,
+              paddingBottom: verticalScale(100),
             }}
             style={{
               flex: 1,
@@ -179,7 +183,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
                 backgroundColor: captureBackground,
                 paddingHorizontal: 16,
                 rowGap: verticalScale(12),
-                paddingTop: capturing && !isImgBg ? top + 50 : 0,
+                paddingVertical: !isImgBg && capturing && 16,
               }}
               options={{
                 result: "tmpfile",

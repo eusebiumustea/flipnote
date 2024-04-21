@@ -58,7 +58,6 @@ export function AppRouting() {
         options={({ route }: any) =>
           ({
             cardStyleInterpolator: TransitionInterpolator({
-              // fade: true,
               initial: {
                 scale: 1,
                 scaleX: (width / 2 - 16) / width,
@@ -78,8 +77,8 @@ export function AppRouting() {
             cardStyleInterpolator: TransitionInterpolator({
               initial: {
                 scale: 0,
-                y: route.params.relativeY + moderateScale(20),
-                x: route.params.relativeX + moderateScale(20),
+                y: route.params.relativeY + verticalScale(40),
+                x: route.params.relativeX + moderateScale(40),
               },
             }),
           } as unknown)

@@ -30,9 +30,10 @@ import {
   UnderlineIcon,
 } from "../../../components/assets";
 import { useTheme } from "../../../hooks";
-import { toggleState, verticalScale } from "../../../tools";
+import { moderateScale, toggleState, verticalScale } from "../../../tools";
 import { InputSelectionProps, note } from "../types";
 import { OptionContainer } from "./option-container";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface CustomizeBarProps {
   boldFocused?: boolean;
   italicFocused?: boolean;
@@ -75,11 +76,9 @@ export function CustomizeBar({
   const theme = useTheme();
   const keyboard = useKeyboard();
   const keyboardHeight =
-    Platform.OS === "android"
-      ? Dimensions.get("screen").height -
-        (keyboard.coordinates.start?.screenY || Dimensions.get("screen").height)
-      : Dimensions.get("screen").height -
-        (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
+    Platform.OS === "ios" &&
+    Dimensions.get("screen").height -
+      (keyboard.coordinates.end?.screenY || Dimensions.get("screen").height);
   function optionSizeAdjust() {
     switch (showOption) {
       case "background":
@@ -92,6 +91,7 @@ export function CustomizeBar({
         return 60;
     }
   }
+  const { bottom } = useSafeAreaInsets();
   useEffect(() => {
     if (selection.end === selection.start && showOption) {
       setShowOption(null);
@@ -108,16 +108,18 @@ export function CustomizeBar({
         borderRadius: 16,
         backgroundColor: theme.customizeBarColor,
         position: "absolute",
-        bottom: 0,
+
         alignSelf: "center",
-        marginBottom: keyboardHeight + 8,
+
         width: width - 16,
+        bottom: 0,
       }}
       from={{
         paddingTop: 0,
       }}
       animate={{
         paddingTop: showOption ? optionSizeAdjust() : 0,
+        marginBottom: keyboardHeight || bottom,
       }}
     >
       <OptionContainer
@@ -150,17 +152,20 @@ export function CustomizeBar({
         }}
         horizontal
         keyboardShouldPersistTaps="always"
-        keyboardDismissMode="interactive"
         style={{
           alignSelf: "center",
           borderRadius: 16,
         }}
       >
-        {keyboard.keyboardShown && (
+        {keyboardHeight > 0 && Platform.OS === "ios" && (
           <ChevronDownIcon
             onPress={() => Keyboard.dismiss()}
             svgProps={{ fill: theme.primary }}
-            style={{ position: "absolute" }}
+            style={{
+              position: "absolute",
+              width: moderateScale(25),
+              height: verticalScale(25),
+            }}
           />
         )}
         <BoldIcon active={boldFocused} onPress={onBold} />

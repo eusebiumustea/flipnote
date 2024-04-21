@@ -1,10 +1,4 @@
-import {
-  Platform,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Platform, ScrollView, Text, Pressable, View } from "react-native";
 
 import Checkbox from "expo-checkbox";
 import * as FileSystem from "expo-file-system";
@@ -193,8 +187,7 @@ export const NoteOptions = memo(
           }}
         >
           <CloseIcon onPress={onClose} />
-          <TouchableOpacity
-            activeOpacity={0.7}
+          <Pressable
             style={{ flexDirection: "row", alignItems: "center" }}
             onPress={onTotalSelect}
           >
@@ -212,7 +205,7 @@ export const NoteOptions = memo(
             >
               Select all
             </Text>
-          </TouchableOpacity>
+          </Pressable>
           <Text
             style={{ color: theme.onPrimary, fontSize: moderateFontScale(18) }}
           >

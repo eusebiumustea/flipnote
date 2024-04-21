@@ -46,7 +46,6 @@ export function useHomeUtils(
                   );
                 })
               );
-              console.log("sync");
               await syncState();
 
               setOptionsSelection([]);

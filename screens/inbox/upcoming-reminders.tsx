@@ -1,18 +1,13 @@
 import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
 import { Fragment, useMemo } from "react";
-import {
-  Text,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { Text, Pressable, View, useWindowDimensions } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { NoteCard } from "../../components";
 import { NOTES_PATH } from "../../constants";
 import { useTheme } from "../../hooks";
 import { useRequest } from "../../hooks/use-request";
-import { dateTime, moderateFontScale, verticalScale } from "../../tools";
+import { dateTime, moderateFontScale } from "../../tools";
 import { notesValue, receivedNotifications } from "../note";
 export async function removeReceivedReminder(id: number) {
   await Notifications.cancelScheduledNotificationAsync(id.toString());
@@ -71,7 +66,7 @@ export function UpcomingReminders() {
                 alignItems: "center",
               }}
             >
-              <TouchableOpacity
+              <Pressable
                 onPress={async () => {
                   removeReceivedReminder(note.id);
                   await syncState();
@@ -87,7 +82,7 @@ export function UpcomingReminders() {
                 >
                   Cencel
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
               <Text
                 style={{
                   color: theme.onPrimary,

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TouchableOpacity } from "react-native";
+import { Pressable } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useTheme } from "../../../hooks";
 import { moderateScale, verticalScale } from "../../../tools";
@@ -13,9 +13,8 @@ export function FontColorIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
+    <Pressable
       {...btnProps}
-      activeOpacity={0.5}
       onPress={onPress}
       style={{ width: moderateScale(26), height: verticalScale(26) }}
     >
@@ -34,6 +33,6 @@ export function FontColorIcon({
           fill={theme.primary}
         />
       </Svg>
-    </TouchableOpacity>
+    </Pressable>
   );
 }

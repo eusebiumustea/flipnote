@@ -25,9 +25,11 @@ export function NoteTitleInput({ editNote, setEditNote }: NoteTitleProps) {
       placeholder={"Title"}
       multiline
       style={{
-        color: darkCardColors.includes(editNote.background)
-          ? "#ffffff"
-          : "#000000",
+        color:
+          darkCardColors.includes(editNote.background) ||
+          editNote?.imageOpacity > 0.4
+            ? "#ffffff"
+            : "#000000",
         fontSize: moderateFontScale(30),
         fontWeight: "bold",
         fontFamily: "OpenSans",

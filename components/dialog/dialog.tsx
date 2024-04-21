@@ -1,16 +1,10 @@
-import {
-  Modal,
-  View,
-  useWindowDimensions,
-  Text,
-  TouchableOpacity,
-} from "react-native";
-import { moderateFontScale } from "../../tools";
-import { DialogProps } from "./types";
 import { BlurView } from "expo-blur";
-import { useTheme } from "../../hooks";
 import { memo } from "react";
+import { Modal, Text, View, useWindowDimensions } from "react-native";
+import { useTheme } from "../../hooks";
+import { moderateFontScale } from "../../tools";
 import { Button } from "../button";
+import { DialogProps } from "./types";
 
 export const Dialog = memo(
   ({

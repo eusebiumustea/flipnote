@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TouchableOpacity, ViewProps } from "react-native";
+import { Pressable, ViewProps } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { moderateScale, verticalScale } from "../../../tools";
 import { IconButtonBase } from "./types";
@@ -12,9 +12,8 @@ export function BackgroundIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
+    <Pressable
       {...btnProps}
-      activeOpacity={0.5}
       onPress={onPress}
       style={{
         width: moderateScale(26),
@@ -30,6 +29,6 @@ export function BackgroundIcon({
       >
         <Path d="M8.5 13.5l2.5 3 3.5-4.5 4.5 6H5m16 1V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2z" />
       </Svg>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
