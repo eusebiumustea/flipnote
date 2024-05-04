@@ -1,9 +1,9 @@
 import * as React from "react";
 import Svg, { Path, Circle } from "react-native-svg";
 import { useTheme } from "../../../hooks";
-import { Pressable } from "react-native";
+import { TouchableOpacity } from "react-native";
 import { IconButtonBase } from "./types";
-import { moderateScale, verticalScale } from "../../../tools";
+import { moderateScale, verticalScale } from "../../../utils";
 
 export function InboxIcon({
   style,
@@ -14,7 +14,8 @@ export function InboxIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <Pressable
+    <TouchableOpacity
+      activeOpacity={0.7}
       onPress={onPress}
       style={{ width: moderateScale(25), height: verticalScale(25), ...style }}
       {...btnProps}
@@ -50,6 +51,6 @@ export function InboxIcon({
         />
         {active && <Circle cx={16.5} cy={4.5} r={4.5} fill="#2AFF8C" />}
       </Svg>
-    </Pressable>
+    </TouchableOpacity>
   );
 }

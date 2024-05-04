@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { verticalScale } from "../../tools";
+import { verticalScale } from "../../utils";
 
 export function Screen1({ navigation }) {
   const { top } = useSafeAreaInsets();

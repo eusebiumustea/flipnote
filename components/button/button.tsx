@@ -50,7 +50,6 @@ export function Button({ colors, children, ...pressableProps }: ButtonProps) {
                   color: pressed ? focusedTextColor : textColor,
                 } as unknown
               }
-              style={{}}
             >
               {children}
             </MotiText>

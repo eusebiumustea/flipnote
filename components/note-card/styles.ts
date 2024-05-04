@@ -1,7 +1,7 @@
 import { ViewStyle } from "react-native";
 import { NotePreviewTypes } from "../../screens";
-import { verticalScale } from "../../tools";
-import { dark } from "../../tools/colors";
+import { verticalScale } from "../../utils";
+import { dark } from "../../constants/colors";
 
 export const noteCardStyles = (theme: typeof dark) =>
   ({

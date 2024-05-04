@@ -1,5 +1,5 @@
 import { TextStyle, ViewStyle } from "react-native";
-import { dark, light } from "../tools/colors";
+import { dark, light } from "../constants/colors";
 import { useTheme } from "./theme-context";
 
 export type CustomStyle<T, V, K extends (props: V) => ViewStyle | TextStyle> = (

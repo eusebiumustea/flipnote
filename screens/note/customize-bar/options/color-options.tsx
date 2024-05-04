@@ -1,16 +1,16 @@
-import { Pressable, Text, useWindowDimensions } from "react-native";
+import { TouchableOpacity, Text, useWindowDimensions } from "react-native";
 import ColorPicker, {
   BrightnessSlider,
   HueSlider,
   SaturationSlider,
 } from "reanimated-color-picker";
 import { useTheme } from "../../../../hooks";
-import { removeObjectKey, replaceElementAtIndex } from "../../../../tools";
+import { removeObjectKey, replaceElementAtIndex } from "../../../../utils";
 import { FontColorEvent } from "../../style-events";
 import { OptionProps } from "../../types";
 
 export function ColorOptions({
-  currentFocused,
+  currentSelectedStyle,
   currentIndex,
   selection,
   setEditNote,
@@ -29,7 +29,7 @@ export function ColorOptions({
       thumbShape="circle"
       onComplete={({ hex }) =>
         FontColorEvent(
-          currentFocused,
+          currentSelectedStyle,
           hex,
           selection,
           setEditNote,
@@ -37,43 +37,47 @@ export function ColorOptions({
         )
       }
       value={
-        currentFocused && currentFocused?.style?.color
-          ? (currentFocused?.style?.color as string)
+        currentSelectedStyle && currentSelectedStyle?.style?.color
+          ? (currentSelectedStyle?.style?.color as string)
           : "#0213f5"
       }
     >
       <HueSlider boundedThumb />
       <SaturationSlider boundedThumb />
       <BrightnessSlider boundedThumb />
-      {currentFocused?.style?.color !== undefined && (
-        <Pressable
+      {currentSelectedStyle?.style?.color !== undefined && (
+        <Text
           onPress={() => {
             if (
-              currentFocused &&
-              Object.keys(currentFocused.style).includes("color") &&
-              Object.keys(currentFocused.style).length >= 1
+              currentSelectedStyle &&
+              Object.keys(currentSelectedStyle.style).includes("color") &&
+              Object.keys(currentSelectedStyle.style).length >= 1
             ) {
               setEditNote((prev) => ({
                 ...prev,
                 styles:
-                  Object.keys(currentFocused.style).length === 1
-                    ? prev.styles.filter((e) => e !== currentFocused)
+                  Object.keys(currentSelectedStyle.style).length === 1
+                    ? prev.styles.filter((e) => e !== currentSelectedStyle)
                     : replaceElementAtIndex(prev.styles, currentIndex, {
-                        ...currentFocused,
-                        style: removeObjectKey(currentFocused.style, "color"),
+                        ...currentSelectedStyle,
+                        style: removeObjectKey(
+                          currentSelectedStyle.style,
+                          "color"
+                        ),
                       }),
               }));
             }
           }}
           style={{
+            color: theme.onPrimary,
             alignSelf: "flex-start",
             backgroundColor: theme.primary,
             padding: 5,
             borderRadius: 20,
           }}
         >
-          <Text style={{ color: theme.onPrimary }}>Reset</Text>
-        </Pressable>
+          Reset
+        </Text>
       )}
     </ColorPicker>
   );

@@ -1,21 +1,18 @@
-import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
-import JSZip from "jszip";
 import React, { PropsWithChildren, memo, useEffect, useState } from "react";
 import { Animated, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 
-import { NOTES_PATH } from "../../constants";
 import { receivedNotifications } from "../../contexts/atom";
 import { useTheme } from "../../hooks";
 import { useLoading } from "../../hooks/use-loading-dialog";
 import { useRequest } from "../../hooks/use-request";
-import { moderateFontScale, moderateScale, verticalScale } from "../../tools";
+import { removeReceivedReminder } from "../../screens/inbox/upcoming-reminders";
+import { moderateFontScale, moderateScale, verticalScale } from "../../utils";
 import { ImportIcon, InboxIcon, SearchIcon } from "../assets";
 import { HeaderProps } from "./types";
-import { removeReceivedReminder } from "../../screens/inbox/upcoming-reminders";
+import { useStorageRequest } from "../../hooks/use-storage-request";
 export const Header = memo(
   ({
     searchValue,
@@ -46,8 +43,11 @@ export const Header = memo(
               title: e.request.content.title,
             },
           ]);
-          setBadge(true);
-          setTimeout(() => setBadge(false), 120000);
+          if (!badge) {
+            setBadge(true);
+            setTimeout(() => setBadge(false), 120000);
+          }
+
           await removeReceivedReminder(+e.request.identifier);
           await syncState();
         }
@@ -57,13 +57,13 @@ export const Header = memo(
         listen.remove();
       };
     }, []);
-    const loading = useLoading();
     useEffect(() => {
-      if (notifications.length === 0) {
+      if (notifications.length === 0 && badge) {
         setBadge(false);
       }
     }, [notifications]);
     const { syncState } = useRequest();
+    const { importNotes } = useStorageRequest();
     return (
       <Animated.View
         style={{
@@ -126,48 +126,16 @@ export const Header = memo(
             textContentType="none"
           />
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            <InboxIcon onPress={onInboxOpen} active={badge} />
-            <ImportIcon
-              onPress={async () => {
-                try {
-                  const result = await DocumentPicker.getDocumentAsync({});
-                  if (result.canceled) {
-                    return;
-                  }
-                  const zipFilePath = result.assets[0].uri;
-                  loading(true);
-                  const zipFileContents = await FileSystem.readAsStringAsync(
-                    zipFilePath,
-                    {
-                      encoding: FileSystem.EncodingType.Base64,
-                    }
-                  );
-                  const zip = await JSZip.loadAsync(zipFileContents, {
-                    base64: true,
-                  });
-                  const zipItems = Object.keys(zip.files);
-                  loading(`Loading ${zipItems.length} items`);
-                  await Promise.all(
-                    zipItems.map(async (file) => {
-                      const { exists } = await FileSystem.getInfoAsync(
-                        `${NOTES_PATH}/${file}`
-                      );
-                      if (exists) {
-                        return;
-                      }
-                      const content = await zip.files[file].async("text");
-
-                      await FileSystem.writeAsStringAsync(
-                        `${NOTES_PATH}/${file}`,
-                        content
-                      );
-                    })
-                  );
-                  await syncState();
-                  loading(false);
-                } catch (error) {}
+            <InboxIcon
+              onPress={(e) => {
+                if (badge) {
+                  setBadge(false);
+                }
+                onInboxOpen(e);
               }}
+              active={badge}
             />
+            <ImportIcon onPress={importNotes} />
           </View>
         </View>
         {children}

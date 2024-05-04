@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Pressable } from "react-native";
+import { TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 import { useTheme } from "../../../hooks";
@@ -14,7 +14,8 @@ export function BackIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <Pressable
+    <TouchableOpacity
+      activeOpacity={0.7}
       onPress={onPress}
       style={{
         width: 37,
@@ -40,6 +41,6 @@ export function BackIcon({
           strokeLinejoin="round"
         />
       </Svg>
-    </Pressable>
+    </TouchableOpacity>
   );
 }

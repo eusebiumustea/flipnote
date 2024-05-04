@@ -1,7 +1,7 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { memo, useState } from "react";
 import { CreateIcon, Header } from "../../../components";
-import { verticalScale } from "../../../tools";
+import { verticalScale } from "../../../utils";
 import { NoteOptions } from "../note-options";
 import { NotesFilterList } from "../notes-filter";
 import { HomeOverlaysProps } from "./types";

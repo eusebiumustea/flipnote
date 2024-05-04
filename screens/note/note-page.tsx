@@ -2,20 +2,24 @@ import { NavigatorScreenParams, useNavigation } from "@react-navigation/native";
 import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 import { Image } from "expo-image";
 import { MotiView } from "moti";
-import { memo, useMemo, useRef, useState } from "react";
-import { Keyboard, ScrollView, useWindowDimensions } from "react-native";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Animated,
+  Keyboard,
+  ScrollView,
+  useWindowDimensions,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
 import { useToast } from "../../components/toast";
 import { useLoading } from "../../hooks/use-loading-dialog";
 import { useNoteStorage } from "../../hooks/use-note-manager";
 import { useNoteUtils } from "../../hooks/use-note-utills";
-import { verticalScale } from "../../tools";
+import { verticalScale } from "../../utils";
 import { NoteContentInput } from "./note-content-input";
 import { NoteOverlays } from "./note-overlays";
 import { NoteTitleInput } from "./note-title-input";
 import { InputSelectionProps, ReminderProps, note } from "./types";
-import { useKeyboard } from "@react-native-community/hooks";
 interface ParamsProps {
   id: number;
 }
@@ -47,7 +51,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     end: 0,
   });
   const [reminderDialog, setReminderDialog] = useState(false);
-  const { currentFocused, openReminder } = useNoteUtils(
+  const { currentSelectedStyle, openReminder } = useNoteUtils(
     id,
     selection,
     editNote,
@@ -63,7 +67,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   const [capturing, setCapturing] = useState(false);
   const [showTitle, setShowTitle] = useState(true);
   const loading = useLoading();
-  const keyboard = useKeyboard();
   async function Share() {
     loading("Preparing image...");
     Keyboard.dismiss();
@@ -81,8 +84,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         loading(false);
         nav.navigate("image-preview", { uri: image });
       } catch (e) {
-        console.log(e);
-        toast({ message: String(e) });
         loading(false);
       }
     }, 0);
@@ -98,9 +99,9 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     }
     return null;
   }, [capturing, isImgBg]);
-  console.log(JSON.stringify(editNote.styles));
   const { height, width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
+
   return (
     <MotiView
       style={{ flex: 1 }}
@@ -124,7 +125,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         ref={isImgBg ? viewShotRef : null}
         style={{
           flex: 1,
-          marginBottom: verticalScale(55),
+          marginBottom: verticalScale(52),
         }}
       >
         <>
@@ -164,11 +165,9 @@ export const NotePage = memo(({ route }: NotePageProps) => {
 
           <ScrollView
             ref={scrollRef}
-            scrollEventThrottle={16}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="always"
             automaticallyAdjustKeyboardInsets
-            keyboardDismissMode="interactive"
             contentContainerStyle={{
               paddingTop: capturing ? 0 : verticalScale(70) + top,
               paddingBottom: verticalScale(100),
@@ -199,10 +198,10 @@ export const NotePage = memo(({ route }: NotePageProps) => {
                 inputProps={{
                   caretHidden: capturing,
                 }}
-                currentFocused={currentFocused}
                 editNote={editNote}
                 setInputSelection={setSelection}
                 setEditNote={setEditNote}
+                inputSelection={selection}
               />
             </ViewShot>
           </ScrollView>
@@ -217,7 +216,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         selection={selection}
         setEditNote={setEditNote}
         setReminder={setReminder}
-        currentFocused={currentFocused}
+        currentSelectedStyle={currentSelectedStyle}
         reminder={reminder}
         editNote={editNote}
       />

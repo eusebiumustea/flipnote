@@ -18,7 +18,7 @@ export interface OptionProps {
   colors?: string[];
   editNote?: note;
   fonts?: string[];
-  currentFocused?: TextNoteStyle;
+  currentSelectedStyle?: TextNoteStyle;
   fontFamilyFocused?: string;
   currentIndex?: number;
   selection?: InputSelectionProps;

@@ -1,7 +1,7 @@
 import { Pressable } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useTheme } from "../../hooks";
-import { moderateScale } from "../../tools";
+import { moderateScale } from "../../utils";
 import { ColorBoxProps } from "./types";
 
 export function ColorBox({

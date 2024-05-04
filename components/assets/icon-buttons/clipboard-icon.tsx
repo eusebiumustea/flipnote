@@ -1,17 +1,18 @@
 import * as React from "react";
-import { Pressable } from "react-native";
+import { TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useTheme } from "../../../hooks";
-import { moderateScale, verticalScale } from "../../../tools";
+import { moderateScale, verticalScale } from "../../../utils";
 import { IconButtonBase } from "./types";
 
 export function ClipboardIcon({ svgProps, onPress, btnProps }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <Pressable
-      {...btnProps}
+    <TouchableOpacity
+      activeOpacity={0.7}
       onPress={onPress}
       style={{ width: moderateScale(30), height: verticalScale(30) }}
+      {...btnProps}
     >
       <Svg
         width={"100%"}
@@ -38,6 +39,6 @@ export function ClipboardIcon({ svgProps, onPress, btnProps }: IconButtonBase) {
           strokeLinejoin="round"
         />
       </Svg>
-    </Pressable>
+    </TouchableOpacity>
   );
 }

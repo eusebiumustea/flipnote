@@ -1,4 +1,5 @@
 import Checkbox from "expo-checkbox";
+import { Image } from "expo-image";
 import React, { memo } from "react";
 import {
   GestureResponderEvent,
@@ -8,13 +9,11 @@ import {
   ViewStyle,
   useWindowDimensions,
 } from "react-native";
-import { Image } from "expo-image";
-import { useTheme } from "../../hooks";
-import { NotePreviewTypes } from "../../screens/note";
-import { moderateFontScale, verticalScale } from "../../tools";
-import { darkCardColors } from "../../tools/colors";
-import { noteCardStyles } from "./styles";
+import { darkCardColors } from "../../constants/colors";
 import { useStyle } from "../../hooks/use-style";
+import { NotePreviewTypes } from "../../screens/note";
+import { moderateFontScale, verticalScale } from "../../utils";
+import { noteCardStyles } from "./styles";
 interface NoteCardProps {
   item: NotePreviewTypes;
   onPress?: (event: GestureResponderEvent) => void;

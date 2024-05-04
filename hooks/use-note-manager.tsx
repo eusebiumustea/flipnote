@@ -37,9 +37,7 @@ export function useNoteStorage(
           setEditNote(content);
           setPreventDelete(false);
         }, 300);
-      } catch (error) {
-        console.log(error);
-      }
+      } catch (error) {}
     }
     getData();
   }, []);

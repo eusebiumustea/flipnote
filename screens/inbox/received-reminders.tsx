@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 import { useRecoilState } from "recoil";
 import { Button, NoteCard } from "../../components";
 import { useTheme } from "../../hooks";
-import { moderateFontScale, verticalScale } from "../../tools";
+import { moderateFontScale, verticalScale } from "../../utils";
 import { EMPTY_NOTE_STATE, receivedNotifications } from "../note";
 
 export function ReceivedReminders() {

@@ -14,7 +14,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AppStorageContext } from "./contexts";
 import { LoadingDialog } from "./contexts/loading-dialog";
 import { ThemeProvider } from "./hooks";
-import { StatusBarController } from "./tools";
+import { StatusBarController } from "./utils";
 SplashScreen.preventAutoHideAsync();
 export default function App() {
   useEffect(() => {
@@ -53,16 +53,16 @@ export default function App() {
       <RecoilRoot>
         <LoadingDialog>
           <SafeAreaProvider>
-            <ToastProvider>
-              <AppStorageContext>
+            <AppStorageContext>
+              <ToastProvider>
                 <ThemeProvider>
                   <NavigationContainer>
                     <StatusBarController />
                     <AppRouting />
                   </NavigationContainer>
                 </ThemeProvider>
-              </AppStorageContext>
-            </ToastProvider>
+              </ToastProvider>
+            </AppStorageContext>
           </SafeAreaProvider>
         </LoadingDialog>
       </RecoilRoot>

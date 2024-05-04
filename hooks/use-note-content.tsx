@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Text, TextStyle } from "react-native";
+import { darkCardColors } from "../constants/colors";
 import { TextNoteStyle } from "../screens";
-import { darkCardColors } from "../tools/colors";
 export function useEditNoteContent(
   styles: TextNoteStyle[],
   text: string,
@@ -33,7 +33,6 @@ export function useEditNoteContent(
 
     return fontName;
   }
-
   // return useMemo(() => {
   //   const isStyled = styles.length > 0;
   //   if (isStyled) {
@@ -79,10 +78,10 @@ export function useEditNoteContent(
         <Text style={{ color: defaultThemeText }}>
           {text.slice(0, styles[0]?.interval?.start)}
           {styles.map((e, i, arr) => {
-            const start = e?.interval?.start;
-            const end = e?.interval?.end;
-            const nextStart = arr[i + 1]?.interval?.start;
-            const style = e?.style;
+            const start = e?.interval.start;
+            const end = e?.interval.end;
+            const nextStart = arr[i + 1]?.interval.start;
+            const style = e.style;
             return (
               <Text key={i}>
                 <Text

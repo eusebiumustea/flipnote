@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Pressable } from "react-native";
+import { TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useTheme } from "../../../hooks";
-import { moderateScale, verticalScale } from "../../../tools";
+import { moderateScale, verticalScale } from "../../../utils";
 import { IconButtonBase } from "./types";
 
 export function JustifyAlignIcon({
@@ -13,10 +13,11 @@ export function JustifyAlignIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <Pressable
-      {...btnProps}
+    <TouchableOpacity
+      activeOpacity={0.7}
       onPress={onPress}
       style={{ width: moderateScale(25), height: verticalScale(25) }}
+      {...btnProps}
     >
       <Svg
         width={"100%"}
@@ -33,6 +34,6 @@ export function JustifyAlignIcon({
           strokeLinejoin="round"
         />
       </Svg>
-    </Pressable>
+    </TouchableOpacity>
   );
 }

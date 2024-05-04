@@ -1,137 +1,165 @@
-import { Dispatch, SetStateAction, memo, useRef } from "react";
+import { Dispatch, SetStateAction, useRef } from "react";
 
 import { TextInput, TextInputProps } from "react-native";
+import { contentLengthLimit } from "../../constants";
 import { useEditNoteContent, useTheme } from "../../hooks";
-import {
-  contentLengthLimit,
-  range,
-  removeElementAtIndex,
-  verticalScale,
-} from "../../tools";
-import { InputSelectionProps, TextNoteStyle, note } from "./types";
+import { removeElementAtIndex } from "../../utils";
+import { InputSelectionProps, note } from "./types";
 type NoteContentInputProps = {
   setEditNote?: Dispatch<SetStateAction<note>>;
   editNote?: note;
   setInputSelection?: Dispatch<SetStateAction<InputSelectionProps>>;
   inputProps?: TextInputProps;
-  currentFocused?: TextNoteStyle;
+  inputSelection?: InputSelectionProps;
 };
-export const NoteContentInput = memo(
-  ({
-    editNote,
-    setEditNote,
-    setInputSelection,
-    inputProps,
-    currentFocused,
-  }: NoteContentInputProps) => {
-    const theme = useTheme();
-    let selectionRef = useRef<InputSelectionProps>({
-      start: 0,
-      end: 0,
-    }).current;
-    const inputRef = useRef<TextInput>(null);
+export const NoteContentInput = ({
+  editNote,
+  setEditNote,
+  setInputSelection,
+  inputProps,
+}: NoteContentInputProps) => {
+  const theme = useTheme();
+  let selectionRef = useRef<InputSelectionProps>({
+    start: 0,
+    end: 0,
+  }).current;
+  const inputRef = useRef<TextInput>(null);
 
-    return (
-      <TextInput
-        ref={inputRef}
-        maxLength={contentLengthLimit()}
-        onSelectionChange={({ nativeEvent: { selection } }) => {
-          selectionRef.start = selection.start;
-          selectionRef.end = selection.end;
-          console.log("selection", selection);
-          setInputSelection(selection);
-        }}
-        placeholderTextColor={theme.placeholder}
-        scrollEnabled={false}
-        autoCorrect={false}
-        spellCheck={false}
-        autoComplete="off"
-        id="contentInput"
-        textAlign={editNote.contentPosition}
-        textContentType="none"
-        allowFontScaling={false}
-        onChangeText={(text) => {
-          const textSelected = selectionRef.start > selectionRef.end;
-          const increment = text.length > editNote.text.length;
-          const decrement = text.length < editNote.text.length;
-          editNote.styles.forEach((style, i) => {
-            if (style.interval.start === style.interval.end) {
-              setEditNote((prev) => ({
-                ...prev,
-                text,
-                styles: removeElementAtIndex(prev.styles, i),
-              }));
-              return;
+  return (
+    <TextInput
+      ref={inputRef}
+      maxLength={contentLengthLimit()}
+      onSelectionChange={({ nativeEvent: { selection } }) => {
+        selectionRef.start = selection.start;
+        selectionRef.end = selection.end;
+        setInputSelection(selection);
+      }}
+      importantForAutofill="no"
+      placeholderTextColor={theme.placeholder}
+      scrollEnabled={false}
+      autoCorrect={false}
+      spellCheck={false}
+      autoComplete="off"
+      textAlign={editNote.contentPosition}
+      textContentType="none"
+      allowFontScaling={false}
+      smartInsertDelete={false}
+      onChangeText={(text) => {
+        const textSelected = selectionRef.end > selectionRef.start + 1;
+        const increment = text.length > editNote.text.length;
+        const decrement = text.length < editNote.text.length;
+        editNote.styles.forEach((style, i) => {
+          if (
+            (textSelected &&
+              decrement &&
+              selectionRef.start <= style.interval.start &&
+              selectionRef.end >= style.interval.end) ||
+            (textSelected &&
+              decrement &&
+              selectionRef.start > style.interval.start &&
+              selectionRef.start < style.interval.end) ||
+            (textSelected &&
+              decrement &&
+              selectionRef.end > style.interval.start &&
+              selectionRef.end < style.interval.end) ||
+            selectionRef.start >= editNote.text.length - 1
+          ) {
+            setEditNote((prev) => ({
+              ...prev,
+              text,
+              styles: removeElementAtIndex(prev.styles, i),
+            }));
+            return;
+          }
+          if (style.interval.end <= style.interval.start) {
+            setEditNote((prev) => ({
+              ...prev,
+              text,
+              styles: removeElementAtIndex(prev.styles, i),
+            }));
+            return;
+          }
+        });
+
+        setEditNote((prev) => ({
+          ...prev,
+          text,
+          styles: prev.styles.map((style, i) => {
+            if (
+              !textSelected &&
+              increment &&
+              selectionRef.end > style.interval.start &&
+              selectionRef.end < style.interval.end
+            ) {
+              return {
+                ...style,
+                interval: {
+                  ...style.interval,
+                  end:
+                    style.interval.end + (text.length - editNote.text.length),
+                },
+              };
             }
-          });
+            if (
+              !textSelected &&
+              decrement &&
+              selectionRef.start > style.interval.start &&
+              selectionRef.end <= style.interval.end
+            ) {
+              return {
+                ...style,
+                interval: {
+                  ...style.interval,
+                  end:
+                    style.interval.end - (editNote.text.length - text.length),
+                },
+              };
+            }
 
-          setEditNote((prev) => ({
-            ...prev,
-            text,
-            styles: prev.styles.map((style, i) => {
-              if (
-                !textSelected &&
-                decrement &&
-                selectionRef.start > style.interval.start &&
-                selectionRef.start <= style.interval.end
-              ) {
-                return {
-                  ...style,
-                  interval: {
-                    ...style.interval,
-                    end:
-                      style.interval.end - (editNote.text.length - text.length),
-                  },
-                };
-              }
-
-              if (
-                !textSelected &&
-                decrement &&
-                selectionRef.start <= style.interval.start
-              ) {
-                return {
-                  ...style,
-                  interval: {
-                    start:
-                      style.interval.start -
-                      (editNote.text.length - text.length),
-                    end:
-                      style.interval.end - (editNote.text.length - text.length),
-                  },
-                };
-              }
-              if (
-                !textSelected &&
-                increment &&
-                selectionRef.end <= style.interval.start
-              ) {
-                return {
-                  ...style,
-                  interval: {
-                    start:
-                      style.interval.start +
-                      (text.length - editNote.text.length),
-                    end:
-                      style.interval.end + (text.length - editNote.text.length),
-                  },
-                };
-              }
-              return style;
-            }),
-          }));
-        }}
-        multiline
-        placeholder="Take the note"
-        {...inputProps}
-      >
-        {useEditNoteContent(
-          editNote.styles,
-          editNote.text,
-          editNote.background,
-          editNote.imageOpacity
-        )}
-      </TextInput>
-    );
-  }
-);
+            if (
+              !textSelected &&
+              decrement &&
+              selectionRef.start <= style.interval.start
+            ) {
+              return {
+                ...style,
+                interval: {
+                  start:
+                    style.interval.start - (editNote.text.length - text.length),
+                  end:
+                    style.interval.end - (editNote.text.length - text.length),
+                },
+              };
+            }
+            if (
+              !textSelected &&
+              increment &&
+              selectionRef.end <= style.interval.start
+            ) {
+              return {
+                ...style,
+                interval: {
+                  start:
+                    style.interval.start + (text.length - editNote.text.length),
+                  end:
+                    style.interval.end + (text.length - editNote.text.length),
+                },
+              };
+            }
+            return style;
+          }),
+        }));
+      }}
+      multiline
+      placeholder="Take the note"
+      {...inputProps}
+    >
+      {useEditNoteContent(
+        editNote.styles,
+        editNote.text,
+        editNote.background,
+        editNote.imageOpacity
+      )}
+    </TextInput>
+  );
+};

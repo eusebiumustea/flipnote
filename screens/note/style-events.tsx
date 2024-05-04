@@ -4,7 +4,7 @@ import {
   removeObjectKey,
   replaceElementAtIndex,
   sortStyles,
-} from "../../tools";
+} from "../../utils";
 import { InputSelectionProps, TextNoteStyle, note } from "./types";
 
 export function FontColorEvent(

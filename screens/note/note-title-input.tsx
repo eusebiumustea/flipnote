@@ -1,9 +1,9 @@
 import { TextInput, Text } from "react-native";
-import { moderateFontScale } from "../../tools";
+import { moderateFontScale } from "../../utils";
 import { useTheme } from "../../hooks";
 import { note } from "./types";
 import { Dispatch, SetStateAction } from "react";
-import { darkCardColors } from "../../tools/colors";
+import { darkCardColors } from "../../constants/colors";
 type NoteTitleProps = {
   editNote: note;
   setEditNote: Dispatch<SetStateAction<note>>;

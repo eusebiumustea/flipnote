@@ -1,7 +1,7 @@
 import React, { memo } from "react";
-import { Text, Pressable } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 import { useTheme } from "../../../hooks";
-import { moderateFontScale } from "../../../tools";
+import { moderateFontScale } from "../../../utils";
 interface filterButtonProps {
   onSelected: () => void;
   selected: boolean;
@@ -11,7 +11,7 @@ export const FilterButton = memo(
   ({ onSelected, selected, label }: filterButtonProps) => {
     const theme = useTheme();
     return (
-      <Pressable
+      <TouchableOpacity
         onPress={onSelected}
         style={{
           borderRadius: 8,
@@ -24,6 +24,7 @@ export const FilterButton = memo(
           alignItems: "center",
           flexDirection: "row",
         }}
+        activeOpacity={0.7}
       >
         <Text
           numberOfLines={1}
@@ -35,7 +36,7 @@ export const FilterButton = memo(
         >
           {label.length > 40 ? `${label.slice(0, 40)}...` : label}
         </Text>
-      </Pressable>
+      </TouchableOpacity>
     );
   }
 );
@@ -44,8 +45,9 @@ export const FilterFavoritesButton = memo(
   ({ onSelected, selected }: filterButtonProps) => {
     const theme = useTheme();
     return (
-      <Pressable
+      <TouchableOpacity
         onPress={onSelected}
+        activeOpacity={0.7}
         style={{
           borderRadius: 8,
           borderWidth: 1,
@@ -66,7 +68,7 @@ export const FilterFavoritesButton = memo(
         >
           Favorites
         </Text>
-      </Pressable>
+      </TouchableOpacity>
     );
   }
 );

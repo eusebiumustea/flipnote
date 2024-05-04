@@ -6,7 +6,7 @@ import { TextStyle } from "react-native";
 import { useToast } from "../../../components";
 import { fontNames } from "../../../constants";
 import { useNoitication } from "../../../hooks/use-notification-handler";
-import { cardColors } from "../../../tools/colors";
+import { cardColors } from "../../../constants/colors";
 import {
   BackgroundOptions,
   ColorOptions,
@@ -27,21 +27,21 @@ export function NoteOverlays({
   setEditNote,
   onReminderOpen,
   onShare,
-  currentFocused,
+  currentSelectedStyle,
   selection,
   reminderDialog,
   setReminderDialog,
 }: NoteOverlaysProps) {
   const notification = useNoitication();
   const toast = useToast();
-  const currentIndex = editNote.styles.indexOf(currentFocused);
-  const fontFamilyFocused = currentFocused?.style?.fontFamily;
+  const currentIndex = editNote.styles.indexOf(currentSelectedStyle);
+  const fontFamilyFocused = currentSelectedStyle?.style?.fontFamily;
   const noteStateIsEmpty =
     editNote.text.length === 0 && editNote.title.length === 0;
   const navigation = useNavigation<StackNavigationHelpers>();
   function setStyleEvent(key: keyof TextStyle, value: string) {
     return StyleEvent(
-      currentFocused,
+      currentSelectedStyle,
       key,
       value,
       selection,
@@ -51,7 +51,7 @@ export function NoteOverlays({
   }
   const optionsProps: OptionProps = {
     selection,
-    currentFocused,
+    currentSelectedStyle,
     currentIndex,
     setEditNote,
     colors: cardColors,
@@ -59,7 +59,6 @@ export function NoteOverlays({
     fontFamilyFocused,
     fonts: fontNames,
   };
-
   return (
     <>
       <DateTimePickerDialog
@@ -111,14 +110,9 @@ export function NoteOverlays({
         onReminderOpen={onReminderOpen}
         onClipboard={async () => {
           try {
-            await Clipboard.setStringAsync(
-              `${editNote.title}\n${editNote.text}`
-            );
+            await Clipboard.setStringAsync(editNote.text);
             toast({
               message: "Copied",
-              startPositionX: 80,
-              startPositionY: 10,
-              fade: true,
             });
           } catch (error) {
             toast({
@@ -139,21 +133,27 @@ export function NoteOverlays({
       />
 
       <CustomizeBar
+        currentIndex={currentIndex}
         isImgBg={editNote.background.includes("/")}
         contentPosition={editNote.contentPosition}
         setEditNote={setEditNote}
-        focusedColor={currentFocused?.style?.color}
+        focusedColor={currentSelectedStyle?.style?.color}
         selection={selection}
-        italicFocused={currentFocused?.style?.fontStyle === "italic"}
+        italicFocused={currentSelectedStyle?.style?.fontStyle === "italic"}
         onItalic={() => setStyleEvent("fontStyle", "italic")}
         onBold={() => setStyleEvent("fontWeight", "bold")}
-        boldFocused={currentFocused?.style?.fontWeight === "bold"}
+        boldFocused={currentSelectedStyle?.style?.fontWeight === "bold"}
         onUnderline={() => setStyleEvent("textDecorationLine", "underline")}
         underLinedFocused={
-          currentFocused?.style?.textDecorationLine === "underline"
+          currentSelectedStyle?.style?.textDecorationLine === "underline"
         }
         onFontColor={() =>
-          onFontColor(currentFocused, selection, setEditNote, currentIndex)
+          onFontColor(
+            currentSelectedStyle,
+            selection,
+            setEditNote,
+            currentIndex
+          )
         }
         fontSizeOptions={<FontSizeOptions {...optionsProps} />}
         fontColorOptions={<ColorOptions {...optionsProps} />}

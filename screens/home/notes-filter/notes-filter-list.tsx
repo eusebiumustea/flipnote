@@ -1,7 +1,7 @@
 import { FlatList, View } from "react-native";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
 import { HomeOverlaysProps } from "../home-overlays/types";
-import { removeArrayKeyDuplicates, toggleArrayElement } from "../../../tools";
+import { removeArrayKeyDuplicates, toggleArrayElement } from "../../../utils";
 import { memo, useMemo } from "react";
 
 export const NotesFilterList = memo(

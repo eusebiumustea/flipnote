@@ -4,7 +4,7 @@ import { FlatList } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Swipe } from "../../../components/pan-responder";
 import { useTheme } from "../../../hooks";
-import { moderateFontScale } from "../../../tools";
+import { moderateFontScale } from "../../../utils";
 import { HistoryChangesProps } from "./types";
 
 import { AnimatedScreen, ScreenHeader } from "../../../components";

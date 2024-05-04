@@ -10,7 +10,7 @@ import { useTheme } from "../hooks";
 import { ImagePreview, Inbox } from "../screens";
 import { Home } from "../screens/home";
 import { NotePage } from "../screens/note/note-page";
-import { moderateScale, verticalScale } from "../tools";
+import { moderateScale, verticalScale } from "../utils";
 import { TransitionInterpolator } from "./transition-interpolator";
 interface OptionsRoute {
   route: {
@@ -51,7 +51,6 @@ export function AppRouting() {
         options={{
           cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
         }}
-        initialParams={{ uri: "not_found" }}
       />
 
       <Stack.Screen

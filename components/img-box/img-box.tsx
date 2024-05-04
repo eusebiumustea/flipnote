@@ -1,5 +1,5 @@
-import { ImageBackground, Pressable, View } from "react-native";
-import { moderateScale, verticalScale } from "../../tools";
+import { ImageBackground, TouchableOpacity, View } from "react-native";
+import { moderateScale, verticalScale } from "../../utils";
 import Svg, { Path } from "react-native-svg";
 import { ImgBoxProps } from "./types";
 
@@ -11,7 +11,7 @@ export function ImageBox({
   onLongPress,
 }: ImgBoxProps) {
   return (
-    <Pressable
+    <TouchableOpacity
       onLongPress={onLongPress}
       onPress={onPress}
       style={{
@@ -57,6 +57,6 @@ export function ImageBox({
           </Svg>
         )}
       </ImageBackground>
-    </Pressable>
+    </TouchableOpacity>
   );
 }

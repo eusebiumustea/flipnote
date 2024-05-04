@@ -3,10 +3,9 @@ import * as React from "react";
 import { Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
-import { moderateScale } from "../../../tools";
-import { IconButtonBase } from "./types";
 import { useTheme } from "../../../hooks";
-import Animated from "react-native-reanimated";
+import { moderateScale } from "../../../utils";
+import { IconButtonBase } from "./types";
 
 export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
   const theme = useTheme();
@@ -14,7 +13,6 @@ export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
   const keyboard = useKeyboard();
   return (
     <Pressable
-      activeOpacity={1}
       onPress={onPress}
       style={{
         width: moderateScale(61),

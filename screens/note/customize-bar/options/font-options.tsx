@@ -1,11 +1,11 @@
 import { useCallback } from "react";
-import { Pressable, Text, View } from "react-native";
+import { TouchableOpacity, Text, View } from "react-native";
 import { useTheme } from "../../../../hooks";
 import {
   moderateFontScale,
   removeObjectKey,
   replaceElementAtIndex,
-} from "../../../../tools";
+} from "../../../../utils";
 import { FontFamilyEvent } from "../../style-events";
 import { OptionProps } from "../../types";
 
@@ -13,7 +13,7 @@ export function FontOptions({
   fonts,
   setEditNote,
   fontFamilyFocused,
-  currentFocused,
+  currentSelectedStyle,
   currentIndex,
   selection,
 }: OptionProps) {
@@ -21,22 +21,22 @@ export function FontOptions({
 
   return (
     <>
-      <Pressable
+      <TouchableOpacity
         onPress={() => {
           if (
-            currentFocused &&
-            currentFocused?.style?.fontFamily !== undefined &&
-            Object.keys(currentFocused.style).length >= 1
+            currentSelectedStyle &&
+            currentSelectedStyle?.style?.fontFamily !== undefined &&
+            Object.keys(currentSelectedStyle.style).length >= 1
           ) {
             setEditNote((prev) => ({
               ...prev,
               styles:
-                Object.keys(currentFocused.style).length === 1
-                  ? prev.styles.filter((e) => e !== currentFocused)
+                Object.keys(currentSelectedStyle.style).length === 1
+                  ? prev.styles.filter((e) => e !== currentSelectedStyle)
                   : replaceElementAtIndex(prev.styles, currentIndex, {
-                      ...currentFocused,
+                      ...currentSelectedStyle,
                       style: removeObjectKey(
-                        currentFocused.style,
+                        currentSelectedStyle.style,
                         "fontFamily"
                       ),
                     }),
@@ -67,13 +67,13 @@ export function FontOptions({
             }}
           />
         )}
-      </Pressable>
+      </TouchableOpacity>
       {fonts.map((font, i) => {
         return (
-          <Pressable
+          <TouchableOpacity
             onPress={() =>
               FontFamilyEvent(
-                currentFocused,
+                currentSelectedStyle,
                 font,
                 selection,
                 setEditNote,
@@ -106,7 +106,7 @@ export function FontOptions({
                 }}
               />
             )}
-          </Pressable>
+          </TouchableOpacity>
         );
       })}
     </>

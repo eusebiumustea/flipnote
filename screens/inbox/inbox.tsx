@@ -1,7 +1,7 @@
 import React from "react";
 import { ScrollView } from "react-native";
 import { useTheme } from "../../hooks";
-import { verticalScale } from "../../tools";
+import { verticalScale } from "../../utils";
 import { ReceivedReminders } from "./received-reminders";
 import { UpcomingReminders } from "./upcoming-reminders";
 

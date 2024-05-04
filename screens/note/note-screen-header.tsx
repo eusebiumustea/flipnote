@@ -1,16 +1,9 @@
 import { BlurView } from "expo-blur";
-import {
-  Dimensions,
-  GestureResponderEvent,
-  Platform,
-  View,
-  useColorScheme,
-} from "react-native";
+import { Dimensions, Platform, View, useColorScheme } from "react-native";
 import { Text } from "react-native-fast-text";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   BackIcon,
-  ChangesIcon,
   ClipboardIcon,
   HeartIcon,
   ReminderIcon,
@@ -20,11 +13,8 @@ import {
 import { memo } from "react";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useTheme } from "../../hooks";
-import {
-  contentLengthLimit,
-  moderateFontScale,
-  moderateScale,
-} from "../../tools";
+import { moderateFontScale } from "../../utils";
+import { contentLengthLimit } from "../../constants";
 
 interface NoteScreenHeaderProps {
   onClipboard: () => void;

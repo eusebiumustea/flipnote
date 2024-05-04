@@ -1,12 +1,17 @@
 import { Slider } from "@miblanchard/react-native-slider";
-import { Pressable, Text, View, useWindowDimensions } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { useTheme } from "../../../../hooks";
-import { removeObjectKey, replaceElementAtIndex } from "../../../../tools";
+import { removeObjectKey, replaceElementAtIndex } from "../../../../utils";
 import { FontSizeEvent } from "../../style-events";
 import { OptionProps } from "../../types";
 
 export function FontSizeOptions({
-  currentFocused,
+  currentSelectedStyle,
   currentIndex,
   selection,
   setEditNote,
@@ -35,24 +40,24 @@ export function FontSizeOptions({
         minimumValue={14}
         maximumValue={70}
         minimumTrackTintColor="blue"
-        value={currentFocused?.style?.fontSize || 14}
+        value={currentSelectedStyle?.style?.fontSize || 14}
         onValueChange={(value) => (showValue.current = value)}
         onSlidingComplete={(value) => {
           if (value < 15) {
             setEditNote((prev) => ({
               ...prev,
               styles:
-                Object.keys(currentFocused.style).length === 1
-                  ? prev.styles.filter((e) => e !== currentFocused)
+                Object.keys(currentSelectedStyle.style).length === 1
+                  ? prev.styles.filter((e) => e !== currentSelectedStyle)
                   : replaceElementAtIndex(prev.styles, currentIndex, {
-                      ...currentFocused,
-                      style: removeObjectKey(currentFocused.style, "fontSize"),
+                      ...currentSelectedStyle,
+                      style: removeObjectKey(currentSelectedStyle.style, "fontSize"),
                     }),
             }));
             return;
           }
           FontSizeEvent(
-            currentFocused,
+            currentSelectedStyle,
             value,
             selection,
             setEditNote,
@@ -63,29 +68,32 @@ export function FontSizeOptions({
       <Slider
         onSlidingComplete={(valueArr) => {
           const value = valueArr[0];
-          if (value < 15 && currentFocused?.style?.fontSize) {
+          if (value < 15 && currentSelectedStyle?.style?.fontSize) {
             setEditNote((prev) => ({
               ...prev,
               styles:
-                Object.keys(currentFocused?.style).length === 1
-                  ? prev.styles.filter((e) => e !== currentFocused)
+                Object.keys(currentSelectedStyle?.style).length === 1
+                  ? prev.styles.filter((e) => e !== currentSelectedStyle)
                   : replaceElementAtIndex(prev.styles, currentIndex, {
-                      ...currentFocused,
-                      style: removeObjectKey(currentFocused?.style, "fontSize"),
+                      ...currentSelectedStyle,
+                      style: removeObjectKey(
+                        currentSelectedStyle?.style,
+                        "fontSize"
+                      ),
                     }),
             }));
 
             return;
           }
           FontSizeEvent(
-            currentFocused,
+            currentSelectedStyle,
             value,
             selection,
             setEditNote,
             currentIndex
           );
         }}
-        value={currentFocused?.style?.fontSize || 14}
+        value={currentSelectedStyle?.style?.fontSize || 14}
         thumbStyle={{ backgroundColor: "teal" }}
         maximumTrackTintColor={theme.primary}
         minimumTrackTintColor={"#007AFF"}
@@ -93,24 +101,24 @@ export function FontSizeOptions({
         minimumValue={14}
         maximumValue={70}
       />
-      {currentFocused?.style?.fontSize && (
+      {currentSelectedStyle?.style?.fontSize && (
         <>
-          <Pressable
+          <TouchableOpacity
             onPress={() => {
               if (
-                currentFocused &&
-                Object.keys(currentFocused.style).includes("fontSize") &&
-                Object.keys(currentFocused.style).length >= 1
+                currentSelectedStyle &&
+                Object.keys(currentSelectedStyle.style).includes("fontSize") &&
+                Object.keys(currentSelectedStyle.style).length >= 1
               ) {
                 setEditNote((prev) => ({
                   ...prev,
                   styles:
-                    Object.keys(currentFocused.style).length === 1
-                      ? prev.styles.filter((e) => e !== currentFocused)
+                    Object.keys(currentSelectedStyle.style).length === 1
+                      ? prev.styles.filter((e) => e !== currentSelectedStyle)
                       : replaceElementAtIndex(prev.styles, currentIndex, {
-                          ...currentFocused,
+                          ...currentSelectedStyle,
                           style: removeObjectKey(
-                            currentFocused.style,
+                            currentSelectedStyle.style,
                             "fontSize"
                           ),
                         }),
@@ -125,7 +133,7 @@ export function FontSizeOptions({
             }}
           >
             <Text style={{ color: theme.onPrimary }}>Reset</Text>
-          </Pressable>
+          </TouchableOpacity>
           <Text
             style={{
               color: theme.primary,
@@ -135,7 +143,7 @@ export function FontSizeOptions({
               margin: 12,
             }}
           >
-            {Math.round(currentFocused?.style?.fontSize)}
+            {Math.round(currentSelectedStyle?.style?.fontSize)}
           </Text>
         </>
       )}

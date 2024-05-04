@@ -10,7 +10,7 @@ import {
   moderateFontScale,
   toggleArrayElement,
   verticalScale,
-} from "../../../tools";
+} from "../../../utils";
 import { NotesListProps } from "./types";
 
 export const NotesList = memo(

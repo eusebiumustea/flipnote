@@ -1,11 +1,11 @@
 import { AnimatePresence, MotiView } from "moti";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
-import { ColorValue, Text, Pressable } from "react-native";
+import { ColorValue, Text, Pressable, View } from "react-native";
 import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../hooks";
-import { moderateFontScale } from "../../tools";
-interface ToastComponentProps {
+import { moderateFontScale } from "../../utils";
+interface ToastStateProps {
   message: string | null;
   textColor?: ColorValue;
   button?: {
@@ -14,31 +14,25 @@ interface ToastComponentProps {
     color?: ColorValue;
   } | null;
   duration?: number;
-  startPositionX?: number;
-  startPositionY?: number;
-  fade?: boolean;
 }
 interface ToastContextType {
-  ShowToast: (props: ToastComponentProps) => void | null;
+  ShowToast: (props: ToastStateProps) => void | null;
 }
-function ToastComponent({
-  message,
-  button,
-  textColor,
-  startPositionX,
-  startPositionY,
-  fade,
-}: ToastComponentProps) {
+interface ToastComponentProps {
+  config: ToastStateProps;
+}
+function ToastComponent({ config }: ToastComponentProps) {
   const theme = useTheme();
   const { top } = useSafeAreaInsets();
+
   return (
     <AnimatePresence>
-      {message && (
+      {config && (
         <MotiView
           transition={{
             type: "timing",
-            duration: 350,
-            easing: Easing.inOut(Easing.ease),
+            duration: 260,
+            easing: Easing.inOut(Easing.linear),
           }}
           style={{
             position: "absolute",
@@ -59,47 +53,46 @@ function ToastComponent({
             shadowRadius: 3.05,
           }}
           from={{
-            translateY: -top + startPositionY,
-            translateX: startPositionX,
-            scale: 0,
-            opacity: fade ? 0 : undefined,
+            opacity: 0,
           }}
           animate={{
-            translateY: 0,
-            translateX: 0,
-            scale: 1,
-            opacity: fade ? 1 : undefined,
+            opacity: 1,
           }}
           exit={{
-            translateY: -top + startPositionY,
-            translateX: startPositionX,
-            scale: 0,
-            opacity: fade ? 0 : undefined,
+            opacity: 0,
           }}
         >
           <Text
             style={{
               fontSize: moderateFontScale(20),
               fontWeight: "bold",
-              color: textColor,
+              color: config.textColor,
               textAlign: "center",
             }}
           >
-            {message}
+            {config.message}
           </Text>
-          {button && (
-            <Pressable onPress={button.onPress}>
+          {config.button && (
+            <View
+              style={{
+                flexDirection: "row",
+                width: "100%",
+                justifyContent: "center",
+              }}
+            >
               <Text
+                onPress={config.button.onPress}
                 style={{
                   fontSize: moderateFontScale(16),
-                  color: button.color ? button.color : "#007AFF",
+                  color: config.button.color ? config.button.color : "#007AFF",
                   textAlign: "center",
                   fontFamily: "OpenSans",
+                  flexDirection: "row",
                 }}
               >
-                {button.title}
+                {config.button.title}
               </Text>
-            </Pressable>
+            </View>
           )}
         </MotiView>
       )}
@@ -109,49 +102,24 @@ function ToastComponent({
 const ToastContext = createContext<ToastContextType>(undefined);
 export function ToastProvider({ children }: PropsWithChildren) {
   const theme = useTheme();
-  const [config, setConfig] = useState<ToastComponentProps>({
-    message: null,
-    button: null,
-    textColor: theme.onPrimary,
-  });
+  const [config, setConfig] = useState<ToastStateProps | null>(null);
   function ShowToast({
     message,
     button,
     textColor = theme.onPrimary,
     duration = 1500,
-    startPositionX = 0,
-    startPositionY = 0,
-    fade = false,
-  }: ToastComponentProps) {
+  }: ToastStateProps) {
     setConfig((prev) => ({
       ...prev,
       message,
       button,
       textColor,
-      startPositionX,
-      startPositionY,
-      fade,
     }));
-    setTimeout(
-      () =>
-        setConfig((prev) => ({
-          ...prev,
-          message: null,
-          button: null,
-        })),
-      duration
-    );
+    setTimeout(() => setConfig(null), duration);
   }
   return (
     <ToastContext.Provider value={{ ShowToast }}>
-      <ToastComponent
-        textColor={config.textColor}
-        button={config.button}
-        message={config.message}
-        startPositionX={config.startPositionX}
-        startPositionY={config.startPositionY}
-        fade={config.fade}
-      />
+      <ToastComponent config={config} />
       {children}
     </ToastContext.Provider>
   );

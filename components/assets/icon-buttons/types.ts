@@ -2,6 +2,7 @@ import {
   ColorValue,
   GestureResponderEvent,
   PressableProps,
+  TouchableOpacityProps,
   ViewStyle,
 } from "react-native";
 
@@ -10,7 +11,7 @@ export type IconButtonBase<T = unknown> = {
   active?: boolean;
   svgProps?: any;
   onPress?: (event: GestureResponderEvent) => void;
-  btnProps?: PressableProps;
+  btnProps?: TouchableOpacityProps;
   style?: ViewStyle;
   focused?: boolean;
 } & T;

@@ -2,7 +2,7 @@ import { BlurView } from "expo-blur";
 import { memo } from "react";
 import { Modal, Text, View, useWindowDimensions } from "react-native";
 import { useTheme } from "../../hooks";
-import { moderateFontScale } from "../../tools";
+import { moderateFontScale } from "../../utils";
 import { Button } from "../button";
 import { DialogProps } from "./types";
 

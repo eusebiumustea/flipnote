@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Pressable } from "react-native";
+import { TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
-import { IconButtonBase } from "./types";
 import { useTheme } from "../../../hooks";
+import { IconButtonBase } from "./types";
 
 export function CloseIcon({
   svgProps,
@@ -12,9 +12,9 @@ export function CloseIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <Pressable
+    <TouchableOpacity
       onPress={onPress}
-      activeOpacity={0.2}
+      activeOpacity={0.4}
       style={{ width: 25, height: 25, ...style }}
       {...btnProps}
     >
@@ -28,6 +28,6 @@ export function CloseIcon({
       >
         <Path d="M13.46 12L19 17.54V19h-1.46L12 13.46 6.46 19H5v-1.46L10.54 12 5 6.46V5h1.46L12 10.54 17.54 5H19v1.46L13.46 12z" />
       </Svg>
-    </Pressable>
+    </TouchableOpacity>
   );
 }

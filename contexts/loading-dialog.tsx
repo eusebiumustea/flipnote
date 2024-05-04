@@ -7,7 +7,7 @@ import {
 } from "react";
 import { ActivityIndicator, Modal, View } from "react-native";
 import { Text } from "react-native-fast-text";
-import { moderateFontScale } from "../tools";
+import { moderateFontScale } from "../utils";
 
 export const LoadingContext =
   createContext<Dispatch<SetStateAction<boolean | string>>>(null);

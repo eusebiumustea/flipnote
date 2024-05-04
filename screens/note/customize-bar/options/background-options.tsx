@@ -4,7 +4,7 @@ import { ImageBox, ImagePlusIcon, useToast } from "../../../../components";
 import { ColorBox } from "../../../../components/color-box";
 import { useTheme } from "../../../../hooks";
 import { OptionProps } from "../../types";
-import { darkCardColors } from "../../../../tools/colors";
+import { darkCardColors } from "../../../../constants/colors";
 import ColorPicker, { OpacitySlider } from "reanimated-color-picker";
 import { Slider } from "@miblanchard/react-native-slider";
 export function BackgroundOptions({

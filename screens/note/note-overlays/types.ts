@@ -14,7 +14,7 @@ export interface NoteOverlaysProps {
   reminder: ReminderProps;
   onReminderOpen: () => void;
   onShare: () => void;
-  currentFocused: TextNoteStyle;
+  currentSelectedStyle: TextNoteStyle;
   reminderDialog: boolean;
   setReminderDialog: Dispatch<SetStateAction<boolean>>;
   selection: InputSelectionProps;
@@ -27,7 +27,7 @@ export interface NoteOverlaysPreStylingProps {
   reminder: ReminderProps;
   onReminderOpen: () => void;
   onShare: () => void;
-  currentFocused: TextNoteStyle;
+  currentSelectedStyle: TextNoteStyle;
   reminderDialog: boolean;
   setReminderDialog: Dispatch<SetStateAction<boolean>>;
   selection: InputSelectionProps;

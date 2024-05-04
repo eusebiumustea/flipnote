@@ -16,6 +16,8 @@ import {
   ScrollView,
   useWindowDimensions,
 } from "react-native";
+import { Easing } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   BackgroundIcon,
   BoldIcon,
@@ -28,12 +30,18 @@ import {
   RightAlignIcon,
   TextIcon,
   UnderlineIcon,
+  UndoIcon,
 } from "../../../components/assets";
 import { useTheme } from "../../../hooks";
-import { moderateScale, toggleState, verticalScale } from "../../../tools";
+import {
+  moderateScale,
+  removeElementAtIndex,
+  toggleState,
+  verticalScale,
+} from "../../../utils";
 import { InputSelectionProps, note } from "../types";
 import { OptionContainer } from "./option-container";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useToast } from "../../../components";
 interface CustomizeBarProps {
   boldFocused?: boolean;
   italicFocused?: boolean;
@@ -51,10 +59,12 @@ interface CustomizeBarProps {
   onUndo?: () => void;
   onRedo?: () => void;
   setEditNote?: Dispatch<SetStateAction<note>>;
-  contentPosition?: "center" | "left" | "right" | "justify";
+  contentPosition?: "center" | "left" | "right";
   isImgBg: boolean;
+  currentIndex: number;
 }
 export function CustomizeBar({
+  currentIndex,
   backgroundOptions,
   onBold,
   onItalic,
@@ -98,11 +108,15 @@ export function CustomizeBar({
     }
   }, [selection]);
   const { width } = useWindowDimensions();
+  const setContentPosition = (contentPosition: "center" | "left" | "right") =>
+    setEditNote((prev) => ({ ...prev, contentPosition }));
+
   return (
     <MotiView
       transition={{
         type: "timing",
         duration: 200,
+        marginBottom: { duration: 160, easing: Easing.inOut(Easing.linear) },
       }}
       style={{
         borderRadius: 16,
@@ -110,7 +124,6 @@ export function CustomizeBar({
         position: "absolute",
 
         alignSelf: "center",
-
         width: width - 16,
         bottom: 0,
       }}
@@ -168,6 +181,18 @@ export function CustomizeBar({
             }}
           />
         )}
+        {currentIndex > -1 && (
+          <UndoIcon
+            style={{}}
+            onPress={() =>
+              setEditNote((prev) => ({
+                ...prev,
+                styles: removeElementAtIndex(prev.styles, currentIndex),
+              }))
+            }
+          />
+        )}
+
         <BoldIcon active={boldFocused} onPress={onBold} />
 
         <ItalicIcon active={italicFocused} onPress={onItalic} />
@@ -204,24 +229,18 @@ export function CustomizeBar({
         />
         <LeftAlignIcon
           active={contentPosition === "left"}
-          onPress={() =>
-            setEditNote((prev) => ({ ...prev, contentPosition: "left" }))
-          }
+          onPress={() => setContentPosition("left")}
         />
         <CenterAlignIcon
           active={contentPosition === "center"}
-          onPress={() =>
-            setEditNote((prev) => ({ ...prev, contentPosition: "center" }))
-          }
+          onPress={() => setContentPosition("center")}
         />
         <RightAlignIcon
           active={contentPosition === "right"}
-          onPress={() =>
-            setEditNote((prev) => ({ ...prev, contentPosition: "right" }))
-          }
+          onPress={() => setContentPosition("right")}
         />
-        {/* <UndoIcon onPress={onUndo} />
-        <RedoIcon onPress={onRedo} /> */}
+
+        {/* <RedoIcon onPress={onRedo} /> */}
       </ScrollView>
     </MotiView>
   );

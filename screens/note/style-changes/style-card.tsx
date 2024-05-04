@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
-import { Pressable, Text, View } from "react-native";
+import { TouchableOpacity, Text, View } from "react-native";
 import { BackIcon } from "../../../components";
-import { darkCardColors } from "../../../tools/colors";
+import { darkCardColors } from "../../../constants/colors";
 import { TextNoteStyle, note } from "../types";
 type StyleCardProps = {
   text: string;
@@ -19,7 +19,7 @@ export function StyleCard({
 }: StyleCardProps) {
   return (
     <>
-      <Pressable
+      <TouchableOpacity
         style={{
           width: "100%",
           backgroundColor: theme?.onPrimary,
@@ -64,8 +64,8 @@ export function StyleCard({
             {text.slice(item.interval.start, item.interval.end)}
           </Text>
         </View>
-      </Pressable>
-      <Pressable
+      </TouchableOpacity>
+      <TouchableOpacity
         onPress={() =>
           setEditNote((prev) => ({
             ...prev,
@@ -82,7 +82,7 @@ export function StyleCard({
         }}
       >
         <Text style={{ color: "orangered" }}>Remove</Text>
-      </Pressable>
+      </TouchableOpacity>
     </>
   );
 }
