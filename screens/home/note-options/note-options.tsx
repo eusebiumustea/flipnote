@@ -134,7 +134,7 @@ export const NoteOptions = memo(
               flexDirection: "column",
               alignItems: "center",
             }}
-            style={{ width: "100%", top: 10 }}
+            style={{ width: "100%" }}
           >
             {shareNotes.map((e, i) => (
               <Text

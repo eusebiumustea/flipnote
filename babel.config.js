@@ -6,3 +6,8 @@ module.exports = function (api) {
   };
 };
 // "transform-remove-console"
+//"icon": "./assets/icon.jpg",
+// "adaptiveIcon": {
+//   "foregroundImage": "./assets/adaptive-icon.png",
+//   "backgroundColor": "#FEFFEF"
+// },

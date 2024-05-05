@@ -1,10 +1,11 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { memo, useState } from "react";
-import { CreateIcon, Header } from "../../../components";
+import { CreateIcon } from "../../../components";
 import { verticalScale } from "../../../utils";
 import { NoteOptions } from "../note-options";
 import { NotesFilterList } from "../notes-filter";
 import { HomeOverlaysProps } from "./types";
+import { Header } from "../../../components/header";
 
 export const HomeOverlays = memo(
   ({
@@ -37,14 +38,9 @@ export const HomeOverlays = memo(
                 setSelected={setSelected}
               />
             }
-            onInboxOpen={({
-              nativeEvent: { pageX, pageY, locationX, locationY },
-            }) => {
+            onInboxOpen={() => {
               if (navigation.isFocused()) {
-                navigation.navigate("inbox", {
-                  relativeX: pageX - locationX,
-                  relativeY: pageY - locationY,
-                });
+                navigation.navigate("inbox");
               }
             }}
             scrollY={scrollY}

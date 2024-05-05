@@ -24,7 +24,6 @@ interface NoteScreenHeaderProps {
   onReminderOpen?: () => void;
   favorite?: boolean;
   emptyNote: boolean;
-  textLength: number;
 }
 export const NoteScreenHeader = memo(
   ({
@@ -35,7 +34,6 @@ export const NoteScreenHeader = memo(
     favorite,
     onReminderOpen,
     emptyNote,
-    textLength,
   }: NoteScreenHeaderProps) => {
     const { top } = useSafeAreaInsets();
     const { width } = Dimensions.get("window");
@@ -92,17 +90,10 @@ export const NoteScreenHeader = memo(
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                gap: 6,
+                gap: 8,
                 zIndex: 1,
               }}
             >
-              <Text
-                style={{
-                  color: theme.onPrimary,
-                  fontSize: moderateFontScale(13),
-                }}
-              >{`${textLength} / ${contentLengthLimit()}`}</Text>
-
               <ReminderIcon onPress={onReminderOpen} />
 
               <ClipboardIcon onPress={onClipboard} />

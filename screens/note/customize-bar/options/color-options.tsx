@@ -1,4 +1,4 @@
-import { TouchableOpacity, Text, useWindowDimensions } from "react-native";
+import { Text } from "react-native";
 import ColorPicker, {
   BrightnessSlider,
   HueSlider,
@@ -16,7 +16,7 @@ export function ColorOptions({
   setEditNote,
 }: OptionProps) {
   const theme = useTheme();
-  const { width } = useWindowDimensions();
+
   return (
     <ColorPicker
       style={{
@@ -36,11 +36,7 @@ export function ColorOptions({
           currentIndex
         )
       }
-      value={
-        currentSelectedStyle && currentSelectedStyle?.style?.color
-          ? (currentSelectedStyle?.style?.color as string)
-          : "#0213f5"
-      }
+      value={(currentSelectedStyle?.style?.color as string) || "#0213f5"}
     >
       <HueSlider boundedThumb />
       <SaturationSlider boundedThumb />
@@ -69,11 +65,9 @@ export function ColorOptions({
             }
           }}
           style={{
-            color: theme.onPrimary,
+            color: theme.primary,
             alignSelf: "flex-start",
-            backgroundColor: theme.primary,
             padding: 5,
-            borderRadius: 20,
           }}
         >
           Reset

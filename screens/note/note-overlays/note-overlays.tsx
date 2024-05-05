@@ -40,6 +40,10 @@ export function NoteOverlays({
     editNote.text.length === 0 && editNote.title.length === 0;
   const navigation = useNavigation<StackNavigationHelpers>();
   function setStyleEvent(key: keyof TextStyle, value: string) {
+    if (selection.end === selection.start) {
+      toast({ message: "Select text", duration: 400 });
+      return;
+    }
     return StyleEvent(
       currentSelectedStyle,
       key,
@@ -105,7 +109,6 @@ export function NoteOverlays({
       />
 
       <NoteScreenHeader
-        textLength={editNote.text.length + editNote.title.length}
         emptyNote={noteStateIsEmpty}
         onReminderOpen={onReminderOpen}
         onClipboard={async () => {

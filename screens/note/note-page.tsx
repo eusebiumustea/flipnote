@@ -2,16 +2,10 @@ import { NavigatorScreenParams, useNavigation } from "@react-navigation/native";
 import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 import { Image } from "expo-image";
 import { MotiView } from "moti";
-import { memo, useEffect, useMemo, useRef, useState } from "react";
-import {
-  Animated,
-  Keyboard,
-  ScrollView,
-  useWindowDimensions,
-} from "react-native";
+import { memo, useMemo, useRef, useState } from "react";
+import { Keyboard, ScrollView, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
-import { useToast } from "../../components/toast";
 import { useLoading } from "../../hooks/use-loading-dialog";
 import { useNoteStorage } from "../../hooks/use-note-manager";
 import { useNoteUtils } from "../../hooks/use-note-utills";
@@ -28,7 +22,6 @@ type NotePageProps = {
 };
 export const NotePage = memo(({ route }: NotePageProps) => {
   const { id }: ParamsProps = route.params;
-
   const [editNote, setEditNote] = useState<note>({
     id,
     title: "",
@@ -62,7 +55,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   const nav = useNavigation<StackNavigationHelpers>();
   const viewShotRef = useRef<ViewShot>(null);
   const { top } = useSafeAreaInsets();
-  const toast = useToast();
 
   const [capturing, setCapturing] = useState(false);
   const [showTitle, setShowTitle] = useState(true);
@@ -198,10 +190,9 @@ export const NotePage = memo(({ route }: NotePageProps) => {
                 inputProps={{
                   caretHidden: capturing,
                 }}
+                setEditNote={setEditNote}
                 editNote={editNote}
                 setInputSelection={setSelection}
-                setEditNote={setEditNote}
-                inputSelection={selection}
               />
             </ViewShot>
           </ScrollView>

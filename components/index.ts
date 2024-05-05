@@ -1,5 +1,4 @@
 export * from "./assets";
-export * from "./header";
 export * from "./note-card";
 export * from "./screen-header";
 export * from "./toast";

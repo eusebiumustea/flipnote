@@ -110,7 +110,7 @@ export function CustomizeBar({
   const { width } = useWindowDimensions();
   const setContentPosition = (contentPosition: "center" | "left" | "right") =>
     setEditNote((prev) => ({ ...prev, contentPosition }));
-
+  const toast = useToast();
   return (
     <MotiView
       transition={{
@@ -203,6 +203,11 @@ export function CustomizeBar({
           onPress={() => {
             if (selection.end !== selection.start) {
               setShowOption(toggleState(null, "font"));
+            } else {
+              toast({
+                message: "Select text",
+                duration: 400,
+              });
             }
           }}
         />
@@ -212,6 +217,11 @@ export function CustomizeBar({
           onPress={() => {
             if (selection.end !== selection.start) {
               setShowOption(toggleState(null, "font-color", onFontColor));
+            } else {
+              toast({
+                message: "Select text",
+                duration: 400,
+              });
             }
           }}
         />
@@ -220,6 +230,11 @@ export function CustomizeBar({
           onPress={() => {
             if (selection.end !== selection.start) {
               setShowOption(toggleState(null, "font-size"));
+            } else {
+              toast({
+                message: "Select text",
+                duration: 400,
+              });
             }
           }}
         />

@@ -69,7 +69,6 @@ export const NotesList = memo(
             gap: 12,
           }}
           numColumns={2}
-          renderToHardwareTextureAndroid
           ListEmptyComponent={
             <Text
               style={{

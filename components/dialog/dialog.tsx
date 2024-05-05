@@ -83,15 +83,14 @@ export const Dialog = memo(
               ...styles,
             }}
           >
-            <View style={{ width: "100%", padding: 30, paddingTop: 30 }}>
-              {children}
-            </View>
+            <View style={{ width: "100%", padding: 25 }}>{children}</View>
             <Text
               style={{
                 position: "absolute",
                 top: 0,
                 left: 0,
-                padding: 10,
+                paddingHorizontal: 10,
+                paddingVertical: 5,
                 color: theme.onPrimary,
                 fontSize: moderateFontScale(16),
               }}

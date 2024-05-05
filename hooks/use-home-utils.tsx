@@ -27,7 +27,7 @@ export function useHomeUtils(
     const plural = noteCount === 1 ? "" : "s";
     Alert.alert(
       "Confirm Deletion",
-      `You're about to permanently delete ${noteCount} note${plural} and cencel their reminders. This action cannot be undone. Proceed?`,
+      `You're about to permanently delete ${noteCount} note${plural}. This action cannot be undone. Proceed?`,
       [
         { text: "Cencel", style: "cancel", onPress: () => null },
         {
@@ -35,8 +35,9 @@ export function useHomeUtils(
           style: "destructive",
           onPress: async () => {
             try {
+              loading("Deleting...");
               await Promise.all(
-                optionsSelection.map(async (id, index) => {
+                optionsSelection.map(async (id) => {
                   await FileSystem.deleteAsync(`${NOTES_PATH}/${id}`, {
                     idempotent: true,
                   });
@@ -45,13 +46,12 @@ export function useHomeUtils(
                   );
                 })
               );
-              loading("Deleting...");
               await syncState();
-
               setOptionsSelection([]);
               loading(false);
             } catch (_) {
               toast({ message: "Can't delete notes", textColor: "red" });
+              loading(false);
             }
           },
         },

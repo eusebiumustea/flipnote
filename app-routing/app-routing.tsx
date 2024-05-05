@@ -1,26 +1,18 @@
 import {
   CardStyleInterpolators,
   TransitionPresets,
-  TransitionSpecs,
   createStackNavigator,
 } from "@react-navigation/stack";
 import { Easing, useWindowDimensions } from "react-native";
 import { enableFreeze } from "react-native-screens";
 import { useTheme } from "../hooks";
-import { ImagePreview, Inbox } from "../screens";
+import { ImagePreview } from "../screens";
 import { Home } from "../screens/home";
 import { NotePage } from "../screens/note/note-page";
 import { moderateScale, verticalScale } from "../utils";
 import { TransitionInterpolator } from "./transition-interpolator";
-interface OptionsRoute {
-  route: {
-    params: {
-      id: number;
-      relativeX: number;
-      relativeY: number;
-    };
-  };
-}
+import { Inbox } from "../screens/inbox";
+import { Text } from "react-native-fast-text";
 enableFreeze();
 export function AppRouting() {
   const Stack = createStackNavigator();
@@ -33,12 +25,12 @@ export function AppRouting() {
         headerShown: false,
         cardOverlayEnabled: true,
         detachPreviousScreen: true,
-        gestureVelocityImpact: 0.5,
+
         transitionSpec: {
           open: TransitionPresets.DefaultTransition.transitionSpec.open,
           close: {
             animation: "timing",
-            config: { duration: 160, easing: Easing.out(Easing.linear) },
+            config: { duration: 120, easing: Easing.out(Easing.linear) },
           },
         },
       }}
@@ -88,24 +80,21 @@ export function AppRouting() {
 
       <Stack.Screen
         component={Inbox}
-        options={({ route }: any) =>
-          ({
-            headerShown: true,
-            title: "Inbox",
-            headerTitleAlign: "center",
-            headerMode: "screen",
-            headerStyle: { backgroundColor: theme.background, borderWidth: 0 },
-            headerTintColor: theme.onBackground,
-            headerShadowVisible: false,
-            cardStyleInterpolator: TransitionInterpolator({
-              initial: {
-                scale: 0,
-                y: route.params.relativeY,
-                x: route.params.relativeX + 15,
-              },
-            }),
-          } as unknown)
-        }
+        options={{
+          headerShown: true,
+          title: "Inbox",
+          headerTitleAlign: "center",
+          headerMode: "screen",
+          headerStyle: {
+            backgroundColor: theme.background,
+            borderWidth: 0,
+          },
+          headerTintColor: theme.onBackground,
+          headerShadowVisible: false,
+          gestureDirection: "vertical",
+          gestureEnabled: true,
+          cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+        }}
         name="inbox"
       />
     </Stack.Navigator>

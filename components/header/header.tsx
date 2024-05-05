@@ -6,13 +6,12 @@ import { useRecoilState } from "recoil";
 
 import { receivedNotifications } from "../../contexts/atom";
 import { useTheme } from "../../hooks";
-import { useLoading } from "../../hooks/use-loading-dialog";
 import { useRequest } from "../../hooks/use-request";
+import { useStorageRequest } from "../../hooks/use-storage-request";
 import { removeReceivedReminder } from "../../screens/inbox/upcoming-reminders";
 import { moderateFontScale, moderateScale, verticalScale } from "../../utils";
 import { ImportIcon, InboxIcon, SearchIcon } from "../assets";
 import { HeaderProps } from "./types";
-import { useStorageRequest } from "../../hooks/use-storage-request";
 export const Header = memo(
   ({
     searchValue,

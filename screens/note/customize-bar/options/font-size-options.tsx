@@ -1,10 +1,5 @@
 import { Slider } from "@miblanchard/react-native-slider";
-import {
-  TouchableOpacity,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "../../../../hooks";
 import { removeObjectKey, replaceElementAtIndex } from "../../../../utils";
 import { FontSizeEvent } from "../../style-events";
@@ -17,7 +12,6 @@ export function FontSizeOptions({
   setEditNote,
 }: OptionProps) {
   const theme = useTheme();
-  const { width } = useWindowDimensions();
   return (
     <View
       style={{
@@ -28,43 +22,6 @@ export function FontSizeOptions({
         width: "100%",
       }}
     >
-      {/* <Slider
-        thumbTintColor={theme.primary}
-        maximumTrackTintColor="green"
-        style={{
-          width: width - 60,
-          borderRadius: 8,
-
-          backgroundColor: "orange",
-        }}
-        minimumValue={14}
-        maximumValue={70}
-        minimumTrackTintColor="blue"
-        value={currentSelectedStyle?.style?.fontSize || 14}
-        onValueChange={(value) => (showValue.current = value)}
-        onSlidingComplete={(value) => {
-          if (value < 15) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles:
-                Object.keys(currentSelectedStyle.style).length === 1
-                  ? prev.styles.filter((e) => e !== currentSelectedStyle)
-                  : replaceElementAtIndex(prev.styles, currentIndex, {
-                      ...currentSelectedStyle,
-                      style: removeObjectKey(currentSelectedStyle.style, "fontSize"),
-                    }),
-            }));
-            return;
-          }
-          FontSizeEvent(
-            currentSelectedStyle,
-            value,
-            selection,
-            setEditNote,
-            currentIndex
-          );
-        }}
-      /> */}
       <Slider
         onSlidingComplete={(valueArr) => {
           const value = valueArr[0];
