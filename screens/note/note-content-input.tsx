@@ -24,12 +24,10 @@ export const NoteContentInput = ({
     end: 0,
   }).current;
   const inputRef = useRef<TextInput>(null);
-  const toast = useToast();
   console.log(editNote.styles);
   return (
     <TextInput
       ref={inputRef}
-      maxLength={contentLengthLimit()}
       onSelectionChange={(e) => {
         selectionRef.start = e.nativeEvent.selection.start;
         selectionRef.end = e.nativeEvent.selection.end;
@@ -45,15 +43,8 @@ export const NoteContentInput = ({
       textContentType="none"
       allowFontScaling={false}
       smartInsertDelete={false}
+      maxLength={contentLengthLimit()}
       onChangeText={(text) => {
-        if (text.length >= contentLengthLimit()) {
-          toast({
-            message: "You have reached maximum character limit! Open new note",
-            textColor: "darkorange",
-            duration: 2000,
-          });
-          return;
-        }
         const textSelected = selectionRef.end > selectionRef.start + 1;
         const increment = text.length > editNote.text.length;
         const decrement = text.length < editNote.text.length;
@@ -75,7 +66,7 @@ export const NoteContentInput = ({
           ) {
             setEditNote((prev) => ({
               ...prev,
-              text,
+
               styles: removeElementAtIndex(prev.styles, i),
             }));
             return;
@@ -86,7 +77,7 @@ export const NoteContentInput = ({
           ) {
             setEditNote((prev) => ({
               ...prev,
-              text,
+
               styles: removeElementAtIndex(prev.styles, i),
             }));
             return;
