@@ -11,7 +11,6 @@ export function ColorBox({
   onPress,
   checkedColor = "#000",
 }: ColorBoxProps) {
-  const theme = useTheme();
   return (
     <Pressable
       onPress={onPress}

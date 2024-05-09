@@ -108,16 +108,17 @@ export function CustomizeBar({
     }
   }, [selection]);
   const { width } = useWindowDimensions();
-  const setContentPosition = (contentPosition: "center" | "left" | "right") =>
-    setEditNote((prev) => ({ ...prev, contentPosition }));
+
   const toast = useToast();
   return (
     <MotiView
-      transition={{
-        type: "timing",
-        duration: 200,
-        marginBottom: { duration: 160, easing: Easing.inOut(Easing.linear) },
-      }}
+      transition={
+        {
+          type: "timing",
+          duration: 200,
+          marginBottom: { duration: 160, easing: Easing.inOut(Easing.linear) },
+        } as any
+      }
       style={{
         borderRadius: 16,
         backgroundColor: theme.customizeBarColor,
@@ -183,7 +184,6 @@ export function CustomizeBar({
         )}
         {currentIndex > -1 && (
           <UndoIcon
-            style={{}}
             onPress={() =>
               setEditNote((prev) => ({
                 ...prev,
@@ -244,15 +244,21 @@ export function CustomizeBar({
         />
         <LeftAlignIcon
           active={contentPosition === "left"}
-          onPress={() => setContentPosition("left")}
+          onPress={() =>
+            setEditNote((prev) => ({ ...prev, contentPosition: "left" }))
+          }
         />
         <CenterAlignIcon
           active={contentPosition === "center"}
-          onPress={() => setContentPosition("center")}
+          onPress={() =>
+            setEditNote((prev) => ({ ...prev, contentPosition: "center" }))
+          }
         />
         <RightAlignIcon
           active={contentPosition === "right"}
-          onPress={() => setContentPosition("right")}
+          onPress={() =>
+            setEditNote((prev) => ({ ...prev, contentPosition: "right" }))
+          }
         />
 
         {/* <RedoIcon onPress={onRedo} /> */}

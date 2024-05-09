@@ -3,17 +3,16 @@ import {
   TransitionPresets,
   createStackNavigator,
 } from "@react-navigation/stack";
-import { Easing, useWindowDimensions } from "react-native";
-import { enableFreeze } from "react-native-screens";
+import { Easing, Platform, useWindowDimensions } from "react-native";
 import { useTheme } from "../hooks";
 import { ImagePreview } from "../screens";
 import { Home } from "../screens/home";
+import { Inbox } from "../screens/inbox";
 import { NotePage } from "../screens/note/note-page";
 import { moderateScale, verticalScale } from "../utils";
 import { TransitionInterpolator } from "./transition-interpolator";
-import { Inbox } from "../screens/inbox";
-import { Text } from "react-native-fast-text";
-enableFreeze();
+import { enableFreeze } from "react-native-screens";
+enableFreeze(true);
 export function AppRouting() {
   const Stack = createStackNavigator();
   const { width, height } = useWindowDimensions();
@@ -25,7 +24,6 @@ export function AppRouting() {
         headerShown: false,
         cardOverlayEnabled: true,
         detachPreviousScreen: true,
-
         transitionSpec: {
           open: TransitionPresets.DefaultTransition.transitionSpec.open,
           close: {
@@ -82,9 +80,11 @@ export function AppRouting() {
         component={Inbox}
         options={{
           headerShown: true,
+          detachPreviousScreen: Platform.OS === "android",
           title: "Inbox",
           headerTitleAlign: "center",
           headerMode: "screen",
+          headerBackTitleVisible: false,
           headerStyle: {
             backgroundColor: theme.background,
             borderWidth: 0,
@@ -93,7 +93,10 @@ export function AppRouting() {
           headerShadowVisible: false,
           gestureDirection: "vertical",
           gestureEnabled: true,
-          cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+          cardStyleInterpolator:
+            Platform.OS === "ios"
+              ? CardStyleInterpolators.forModalPresentationIOS
+              : CardStyleInterpolators.forVerticalIOS,
         }}
         name="inbox"
       />

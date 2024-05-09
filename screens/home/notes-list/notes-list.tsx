@@ -12,12 +12,18 @@ import {
   verticalScale,
 } from "../../../utils";
 import { NotesListProps } from "./types";
+import { NotesFilterList } from "../notes-filter/notes-filter-list";
 
 export const NotesList = memo(
   ({
     data,
     optionsSelection,
     setOptionsSelection,
+    selected,
+    setSelected,
+    searchFilter,
+    favorite,
+    setFavorite,
     scrollY,
   }: NotesListProps) => {
     const navigation = useNavigation<StackNavigationHelpers>();
@@ -48,7 +54,7 @@ export const NotesList = memo(
         <FlatList
           refreshControl={
             <RefreshControl
-              progressViewOffset={verticalScale(115) + top}
+              progressViewOffset={verticalScale(70) + top}
               tintColor={
                 Platform.OS === "ios" &&
                 activityIndicatorColors[
@@ -62,6 +68,17 @@ export const NotesList = memo(
             />
           }
           ref={scrollRef}
+          ListHeaderComponent={
+            <NotesFilterList
+              setFavorite={setFavorite}
+              searchFilter={searchFilter}
+              selected={selected}
+              data={data}
+              hidden={optionsSelection.length > 0}
+              favorite={favorite}
+              setSelected={setSelected}
+            />
+          }
           columnWrapperStyle={{
             width: "100%",
             justifyContent: "center",
@@ -75,6 +92,7 @@ export const NotesList = memo(
                 alignSelf: "center",
                 paddingVertical: 26,
                 fontSize: moderateFontScale(20),
+                color: theme.onPrimary,
               }}
             >
               Press + to start
@@ -114,7 +132,7 @@ export const NotesList = memo(
           )}
           scrollEventThrottle={16}
           initialNumToRender={6}
-          keyboardDismissMode="interactive"
+          keyboardDismissMode="on-drag"
           updateCellsBatchingPeriod={300}
           getItemLayout={(data, index) => ({
             length: verticalScale(250),
@@ -129,7 +147,7 @@ export const NotesList = memo(
             width: "100%",
             rowGap: 12,
             paddingBottom: 16,
-            paddingTop: verticalScale(115) + top,
+            paddingTop: verticalScale(70) + top,
           }}
           style={{
             flex: 1,

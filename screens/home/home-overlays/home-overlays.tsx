@@ -1,11 +1,9 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { memo, useState } from "react";
 import { CreateIcon } from "../../../components";
-import { verticalScale } from "../../../utils";
+import { Header } from "../../../components/header/header";
 import { NoteOptions } from "../note-options";
-import { NotesFilterList } from "../notes-filter";
 import { HomeOverlaysProps } from "./types";
-import { Header } from "../../../components/header";
 
 export const HomeOverlays = memo(
   ({
@@ -14,11 +12,6 @@ export const HomeOverlays = memo(
     data,
     onDeleteNotes,
     scrollY,
-    selected,
-    setSelected,
-    searchFilter,
-    favorite,
-    setFavorite,
     searchQuery,
     setSearchQuery,
   }: HomeOverlaysProps) => {
@@ -28,16 +21,6 @@ export const HomeOverlays = memo(
       return (
         <>
           <Header
-            children={
-              <NotesFilterList
-                setFavorite={setFavorite}
-                searchFilter={searchFilter}
-                selected={selected}
-                data={data}
-                favorite={favorite}
-                setSelected={setSelected}
-              />
-            }
             onInboxOpen={() => {
               if (navigation.isFocused()) {
                 navigation.navigate("inbox");
@@ -46,7 +29,6 @@ export const HomeOverlays = memo(
             scrollY={scrollY}
             searchValue={searchQuery}
             onSearch={setSearchQuery}
-            extraHeight={verticalScale(40)}
           />
           <CreateIcon
             onPress={({

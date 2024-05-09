@@ -73,7 +73,7 @@ export function UpcomingReminders() {
             >
               <TouchableOpacity
                 onPress={async () => {
-                  removeReceivedReminder(note.id);
+                  await removeReceivedReminder(note.id);
                   await syncState();
                 }}
               >

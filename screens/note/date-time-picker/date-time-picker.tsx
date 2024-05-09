@@ -66,7 +66,6 @@ export function DateTimePickerDialog({
               alignItems: "center",
               justifyContent: "center",
               width: "100%",
-              paddingVertical: 10,
             }}
           >
             <Text

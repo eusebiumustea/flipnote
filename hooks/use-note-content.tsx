@@ -33,50 +33,12 @@ export function useEditNoteContent(
 
     return fontName;
   }
-  // return useMemo(() => {
-  //   const isStyled = styles.length > 0;
-  //   if (isStyled) {
-  //     return (
-  //       <>
-  //         <Text style={{ color: defaultThemeText }}>
-  //           {text.slice(0, styles[0]?.interval?.start)}
-  //         </Text>
-  //         {styles.map((e, i, arr) => {
-  //           const start = e?.interval?.start;
-  //           const end = e?.interval?.end;
-  //           const nextStart = arr[i + 1]?.interval?.start;
-  //           const style = e?.style;
-  //           return (
-  //             <Fragment key={i}>
-  //               <Text
-  //                 style={{
-  //                   color: defaultThemeText,
-  //                   ...style,
-  //                   fontFamily:
-  //                     style?.fontFamily !== undefined
-  //                       ? font(style.fontFamily, style)
-  //                       : undefined,
-  //                 }}
-  //               >
-  //                 {text.slice(start, end)}
-  //               </Text>
-  //               <Text style={{ color: defaultThemeText }}>
-  //                 {text.slice(end, nextStart)}
-  //               </Text>
-  //             </Fragment>
-  //           );
-  //         })}
-  //       </>
-  //     );
-  //   }
-  //   return <Text style={{ color: defaultThemeText }}>{text}</Text>;
-  // }, [styles, text, bg, imageOpacity]);
   return useMemo(() => {
     const isStyled = styles.length > 0;
     if (isStyled) {
       return (
         <Text style={{ color: defaultThemeText }}>
-          {text.slice(0, styles[0]?.interval?.start)}
+          {text.slice(0, styles[0]?.interval.start)}
           {styles.map((e, i, arr) => {
             const start = e?.interval.start;
             const end = e?.interval.end;
@@ -103,5 +65,5 @@ export function useEditNoteContent(
       );
     }
     return <Text style={{ color: defaultThemeText }}>{text}</Text>;
-  }, [styles, text, bg, imageOpacity]);
+  }, [styles, bg, imageOpacity]);
 }

@@ -87,8 +87,8 @@ export const NoteScreenHeader = memo(
 
           {!emptyNote && (
             <Animated.View
-              entering={FadeIn.duration(300).delay(100)}
-              exiting={FadeOut.duration(300).delay(100)}
+              entering={FadeIn.duration(300).delay(50)}
+              exiting={FadeOut.duration(300).delay(50)}
               style={{
                 flexDirection: "row",
                 alignItems: "center",

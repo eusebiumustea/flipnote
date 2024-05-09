@@ -38,35 +38,31 @@ export function useNoitication() {
 
         return;
       }
-      if (reminderSplit >= new Date()) {
-        await Notifications.scheduleNotificationAsync({
-          identifier: id.toString(),
-          content: {
-            title,
-            body,
-            // title: editNote.title ? editNote.title : "Flipnote",
-            // body: editNote.text ? editNote.text : null,
-            sound: true,
-          },
-          trigger: {
-            date: reminderSplit,
-          },
-        });
-      }
+
       if (reminderSplit < new Date()) {
         await Notifications.scheduleNotificationAsync({
           identifier: id.toString(),
           content: {
             title,
             body,
-            // title: editNote.title ? editNote.title : "Flipnote",
-            // body: editNote.text ? editNote.text : null,
             sound: true,
           },
           trigger: null,
         });
       }
       if (reminderSplit >= new Date()) {
+        await Notifications.scheduleNotificationAsync({
+          identifier: id.toString(),
+
+          content: {
+            title,
+            body,
+            sound: true,
+          },
+          trigger: {
+            date: reminderSplit,
+          },
+        });
         onReminderSet((prev) => ({
           ...prev,
           reminder: reminderSplit.getTime(),
@@ -75,6 +71,8 @@ export function useNoitication() {
           message: `Reminder set for ${dateTime(reminderSplit)}`,
         });
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 }

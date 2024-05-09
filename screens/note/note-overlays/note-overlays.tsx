@@ -68,8 +68,8 @@ export function NoteOverlays({
       <DateTimePickerDialog
         action={() => {
           notification(
-            editNote.title ? editNote.title : null,
-            editNote.text ? editNote.text : null,
+            editNote.title ? editNote.title : "",
+            editNote.text ? editNote.text : "",
             id,
             reminder,
             setEditNote

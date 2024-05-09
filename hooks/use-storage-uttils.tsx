@@ -5,6 +5,7 @@ import JSZip from "jszip";
 import { NOTES_PATH } from "../constants";
 import { useRequest } from "./use-request";
 import { useToast } from "../components";
+import { note } from "../screens";
 function validateJSON(jsonText: string): boolean {
   try {
     if (
@@ -27,7 +28,7 @@ function validateJSON(jsonText: string): boolean {
   }
   return true;
 }
-export function useStorageRequest() {
+export function useStorageUttils() {
   const loading = useLoading();
   const toast = useToast();
   const { syncState } = useRequest();
@@ -48,14 +49,15 @@ export function useStorageRequest() {
         base64: true,
       });
       const zipItems = Object.keys(zip.files);
-      loading(true);
+      let notesAlreadyExists = 0;
       await Promise.all(
         zipItems.map(async (file) => {
           const { exists } = await FileSystem.getInfoAsync(
             `${NOTES_PATH}/${file}`
           );
+
           if (exists) {
-            loading(false);
+            notesAlreadyExists++;
             return;
           }
           const content = await zip.files[file].async("text");
@@ -65,12 +67,18 @@ export function useStorageRequest() {
             toast({ message: "Invalid flipnote backup" });
             return;
           }
+
           await FileSystem.writeAsStringAsync(`${NOTES_PATH}/${file}`, content);
         })
       );
+
       await syncState();
       loading(false);
+      if (notesAlreadyExists > 0) {
+        toast({ message: `${notesAlreadyExists} notes already exists` });
+      }
     } catch (error) {
+      console.log(error.message);
       loading(false);
     }
   };

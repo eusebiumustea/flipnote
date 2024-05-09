@@ -5,9 +5,3 @@ module.exports = function (api) {
     plugins: ["react-native-reanimated/plugin"],
   };
 };
-// "transform-remove-console"
-//"icon": "./assets/icon.jpg",
-// "adaptiveIcon": {
-//   "foregroundImage": "./assets/adaptive-icon.png",
-//   "backgroundColor": "#FEFFEF"
-// },

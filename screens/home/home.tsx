@@ -31,34 +31,31 @@ export function Home() {
   const scrollY = useRef(new Animated.Value(0)).current;
   useFocusEffect(
     useCallback(() => {
-      return Animated.timing(scrollY, {
-        toValue: 0,
-        useNativeDriver: true,
-        duration: 100,
-      }).start();
+      return scrollY.setValue(0);
     }, [])
   );
 
   return (
     <>
       <NotesList
+        searchFilter={searchFilter}
+        setSelected={setSelected}
         scrollY={scrollY}
         data={data}
+        setFavorite={setFavorite}
+        favorite={favorite}
+        selected={selected}
         optionsSelection={optionsSelection}
         setOptionsSelection={setOptionsSelection}
       />
       <HomeOverlays
         setSearchQuery={setSearchQuery}
-        setSelected={setSelected}
         scrollY={scrollY}
         data={data}
         searchQuery={searchQuery}
-        setOptionsSelection={setOptionsSelection}
         optionsSelection={optionsSelection}
+        setOptionsSelection={setOptionsSelection}
         onDeleteNotes={deleteNotes}
-        setFavorite={setFavorite}
-        favorite={favorite}
-        selected={selected}
         searchFilter={searchFilter}
       />
     </>

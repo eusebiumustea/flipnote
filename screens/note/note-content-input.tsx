@@ -3,9 +3,7 @@ import { Dispatch, SetStateAction, useRef } from "react";
 import { TextInput, TextInputProps } from "react-native";
 import { contentLengthLimit } from "../../constants";
 import { useEditNoteContent, useTheme } from "../../hooks";
-import { removeElementAtIndex } from "../../utils";
 import { InputSelectionProps, note } from "./types";
-import { useToast } from "../../components";
 type NoteContentInputProps = {
   setEditNote: Dispatch<SetStateAction<note>>;
   editNote: note;
@@ -48,105 +46,85 @@ export const NoteContentInput = ({
         const textSelected = selectionRef.end > selectionRef.start + 1;
         const increment = text.length > editNote.text.length;
         const decrement = text.length < editNote.text.length;
-
-        editNote.styles.forEach((style, i) => {
-          if (
-            (textSelected &&
-              decrement &&
-              selectionRef.start <= style.interval.start &&
-              selectionRef.end >= style.interval.end) ||
-            (textSelected &&
-              decrement &&
-              selectionRef.start > style.interval.start &&
-              selectionRef.start < style.interval.end) ||
-            (textSelected &&
-              decrement &&
-              selectionRef.end > style.interval.start &&
-              selectionRef.end < style.interval.end)
-          ) {
-            setEditNote((prev) => ({
-              ...prev,
-
-              styles: removeElementAtIndex(prev.styles, i),
-            }));
-            return;
-          }
-          if (
-            style.interval.end <= style.interval.start ||
-            style.interval.start >= text.length
-          ) {
-            setEditNote((prev) => ({
-              ...prev,
-
-              styles: removeElementAtIndex(prev.styles, i),
-            }));
-            return;
-          }
-        });
-
         setEditNote((prev) => ({
           ...prev,
           text,
-          styles: prev.styles.map((style) => {
-            if (
-              !textSelected &&
-              increment &&
-              selectionRef.end > style.interval.start &&
-              selectionRef.end < style.interval.end
-            ) {
-              return {
-                ...style,
-                interval: {
-                  ...style.interval,
-                  end:
-                    style.interval.end + (text.length - editNote.text.length),
-                },
-              };
-            }
-            if (
-              !textSelected &&
-              decrement &&
-              selectionRef.start > style.interval.start &&
-              selectionRef.end <= style.interval.end
-            ) {
-              return {
-                ...style,
-                interval: {
-                  ...style.interval,
-                  end:
-                    style.interval.end - (editNote.text.length - text.length),
-                },
-              };
-            }
-
-            // if (decrement && selectionRef.start <= style.interval.start) {
-            //   return {
-            //     ...style,
-            //     interval: {
-            //       start:
-            //         style.interval.start - (editNote.text.length - text.length),
-            //       end:
-            //         style.interval.end - (editNote.text.length - text.length),
-            //     },
-            //   };
-            // }
-            if (selectionRef.end <= style.interval.start) {
-              return {
-                ...style,
-                interval: {
-                  start: increment
-                    ? style.interval.start +
-                      (text.length - editNote.text.length)
-                    : style.interval.start -
-                      (editNote.text.length - text.length),
-                  end: increment
-                    ? style.interval.end + (text.length - editNote.text.length)
-                    : style.interval.end - (editNote.text.length - text.length),
-                },
-              };
-            }
-            return style;
-          }),
+          styles: prev.styles
+            .filter((style) => {
+              if (
+                style.interval.end <= style.interval.start ||
+                style.interval.start >= text.length
+              ) {
+                return false;
+              }
+              if (
+                (textSelected &&
+                  decrement &&
+                  selectionRef.start <= style.interval.start &&
+                  selectionRef.end >= style.interval.end) ||
+                (textSelected &&
+                  decrement &&
+                  selectionRef.start > style.interval.start &&
+                  selectionRef.start < style.interval.end) ||
+                (textSelected &&
+                  decrement &&
+                  selectionRef.end > style.interval.start &&
+                  selectionRef.end < style.interval.end)
+              ) {
+                return false;
+              }
+              return true;
+            })
+            .map((style) => {
+              if (
+                !textSelected &&
+                increment &&
+                selectionRef.end > style.interval.start &&
+                selectionRef.end < style.interval.end
+              ) {
+                return {
+                  ...style,
+                  interval: {
+                    ...style.interval,
+                    end:
+                      style.interval.end + (text.length - editNote.text.length),
+                  },
+                };
+              }
+              if (
+                !textSelected &&
+                decrement &&
+                selectionRef.start > style.interval.start &&
+                selectionRef.end <= style.interval.end
+              ) {
+                return {
+                  ...style,
+                  interval: {
+                    ...style.interval,
+                    end:
+                      style.interval.end - (editNote.text.length - text.length),
+                  },
+                };
+              }
+              if (selectionRef.end <= style.interval.start) {
+                return {
+                  ...style,
+                  interval: {
+                    start: increment
+                      ? style.interval.start +
+                        (text.length - editNote.text.length)
+                      : style.interval.start -
+                        (editNote.text.length - text.length),
+                    end: increment
+                      ? style.interval.end +
+                        (text.length - editNote.text.length)
+                      : style.interval.end -
+                        (editNote.text.length - text.length),
+                  },
+                };
+              }
+              return style;
+            }),
         }));
       }}
       multiline

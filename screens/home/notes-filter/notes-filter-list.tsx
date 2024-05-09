@@ -1,4 +1,4 @@
-import { FlatList, View } from "react-native";
+import { FlatList, View, useWindowDimensions } from "react-native";
 import { FilterButton, FilterFavoritesButton } from "./notes-filter";
 import { HomeOverlaysProps } from "../home-overlays/types";
 import { removeArrayKeyDuplicates, toggleArrayElement } from "../../../utils";
@@ -12,16 +12,18 @@ export const NotesFilterList = memo(
     favorite,
     setFavorite,
     data,
+    hidden,
   }: HomeOverlaysProps) => {
     const notesWithoutCopies = useMemo(() => {
       return removeArrayKeyDuplicates(searchFilter, "title");
     }, [searchFilter, selected]);
-
+    const { width } = useWindowDimensions();
     return (
       <FlatList
         style={{
           width: "100%",
           flexGrow: 0,
+          transform: [{ translateX: hidden ? width : 0 }],
         }}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
@@ -31,7 +33,7 @@ export const NotesFilterList = memo(
           alignItems: "center",
         }}
         horizontal
-        ListHeaderComponent={() => (
+        ListHeaderComponent={
           <View
             style={{
               flexDirection: "row",
@@ -51,7 +53,7 @@ export const NotesFilterList = memo(
               />
             )}
           </View>
-        )}
+        }
         data={notesWithoutCopies}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (

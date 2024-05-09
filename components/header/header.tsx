@@ -7,20 +7,13 @@ import { useRecoilState } from "recoil";
 import { receivedNotifications } from "../../contexts/atom";
 import { useTheme } from "../../hooks";
 import { useRequest } from "../../hooks/use-request";
-import { useStorageRequest } from "../../hooks/use-storage-request";
 import { removeReceivedReminder } from "../../screens/inbox/upcoming-reminders";
 import { moderateFontScale, moderateScale, verticalScale } from "../../utils";
 import { ImportIcon, InboxIcon, SearchIcon } from "../assets";
 import { HeaderProps } from "./types";
+import { useStorageUttils } from "../../hooks/use-storage-uttils";
 export const Header = memo(
-  ({
-    searchValue,
-    onSearch,
-    scrollY,
-    children,
-    extraHeight = 0,
-    onInboxOpen,
-  }: PropsWithChildren<HeaderProps>) => {
+  ({ searchValue, onSearch, scrollY, onInboxOpen }: HeaderProps) => {
     const theme = useTheme();
     const { top } = useSafeAreaInsets();
     const [badge, setBadge] = useState(false);
@@ -62,14 +55,14 @@ export const Header = memo(
       }
     }, [notifications]);
     const { syncState } = useRequest();
-    const { importNotes } = useStorageRequest();
+    const { importNotes } = useStorageUttils();
     return (
       <Animated.View
         style={{
           position: "absolute",
           width: "100%",
           flexDirection: "column",
-          height: verticalScale(70) + top + extraHeight,
+          height: verticalScale(70) + top,
           backgroundColor: theme.background,
           top: 0,
           paddingTop: top,
@@ -137,7 +130,6 @@ export const Header = memo(
             <ImportIcon onPress={importNotes} />
           </View>
         </View>
-        {children}
       </Animated.View>
     );
   }
