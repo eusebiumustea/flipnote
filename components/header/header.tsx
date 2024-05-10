@@ -1,5 +1,11 @@
 import * as Notifications from "expo-notifications";
-import React, { PropsWithChildren, memo, useEffect, useState } from "react";
+import React, {
+  PropsWithChildren,
+  memo,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { Animated, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
@@ -12,6 +18,7 @@ import { moderateFontScale, moderateScale, verticalScale } from "../../utils";
 import { ImportIcon, InboxIcon, SearchIcon } from "../assets";
 import { HeaderProps } from "./types";
 import { useStorageUttils } from "../../hooks/use-storage-uttils";
+import { useFocusEffect } from "@react-navigation/native";
 export const Header = memo(
   ({ searchValue, onSearch, scrollY, onInboxOpen }: HeaderProps) => {
     const theme = useTheme();
@@ -66,7 +73,6 @@ export const Header = memo(
           backgroundColor: theme.background,
           top: 0,
           paddingTop: top,
-
           transform: [
             {
               translateY: Animated.diffClamp(scrollY, 0, 160).interpolate({
@@ -119,11 +125,11 @@ export const Header = memo(
           />
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
             <InboxIcon
-              onPress={(e) => {
+              onPress={() => {
                 if (badge) {
                   setBadge(false);
                 }
-                onInboxOpen(e);
+                onInboxOpen();
               }}
               active={badge}
             />

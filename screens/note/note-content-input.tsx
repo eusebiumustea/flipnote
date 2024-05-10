@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useRef } from "react";
 
-import { TextInput, TextInputProps } from "react-native";
+import { Platform, TextInput, TextInputProps } from "react-native";
 import { contentLengthLimit } from "../../constants";
 import { useEditNoteContent, useTheme } from "../../hooks";
 import { InputSelectionProps, note } from "./types";
@@ -29,6 +29,7 @@ export const NoteContentInput = ({
       onSelectionChange={(e) => {
         selectionRef.start = e.nativeEvent.selection.start;
         selectionRef.end = e.nativeEvent.selection.end;
+        console.log("selectionRef", selectionRef.end);
         setInputSelection(e.nativeEvent.selection);
       }}
       importantForAutofill="no"
@@ -50,31 +51,6 @@ export const NoteContentInput = ({
           ...prev,
           text,
           styles: prev.styles
-            .filter((style) => {
-              if (
-                style.interval.end <= style.interval.start ||
-                style.interval.start >= text.length
-              ) {
-                return false;
-              }
-              if (
-                (textSelected &&
-                  decrement &&
-                  selectionRef.start <= style.interval.start &&
-                  selectionRef.end >= style.interval.end) ||
-                (textSelected &&
-                  decrement &&
-                  selectionRef.start > style.interval.start &&
-                  selectionRef.start < style.interval.end) ||
-                (textSelected &&
-                  decrement &&
-                  selectionRef.end > style.interval.start &&
-                  selectionRef.end < style.interval.end)
-              ) {
-                return false;
-              }
-              return true;
-            })
             .map((style) => {
               if (
                 !textSelected &&
@@ -124,6 +100,31 @@ export const NoteContentInput = ({
                 };
               }
               return style;
+            })
+            .filter((style) => {
+              if (
+                style.interval.end <= style.interval.start ||
+                style.interval.start >= text.length
+              ) {
+                return false;
+              }
+              if (
+                (textSelected &&
+                  decrement &&
+                  selectionRef.start <= style.interval.start &&
+                  selectionRef.end >= style.interval.end) ||
+                (textSelected &&
+                  decrement &&
+                  selectionRef.start > style.interval.start &&
+                  selectionRef.start < style.interval.end) ||
+                (textSelected &&
+                  decrement &&
+                  selectionRef.end > style.interval.start &&
+                  selectionRef.end < style.interval.end)
+              ) {
+                return false;
+              }
+              return true;
             }),
         }));
       }}

@@ -23,7 +23,7 @@ export function OptionContainer({
           <MotiView
             from={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ type: "timing", delay: 180, duration: 120 } as any}
+            transition={{ type: "timing", delay: 180, duration: 120 }}
             exit={{ opacity: 0 }}
             exitTransition={{ delay: 0 }}
             style={{
@@ -54,7 +54,7 @@ export function OptionContainer({
           keyboardDismissMode="interactive"
           from={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ type: "timing", delay: 180, duration: 120 } as any}
+          transition={{ type: "timing", delay: 180, duration: 120 }}
           exit={{ opacity: 0 }}
           exitTransition={{ delay: 0 }}
           contentContainerStyle={{

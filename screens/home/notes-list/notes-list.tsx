@@ -11,8 +11,8 @@ import {
   toggleArrayElement,
   verticalScale,
 } from "../../../utils";
-import { NotesListProps } from "./types";
 import { NotesFilterList } from "../notes-filter/notes-filter-list";
+import { NotesListProps } from "./types";
 
 export const NotesList = memo(
   ({
@@ -31,7 +31,6 @@ export const NotesList = memo(
     const scrollRef = useRef<FlatList>(null);
     const { top } = useSafeAreaInsets();
     const { syncState } = useRequest();
-
     const [refreshing, setRefreshing] = useState(false);
     const onRefresh = useCallback(async () => {
       setRefreshing(true);

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Text, TextStyle } from "react-native";
+import { TextStyle, Text } from "react-native";
 import { darkCardColors } from "../constants/colors";
 import { TextNoteStyle } from "../screens";
 export function useEditNoteContent(
@@ -30,7 +30,6 @@ export function useEditNoteContent(
     if (italic && weight) {
       return fontName + "-bold-italic";
     }
-
     return fontName;
   }
   return useMemo(() => {

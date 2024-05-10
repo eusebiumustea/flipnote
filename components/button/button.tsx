@@ -25,9 +25,7 @@ export function Button({ colors, children, ...pressableProps }: ButtonProps) {
       {({ pressed }) => {
         return (
           <MotiView
-            transition={
-              { type: "timing", borderRadius: { duration: 100 } } as any
-            }
+            transition={{ type: "timing", borderRadius: { duration: 100 } }}
             style={{
               paddingHorizontal: 20,
               paddingVertical: 8,
@@ -45,7 +43,7 @@ export function Button({ colors, children, ...pressableProps }: ButtonProps) {
             }}
           >
             <MotiText
-              transition={{ type: "timing", duration: 80 } as any}
+              transition={{ type: "timing", duration: 80 }}
               from={{ color: theme.background } as unknown}
               animate={
                 {

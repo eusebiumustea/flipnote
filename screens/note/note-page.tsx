@@ -97,14 +97,12 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   return (
     <MotiView
       style={{ flex: 1 }}
-      transition={
-        {
-          type: "timing",
-          duration: 300,
-          delay: 300,
-          backgroundColor: { delay: 0 },
-        } as any
-      }
+      transition={{
+        type: "timing",
+        duration: 300,
+        delay: 300,
+        backgroundColor: { delay: 0 },
+      }}
       from={{ opacity: 0, backgroundColor: "transparent" }}
       animate={{
         opacity: 1,
@@ -126,7 +124,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
           {isImgBg && (
             <>
               <MotiView
-                transition={{ type: "timing", duration: 300 } as any}
+                transition={{ type: "timing", duration: 300 }}
                 from={{ opacity: 0 }}
                 animate={{ opacity: editNote.imageOpacity }}
                 style={{
@@ -156,7 +154,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
               />
             </>
           )}
-
           <ScrollView
             ref={scrollRef}
             showsVerticalScrollIndicator={false}

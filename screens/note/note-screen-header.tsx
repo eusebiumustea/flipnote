@@ -64,7 +64,7 @@ export const NoteScreenHeader = memo(
         {Platform.OS === "ios" && (
           <BlurView
             tint={colorScheme}
-            intensity={40}
+            intensity={30}
             style={{
               width: width,
               height: "100%",
@@ -87,8 +87,8 @@ export const NoteScreenHeader = memo(
 
           {!emptyNote && (
             <Animated.View
-              entering={FadeIn.duration(300).delay(50)}
-              exiting={FadeOut.duration(300).delay(50)}
+              entering={FadeIn.duration(300).delay(100)}
+              exiting={FadeOut.duration(300).delay(100)}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -101,7 +101,7 @@ export const NoteScreenHeader = memo(
                   color: theme.onPrimary,
                   fontSize: moderateFontScale(13),
                 }}
-              >{`${textLength} / ${contentLengthLimit()}`}</Text>
+              >{`${textLength} / ${contentLengthLimit() + 1000}`}</Text>
 
               <ReminderIcon onPress={onReminderOpen} />
 

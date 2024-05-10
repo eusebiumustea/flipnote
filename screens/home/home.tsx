@@ -29,11 +29,6 @@ export function Home() {
     setSelected
   );
   const scrollY = useRef(new Animated.Value(0)).current;
-  useFocusEffect(
-    useCallback(() => {
-      return scrollY.setValue(0);
-    }, [])
-  );
 
   return (
     <>

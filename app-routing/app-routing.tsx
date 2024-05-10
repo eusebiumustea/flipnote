@@ -4,6 +4,7 @@ import {
   createStackNavigator,
 } from "@react-navigation/stack";
 import { Easing, Platform, useWindowDimensions } from "react-native";
+import { enableFreeze } from "react-native-screens";
 import { useTheme } from "../hooks";
 import { ImagePreview } from "../screens";
 import { Home } from "../screens/home";
@@ -11,7 +12,6 @@ import { Inbox } from "../screens/inbox";
 import { NotePage } from "../screens/note/note-page";
 import { moderateScale, verticalScale } from "../utils";
 import { TransitionInterpolator } from "./transition-interpolator";
-import { enableFreeze } from "react-native-screens";
 enableFreeze(true);
 export function AppRouting() {
   const Stack = createStackNavigator();

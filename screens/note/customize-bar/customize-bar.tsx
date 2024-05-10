@@ -112,13 +112,11 @@ export function CustomizeBar({
   const toast = useToast();
   return (
     <MotiView
-      transition={
-        {
-          type: "timing",
-          duration: 200,
-          marginBottom: { duration: 160, easing: Easing.inOut(Easing.linear) },
-        } as any
-      }
+      transition={{
+        type: "timing",
+        duration: 200,
+        marginBottom: { duration: 160, easing: Easing.inOut(Easing.linear) },
+      }}
       style={{
         borderRadius: 16,
         backgroundColor: theme.customizeBarColor,
