@@ -110,7 +110,7 @@ export function NoteOverlays({
 
       <NoteScreenHeader
         emptyNote={noteStateIsEmpty}
-        textLength={editNote.text.length}
+        textLength={editNote.text.length + editNote.title.length}
         onReminderOpen={onReminderOpen}
         onClipboard={async () => {
           try {

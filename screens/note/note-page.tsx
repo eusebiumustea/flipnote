@@ -1,27 +1,34 @@
 import { NavigatorScreenParams, useNavigation } from "@react-navigation/native";
 import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 import { Image } from "expo-image";
+import * as Print from "expo-print";
+import { shareAsync } from "expo-sharing";
 import { MotiView } from "moti";
 import { memo, useMemo, useRef, useState } from "react";
-import { Keyboard, ScrollView, useWindowDimensions } from "react-native";
+import { ScrollView, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
+import { useHTMLRenderedContent } from "../../hooks";
 import { useLoading } from "../../hooks/use-loading-dialog";
 import { useNoteStorage } from "../../hooks/use-note-manager";
 import { useNoteUtils } from "../../hooks/use-note-utills";
 import { verticalScale } from "../../utils";
 import { NoteContentInput } from "./note-content-input";
 import { NoteOverlays } from "./note-overlays";
+import { LoadingItem } from "./note-overlays/loading-item";
 import { NoteTitleInput } from "./note-title-input";
 import { InputSelectionProps, ReminderProps, note } from "./types";
+import { deleteAsync } from "expo-file-system";
 interface ParamsProps {
   id: number;
+  isCreating: boolean;
 }
 type NotePageProps = {
   route: NavigatorScreenParams<{}>;
 };
 export const NotePage = memo(({ route }: NotePageProps) => {
-  const { id }: ParamsProps = route.params;
+  const { id, isCreating }: ParamsProps = route.params;
+  const [loadingProgress, setLoadingProgress] = useState(!isCreating);
   const [editNote, setEditNote] = useState<note>({
     id,
     title: "",
@@ -32,8 +39,9 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     reminder: null,
     contentPosition: "left",
     imageOpacity: 0,
+    imageData: "",
   });
-  useNoteStorage(id, editNote, setEditNote);
+  useNoteStorage(id, editNote, setEditNote, setLoadingProgress);
   const [reminder, setReminder] = useState<ReminderProps>({
     date: new Date(),
     time: new Date(),
@@ -51,7 +59,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     setEditNote,
     setReminderDialog
   );
-
   const nav = useNavigation<StackNavigationHelpers>();
   const viewShotRef = useRef<ViewShot>(null);
   const { top } = useSafeAreaInsets();
@@ -59,26 +66,47 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   const [capturing, setCapturing] = useState(false);
   const [showTitle, setShowTitle] = useState(true);
   const loading = useLoading();
+  const html = useHTMLRenderedContent(
+    editNote.styles,
+    editNote.text,
+    editNote.title,
+    editNote.background,
+    editNote.imageOpacity,
+    editNote.contentPosition,
+    editNote.imageData
+  );
   async function Share() {
-    loading("Preparing image...");
-    Keyboard.dismiss();
-    setCapturing(true);
-    if (editNote.title.length === 0) {
-      setShowTitle(false);
-    }
-    setTimeout(async () => {
-      try {
-        const image = await viewShotRef.current.capture();
-        if (editNote.title.length === 0) {
-          setShowTitle(true);
-        }
-        setCapturing(false);
-        loading(false);
-        nav.navigate("image-preview", { uri: image });
-      } catch (e) {
-        loading(false);
-      }
-    }, 0);
+    // loading("Preparing doc...");
+
+    const result = await Print.printToFileAsync({
+      html,
+      width: 794,
+      height: 1102,
+      useMarkupFormatter: !isImgBg,
+    });
+
+    await shareAsync(result.uri, { UTI: ".pdf", mimeType: "application/pdf" });
+    await deleteAsync(result.uri, { idempotent: true });
+    loading(false);
+    // loading("Preparing image...");
+    // Keyboard.dismiss();
+    // setCapturing(true);
+    // if (editNote.title.length === 0) {
+    //   setShowTitle(false);
+    // }
+    // setTimeout(async () => {
+    //   try {
+    //     const image = await viewShotRef.current.capture();
+    //     if (editNote.title.length === 0) {
+    //       setShowTitle(true);
+    //     }
+    //     setCapturing(false);
+    //     loading(false);
+    //     nav.navigate("image-preview", { uri: image });
+    //   } catch (e) {
+    //     loading(false);
+    //   }
+    // }, 0);
   }
   const isImgBg = editNote.background.includes("/");
   const captureBackground = useMemo(() => {
@@ -93,14 +121,16 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   }, [capturing, isImgBg]);
   const { height, width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
-
+  if (loadingProgress) {
+    return <LoadingItem />;
+  }
   return (
     <MotiView
       style={{ flex: 1 }}
       transition={{
         type: "timing",
-        duration: 300,
-        delay: 300,
+        duration: 200,
+        delay: 200,
         backgroundColor: { delay: 0 },
       }}
       from={{ opacity: 0, backgroundColor: "transparent" }}
@@ -124,7 +154,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
           {isImgBg && (
             <>
               <MotiView
-                transition={{ type: "timing", duration: 300 }}
+                transition={{ type: "timing", duration: 200 }}
                 from={{ opacity: 0 }}
                 animate={{ opacity: editNote.imageOpacity }}
                 style={{
@@ -137,10 +167,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
                 }}
               />
               <Image
-                transition={{
-                  duration: 300,
-                  timing: "ease-in-out",
-                }}
                 source={{
                   uri: editNote.background,
                 }}

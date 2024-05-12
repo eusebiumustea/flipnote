@@ -22,14 +22,13 @@ export const NoteContentInput = ({
     end: 0,
   }).current;
   const inputRef = useRef<TextInput>(null);
-  console.log(editNote.styles);
+  // console.log(editNote.styles);
   return (
     <TextInput
       ref={inputRef}
       onSelectionChange={(e) => {
         selectionRef.start = e.nativeEvent.selection.start;
         selectionRef.end = e.nativeEvent.selection.end;
-        console.log("selectionRef", selectionRef.end);
         setInputSelection(e.nativeEvent.selection);
       }}
       importantForAutofill="no"

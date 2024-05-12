@@ -123,6 +123,7 @@ export const NotesList = memo(
                     id: item.id,
                     relativeX: pageX - locationX,
                     relativeY: pageY - locationY,
+                    isCreating: false,
                   });
                 }
               }}

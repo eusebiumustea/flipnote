@@ -14,7 +14,8 @@ import { useFocusEffect } from "@react-navigation/native";
 export function useNoteStorage(
   id: number,
   editNote: note,
-  setEditNote: Dispatch<SetStateAction<note>>
+  setEditNote: Dispatch<SetStateAction<note>>,
+  setLoading: Dispatch<SetStateAction<boolean>>
 ) {
   const toast = useToast();
   const notePath = `${NOTES_PATH}/${id}`;
@@ -28,15 +29,16 @@ export function useNoteStorage(
         const { exists } = await FileSystem.getInfoAsync(notePath);
         if (!exists) {
           setPreventDelete(false);
+          setLoading(false);
           return;
         }
         const data = await FileSystem.readAsStringAsync(notePath);
         const content: note = JSON.parse(data);
-
         setTimeout(() => {
           setEditNote(content);
+          setLoading(false);
           setPreventDelete(false);
-        }, 300);
+        }, 200);
       } catch (error) {}
     }
     getData();

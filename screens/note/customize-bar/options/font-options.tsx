@@ -22,6 +22,7 @@ export function FontOptions({
   return (
     <>
       <TouchableOpacity
+        activeOpacity={0.8}
         onPress={() => {
           if (
             currentSelectedStyle &&
@@ -71,6 +72,7 @@ export function FontOptions({
       {fonts.map((font, i) => {
         return (
           <TouchableOpacity
+            activeOpacity={0.8}
             onPress={() =>
               FontFamilyEvent(
                 currentSelectedStyle,

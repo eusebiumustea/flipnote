@@ -33,11 +33,20 @@ export function BackgroundOptions({
 
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        base64: true,
       });
+
       if (result.canceled) {
         return;
       }
-      setEditNote((prev) => ({ ...prev, background: result.assets[0].uri }));
+
+      setEditNote((prev) => ({
+        ...prev,
+        background: result.assets[0].uri,
+        imageData: `data:image/${result.assets[0].fileName.slice(
+          result.assets[0].fileName.lastIndexOf(".") + 1
+        )};base64,${result.assets[0].base64}`,
+      }));
     } catch (error) {}
   }
 
@@ -71,6 +80,7 @@ export function BackgroundOptions({
                   ...prev,
                   imageOpacity: 0,
                   background: e,
+                  imageData: "",
                 }));
               }}
               bgColor={e}

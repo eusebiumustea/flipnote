@@ -37,6 +37,7 @@ export interface note {
   reminder: number | null;
   contentPosition: "center" | "left" | "right";
   imageOpacity?: number;
+  imageData?: string;
 }
 export interface NotePreviewTypes {
   id: number;

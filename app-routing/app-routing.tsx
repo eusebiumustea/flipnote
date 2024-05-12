@@ -1,6 +1,7 @@
 import {
   CardStyleInterpolators,
   TransitionPresets,
+  TransitionSpecs,
   createStackNavigator,
 } from "@react-navigation/stack";
 import { Easing, Platform, useWindowDimensions } from "react-native";
@@ -24,13 +25,6 @@ export function AppRouting() {
         headerShown: false,
         cardOverlayEnabled: true,
         detachPreviousScreen: true,
-        transitionSpec: {
-          open: TransitionPresets.DefaultTransition.transitionSpec.open,
-          close: {
-            animation: "timing",
-            config: { duration: 120, easing: Easing.out(Easing.linear) },
-          },
-        },
       }}
       initialRouteName="Home"
     >
@@ -46,6 +40,16 @@ export function AppRouting() {
       <Stack.Screen
         options={({ route }: any) =>
           ({
+            transitionSpec: {
+              open: {
+                animation: "spring",
+                config: { overshootClamping: true, stiffness: 100 },
+              },
+              close: {
+                animation: "timing",
+                config: { duration: 200, easing: Easing.sin },
+              },
+            },
             cardStyleInterpolator: TransitionInterpolator({
               initial: {
                 scale: 1,
@@ -63,6 +67,13 @@ export function AppRouting() {
       <Stack.Screen
         options={({ route }: any) =>
           ({
+            transitionSpec: {
+              open: TransitionSpecs.TransitionIOSSpec,
+              close: {
+                animation: "timing",
+                config: { duration: 160 },
+              },
+            },
             cardStyleInterpolator: TransitionInterpolator({
               initial: {
                 scale: 0,
@@ -93,6 +104,8 @@ export function AppRouting() {
           headerShadowVisible: false,
           gestureDirection: "vertical",
           gestureEnabled: true,
+          transitionSpec: TransitionPresets.ModalPresentationIOS.transitionSpec,
+
           cardStyleInterpolator:
             Platform.OS === "ios"
               ? CardStyleInterpolators.forModalPresentationIOS

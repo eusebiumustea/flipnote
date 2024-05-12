@@ -39,6 +39,7 @@ export const HomeOverlays = memo(
                   id: new Date().getTime(),
                   relativeX: pageX - locationX,
                   relativeY: pageY - locationY,
+                  isCreating: true,
                 });
               }
             }}

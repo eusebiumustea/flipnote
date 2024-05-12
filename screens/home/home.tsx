@@ -1,6 +1,5 @@
 import { useBackHandler } from "@react-native-community/hooks";
-import { useFocusEffect } from "@react-navigation/native";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Animated } from "react-native";
 import { useHomeUtils } from "../../hooks/use-home-utils";
 import { HomeOverlays } from "./home-overlays";
