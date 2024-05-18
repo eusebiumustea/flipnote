@@ -28,7 +28,7 @@ function validateJSON(jsonText: string): boolean {
   }
   return true;
 }
-export function useStorageUttils() {
+export function useStorageUtils() {
   const loading = useLoading();
   const toast = useToast();
   const { syncState } = useRequest();

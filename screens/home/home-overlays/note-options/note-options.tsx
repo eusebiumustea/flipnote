@@ -13,18 +13,22 @@ import JSZip from "jszip";
 import { memo, useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilValue } from "recoil";
-import { Dialog } from "../../../components";
-import { CloseIcon, DeleteIcon, ExportIcon } from "../../../components/assets";
-import { useTheme } from "../../../hooks";
-import { useLoading } from "../../../hooks/use-loading-dialog";
+import { Dialog } from "../../../../components";
+import {
+  CloseIcon,
+  DeleteIcon,
+  ExportIcon,
+} from "../../../../components/assets";
+import { useTheme } from "../../../../hooks";
+import { useLoading } from "../../../../hooks/use-loading-dialog";
 import {
   moderateFontScale,
   moderateScale,
   removeEmptySpace,
   verticalScale,
-} from "../../../utils";
-import { note, notesValue } from "../../note";
-import { NOTES_PATH } from "../../../constants";
+} from "../../../../utils";
+import { note, notesValue } from "../../../note";
+import { NOTES_PATH } from "../../../../constants";
 interface NoteOptionsProps {
   onDelete: () => void;
   onClose: () => void;

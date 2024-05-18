@@ -1,5 +1,3 @@
-import { Animated } from "react-native";
-
 type InterpolateStylesProps = {
   overlay?: boolean;
   fade?: boolean;
@@ -23,13 +21,6 @@ export function TransitionInterpolator({
     },
     next,
   }) => {
-    const opacity = Animated.add(
-      current.progress,
-      next ? next.progress : 0
-    ).interpolate({
-      inputRange: [0, 1, 2],
-      outputRange: [1, 1, 0],
-    });
     return {
       overlayStyle: {
         opacity: overlay

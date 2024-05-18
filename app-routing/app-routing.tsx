@@ -29,10 +29,12 @@ export function AppRouting() {
       initialRouteName="Home"
     >
       <Stack.Screen component={Home} name="Home" />
+
       <Stack.Screen
         component={ImagePreview}
         name="image-preview"
         options={{
+          gestureDirection: "vertical",
           cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
         }}
       />
@@ -67,6 +69,7 @@ export function AppRouting() {
       <Stack.Screen
         options={({ route }: any) =>
           ({
+            detachPreviousScreen: false,
             transitionSpec: {
               open: TransitionSpecs.TransitionIOSSpec,
               close: {
@@ -91,7 +94,7 @@ export function AppRouting() {
         component={Inbox}
         options={{
           headerShown: true,
-          detachPreviousScreen: Platform.OS === "android",
+          detachPreviousScreen: false,
           title: "Inbox",
           headerTitleAlign: "center",
           headerMode: "screen",
@@ -104,8 +107,8 @@ export function AppRouting() {
           headerShadowVisible: false,
           gestureDirection: "vertical",
           gestureEnabled: true,
-          transitionSpec: TransitionPresets.ModalPresentationIOS.transitionSpec,
 
+          transitionSpec: TransitionPresets.ModalPresentationIOS.transitionSpec,
           cardStyleInterpolator:
             Platform.OS === "ios"
               ? CardStyleInterpolators.forModalPresentationIOS

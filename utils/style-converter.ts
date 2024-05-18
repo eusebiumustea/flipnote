@@ -1,7 +1,13 @@
 import { TextStyle } from "react-native";
+export function includeNewLines(value: string): string {
+  if (value.includes("\n")) {
+    return "white-space: pre-line;";
+  }
+  return "white-space: initial;";
+}
 export function fontCSS(fontName: string, style: string[]) {
   const weight = style.includes("font-weight: bold;");
-  const italic = style.includes("font-style");
+  const italic = style.includes("font-style: italic;");
   if (weight && !italic) {
     return fontName + "-bold";
   }
@@ -37,7 +43,9 @@ export function convertToCSS(style: TextStyle) {
       case "textDecorationLine":
         return `text-decoration: ${e[1]};`;
       case "fontSize":
-        return `font-size: ${e[1] * 2};`;
+        return `font-size: ${e[1] * 2}px;`;
+      case "fontFamily":
+        return `font-family: ${font(e[1], style)};`;
       default:
         return `${e[0]}: ${e[1]};`;
     }

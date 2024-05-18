@@ -8,11 +8,10 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { RecoilRoot } from "recoil";
 import { AppRouting } from "./app-routing";
 import { ToastProvider } from "./components";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AppStorageContext } from "./contexts";
-import { LoadingDialog } from "./contexts/loading-dialog";
 import { ThemeProvider } from "./hooks";
 import { StatusBarController } from "./utils";
+import { LoadingDialog } from "./contexts/loading-dialog";
 SplashScreen.preventAutoHideAsync();
 export default function App() {
   useEffect(() => {
@@ -48,20 +47,20 @@ export default function App() {
 
   return (
     <RecoilRoot>
-      <LoadingDialog>
-        <SafeAreaProvider onLayout={onLayoutRootView}>
-          <AppStorageContext>
-            <ToastProvider>
-              <ThemeProvider>
-                <NavigationContainer>
+      <SafeAreaProvider onLayout={onLayoutRootView}>
+        <ThemeProvider>
+          <ToastProvider>
+            <NavigationContainer>
+              <LoadingDialog>
+                <AppStorageContext>
                   <StatusBarController />
                   <AppRouting />
-                </NavigationContainer>
-              </ThemeProvider>
-            </ToastProvider>
-          </AppStorageContext>
-        </SafeAreaProvider>
-      </LoadingDialog>
+                </AppStorageContext>
+              </LoadingDialog>
+            </NavigationContainer>
+          </ToastProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
     </RecoilRoot>
   );
 }

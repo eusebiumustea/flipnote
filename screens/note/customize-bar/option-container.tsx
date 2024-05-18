@@ -23,9 +23,9 @@ export function OptionContainer({
           <MotiView
             from={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ type: "timing", delay: 180, duration: 120 }}
+            transition={{ type: "timing", delay: 180, duration: 120 } as any}
             exit={{ opacity: 0 }}
-            exitTransition={{ delay: 0 }}
+            exitTransition={{ delay: 0 } as any}
             style={{
               width: "100%",
               backgroundColor: theme.customizeBarColor,
@@ -54,9 +54,9 @@ export function OptionContainer({
           keyboardDismissMode="interactive"
           from={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ type: "timing", delay: 180, duration: 120 }}
+          transition={{ type: "timing", delay: 180, duration: 120 } as any}
           exit={{ opacity: 0 }}
-          exitTransition={{ delay: 0 }}
+          exitTransition={{ delay: 0 } as any}
           contentContainerStyle={{
             flexDirection: "row",
             alignItems: "center",

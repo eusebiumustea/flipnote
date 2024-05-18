@@ -6,6 +6,7 @@ import { View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "../../components";
 import { useTheme } from "../../hooks";
+import { deleteAsync } from "expo-file-system";
 export function ImagePreview({ route }) {
   const { uri }: { uri: string } = route.params;
   const nav = useNavigation<StackNavigationHelpers>();
@@ -31,10 +32,21 @@ export function ImagePreview({ route }) {
           width: "100%",
         }}
       >
-        <Button onPress={() => nav.goBack()}>Cencel</Button>
+        <Button
+          onPress={async () => {
+            try {
+              nav.goBack();
+              await deleteAsync(uri, { idempotent: true });
+            } catch (error) {}
+          }}
+        >
+          Cencel
+        </Button>
         <Button
           onPress={async () => {
             await Sharing.shareAsync(uri);
+
+            await deleteAsync(uri, { idempotent: true });
             nav.goBack();
           }}
         >

@@ -1,5 +1,11 @@
 import { BlurView } from "expo-blur";
-import { Dimensions, Platform, View, useColorScheme } from "react-native";
+import {
+  Dimensions,
+  Platform,
+  View,
+  useColorScheme,
+  Animated,
+} from "react-native";
 import { Text } from "react-native-fast-text";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -11,10 +17,10 @@ import {
 } from "../../components/assets";
 
 import { memo } from "react";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useTheme } from "../../hooks";
 import { moderateFontScale } from "../../utils";
 import { contentLengthLimit } from "../../constants";
+import { useCardAnimation } from "@react-navigation/stack";
 
 interface NoteScreenHeaderProps {
   onClipboard: () => void;
@@ -41,12 +47,14 @@ export const NoteScreenHeader = memo(
     const { width } = Dimensions.get("window");
     const theme = useTheme();
     const colorScheme = useColorScheme();
+    const { current } = useCardAnimation();
     return (
-      <View
+      <Animated.View
         style={{
           width: "100%",
           position: "absolute",
           top: 0,
+          opacity: current.progress,
         }}
       >
         {Platform.OS === "android" && (
@@ -86,9 +94,7 @@ export const NoteScreenHeader = memo(
           <BackIcon onPress={onBack} />
 
           {!emptyNote && (
-            <Animated.View
-              entering={FadeIn.duration(200)}
-              exiting={FadeOut.duration(200)}
+            <View
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -110,10 +116,10 @@ export const NoteScreenHeader = memo(
               <HeartIcon onPress={onFavoriteAdd} focused={favorite} />
 
               <ShareIcon onPress={onShare} />
-            </Animated.View>
+            </View>
           )}
         </View>
-      </View>
+      </Animated.View>
     );
   }
 );

@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useRef } from "react";
+import { Dispatch, SetStateAction, forwardRef, useEffect, useRef } from "react";
 
 import { Platform, TextInput, TextInputProps } from "react-native";
 import { contentLengthLimit } from "../../constants";
@@ -22,7 +22,6 @@ export const NoteContentInput = ({
     end: 0,
   }).current;
   const inputRef = useRef<TextInput>(null);
-  // console.log(editNote.styles);
   return (
     <TextInput
       ref={inputRef}

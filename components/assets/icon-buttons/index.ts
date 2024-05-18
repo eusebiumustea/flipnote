@@ -1,5 +1,6 @@
 export * from "./bold-icon";
 export * from "./italic-icon";
+export * from "./menu-icon";
 export * from "./underline-icon";
 export * from "./text-icon";
 export * from "./types";

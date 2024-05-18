@@ -29,11 +29,13 @@ function ToastComponent({ config }: ToastComponentProps) {
     <AnimatePresence>
       {config && (
         <MotiView
-          transition={{
-            type: "timing",
-            duration: 260,
-            easing: Easing.inOut(Easing.linear),
-          }}
+          transition={
+            {
+              type: "timing",
+              duration: 260,
+              easing: Easing.inOut(Easing.linear),
+            } as any
+          }
           style={{
             position: "absolute",
             top: top + 30,

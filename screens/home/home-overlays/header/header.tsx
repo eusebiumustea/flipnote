@@ -1,26 +1,29 @@
 import * as Notifications from "expo-notifications";
-import React, {
-  PropsWithChildren,
-  memo,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Animated, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilState } from "recoil";
 
-import { receivedNotifications } from "../../contexts/atom";
-import { useTheme } from "../../hooks";
-import { useRequest } from "../../hooks/use-request";
-import { removeReceivedReminder } from "../../screens/inbox/upcoming-reminders";
-import { moderateFontScale, moderateScale, verticalScale } from "../../utils";
-import { ImportIcon, InboxIcon, SearchIcon } from "../assets";
+import { InboxIcon, MenuIcon, SearchIcon } from "../../../../components/assets";
+import { receivedNotifications } from "../../../../contexts/atom";
+import { useTheme } from "../../../../hooks";
+import { useRequest } from "../../../../hooks/use-request";
+import {
+  moderateFontScale,
+  moderateScale,
+  verticalScale,
+} from "../../../../utils";
+import { removeReceivedReminder } from "../../../inbox/upcoming-reminders";
 import { HeaderProps } from "./types";
-import { useStorageUttils } from "../../hooks/use-storage-uttils";
-import { useFocusEffect } from "@react-navigation/native";
+import { ZoomIn } from "react-native-reanimated";
 export const Header = memo(
-  ({ searchValue, onSearch, scrollY, onInboxOpen }: HeaderProps) => {
+  ({
+    searchValue,
+    onSearch,
+    scrollY,
+    onInboxOpen,
+    onShowOptions,
+  }: HeaderProps) => {
     const theme = useTheme();
     const { top } = useSafeAreaInsets();
     const [badge, setBadge] = useState(false);
@@ -62,7 +65,7 @@ export const Header = memo(
       }
     }, [notifications]);
     const { syncState } = useRequest();
-    const { importNotes } = useStorageUttils();
+
     return (
       <Animated.View
         style={{
@@ -94,16 +97,10 @@ export const Header = memo(
             paddingHorizontal: 12,
           }}
         >
-          <View
-            style={{
-              position: "absolute",
-              zIndex: 1,
-              paddingHorizontal: moderateScale(10),
-              left: 12,
-            }}
-          >
-            <SearchIcon />
-          </View>
+          <SearchIcon
+            style={{ position: "absolute", zIndex: 1, marginHorizontal: 26 }}
+          />
+
           <TextInput
             value={searchValue}
             style={{
@@ -123,7 +120,14 @@ export const Header = memo(
             keyboardType="default"
             textContentType="none"
           />
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+
+              gap: moderateScale(8),
+            }}
+          >
             <InboxIcon
               onPress={() => {
                 if (badge) {
@@ -133,7 +137,7 @@ export const Header = memo(
               }}
               active={badge}
             />
-            <ImportIcon onPress={importNotes} />
+            <MenuIcon onPress={onShowOptions} />
           </View>
         </View>
       </Animated.View>

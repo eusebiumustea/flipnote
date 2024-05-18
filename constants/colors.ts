@@ -1,4 +1,5 @@
 export const light = {
+  hoverColor: "#e6e6e6",
   background: "#fff",
   homeBackground: "#ebeced",
   onBackground: "#181818",
@@ -29,6 +30,7 @@ export const light = {
   ],
 };
 export const dark = {
+  hoverColor: "#1a1a1a",
   homeBackground: "#04080f",
   background: "#121212",
   onBackground: "#F0F0F0",

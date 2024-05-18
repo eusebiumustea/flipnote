@@ -13,11 +13,14 @@ export interface NoteOverlaysProps {
   setReminder: Dispatch<SetStateAction<ReminderProps>>;
   reminder: ReminderProps;
   onReminderOpen: () => void;
-  onShare: () => void;
+
   currentSelectedStyle: TextNoteStyle;
   reminderDialog: boolean;
   setReminderDialog: Dispatch<SetStateAction<boolean>>;
   selection: InputSelectionProps;
+
+  shareImage: () => Promise<void>;
+  sharePdf: () => Promise<void>;
 }
 export interface NoteOverlaysPreStylingProps {
   id: number;

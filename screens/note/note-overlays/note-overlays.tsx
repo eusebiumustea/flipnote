@@ -19,6 +19,8 @@ import { NoteScreenHeader } from "../note-screen-header";
 import { StyleEvent, onFontColor } from "../style-events";
 import { OptionProps } from "../types";
 import { NoteOverlaysProps } from "./types";
+import { NoteSharingDialog } from "./note-sharing-dialog";
+import { useState } from "react";
 export function NoteOverlays({
   id,
   editNote,
@@ -26,13 +28,16 @@ export function NoteOverlays({
   setReminder,
   setEditNote,
   onReminderOpen,
-  onShare,
   currentSelectedStyle,
   selection,
   reminderDialog,
+
   setReminderDialog,
+  shareImage,
+  sharePdf,
 }: NoteOverlaysProps) {
   const notification = useNoitication();
+  const [sharingDialog, setSharingDialog] = useState(false);
   const toast = useToast();
   const currentIndex = editNote.styles.indexOf(currentSelectedStyle);
   const fontFamilyFocused = currentSelectedStyle?.style?.fontFamily;
@@ -65,6 +70,18 @@ export function NoteOverlays({
   };
   return (
     <>
+      <NoteSharingDialog
+        visible={sharingDialog}
+        shareImage={async () => {
+          await shareImage();
+          setSharingDialog(false);
+        }}
+        sharePdf={async () => {
+          await sharePdf();
+          setSharingDialog(false);
+        }}
+        onCencel={() => setSharingDialog(false)}
+      />
       <DateTimePickerDialog
         action={() => {
           notification(
@@ -133,7 +150,7 @@ export function NoteOverlays({
         }
         onBack={() => navigation.goBack()}
         favorite={editNote.isFavorite}
-        onShare={onShare}
+        onShare={() => setSharingDialog(true)}
       />
 
       <CustomizeBar

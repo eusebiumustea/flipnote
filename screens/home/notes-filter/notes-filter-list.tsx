@@ -20,6 +20,7 @@ export const NotesFilterList = memo(
     const { width } = useWindowDimensions();
     return (
       <FlatList
+        bounces={false}
         style={{
           width: "100%",
           flexGrow: 0,
@@ -28,6 +29,8 @@ export const NotesFilterList = memo(
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
           paddingHorizontal: 14,
+          paddingTop: 12,
+
           columnGap: 12,
           flexDirection: "row",
           alignItems: "center",

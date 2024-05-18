@@ -1,8 +1,9 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { memo, useState } from "react";
 import { CreateIcon } from "../../../components";
-import { Header } from "../../../components/header/header";
-import { NoteOptions } from "../note-options";
+import { Header } from "./header";
+import { NoteOptions } from "./note-options";
+import { OptionsOverlay } from "./options-overlay";
 import { HomeOverlaysProps } from "./types";
 
 export const HomeOverlays = memo(
@@ -17,10 +18,21 @@ export const HomeOverlays = memo(
   }: HomeOverlaysProps) => {
     const navigation = useNavigation<NavigationProp<any>>();
     const [sharingDialog, setSharingDialog] = useState(false);
+    const [optionsOverlay, setOptionsOverlay] = useState(false);
     if (optionsSelection.length === 0) {
       return (
         <>
+          <OptionsOverlay
+            open={optionsOverlay}
+            onClose={() => setOptionsOverlay(false)}
+          />
           <Header
+            onShowOptions={() => {
+              if (navigation.isFocused()) {
+                setOptionsOverlay(true);
+                scrollY.setValue(0);
+              }
+            }}
             onInboxOpen={() => {
               if (navigation.isFocused()) {
                 navigation.navigate("inbox");

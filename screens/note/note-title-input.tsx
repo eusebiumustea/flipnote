@@ -27,7 +27,7 @@ export function NoteTitleInput({ editNote, setEditNote }: NoteTitleProps) {
       style={{
         color:
           darkCardColors.includes(editNote.background) ||
-          editNote?.imageOpacity > 0.4
+          editNote.imageOpacity > 0.4
             ? "#ffffff"
             : "#000000",
         fontSize: moderateFontScale(30),
