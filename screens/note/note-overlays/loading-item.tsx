@@ -4,24 +4,25 @@ import { ActivityIndicator, View } from "react-native";
 import { Text } from "react-native-fast-text";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BackIcon } from "../../../components";
-import { useTheme } from "../../../hooks";
-export function LoadingItem() {
-  const theme = useTheme();
+import { darkCardColors } from "../../../constants";
+export function LoadingItem({ bg }: { bg: string }) {
   const { top } = useSafeAreaInsets();
   const nav = useNavigation<StackNavigationHelpers>();
+  const defaultThemeColor = darkCardColors.includes(bg) ? "#ffffff" : "#000000";
+
   return (
     <View
       style={{
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#ffffff",
+        backgroundColor: bg,
         paddingTop: top,
       }}
     >
       <BackIcon
         onPress={() => nav.goBack()}
-        color={"#000"}
+        color={defaultThemeColor}
         style={{
           position: "absolute",
           top,
@@ -32,7 +33,9 @@ export function LoadingItem() {
         }}
       />
       <ActivityIndicator size={"large"} />
-      <Text style={{ color: "#000", fontSize: 16, top: 6 }}>Loading...</Text>
+      <Text style={{ color: defaultThemeColor, fontSize: 16, top: 6 }}>
+        Loading...
+      </Text>
     </View>
   );
 }

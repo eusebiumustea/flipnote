@@ -1,6 +1,12 @@
 import { AnimatePresence, MotiView } from "moti";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
-import { ColorValue, Text, Pressable, View } from "react-native";
+import {
+  ColorValue,
+  Text,
+  Pressable,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../hooks";
@@ -8,6 +14,10 @@ import { moderateFontScale } from "../../utils";
 interface ToastStateProps {
   message: string | null;
   textColor?: ColorValue;
+  scaleAnimation?: {
+    x: number;
+    y: number;
+  } | null;
   button?: {
     onPress: () => void;
     title: string;
@@ -24,7 +34,17 @@ interface ToastComponentProps {
 function ToastComponent({ config }: ToastComponentProps) {
   const theme = useTheme();
   const { top } = useSafeAreaInsets();
-
+  const { width } = useWindowDimensions();
+  const initialStyles = config?.scaleAnimation
+    ? {
+        translateY: config.scaleAnimation.y,
+        translateX: -width / 2 + config.scaleAnimation.x,
+        scale: 0,
+      }
+    : { opacity: 0 };
+  const animateStyles = config?.scaleAnimation
+    ? { translateY: 0, translateX: 0, scale: 1 }
+    : { opacity: 1 };
   return (
     <AnimatePresence>
       {config && (
@@ -38,7 +58,8 @@ function ToastComponent({ config }: ToastComponentProps) {
           }
           style={{
             position: "absolute",
-            top: top + 30,
+            top: 0,
+            marginTop: top + 30,
             backgroundColor: theme.primary,
             borderRadius: 16,
             alignSelf: "center",
@@ -54,15 +75,9 @@ function ToastComponent({ config }: ToastComponentProps) {
             shadowOpacity: 0.17,
             shadowRadius: 3.05,
           }}
-          from={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-          }}
-          exit={{
-            opacity: 0,
-          }}
+          from={initialStyles}
+          animate={animateStyles}
+          exit={initialStyles}
         >
           <Text
             style={{
@@ -86,7 +101,7 @@ function ToastComponent({ config }: ToastComponentProps) {
                 onPress={config.button.onPress}
                 style={{
                   fontSize: moderateFontScale(16),
-                  color: config.button.color ? config.button.color : "#007AFF",
+                  color: config.button.color || "#007AFF",
                   textAlign: "center",
                   fontFamily: "OpenSans",
                   flexDirection: "row",
@@ -108,6 +123,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
   function ShowToast({
     message,
     button,
+    scaleAnimation = null,
     textColor = theme.onPrimary,
     duration = 1500,
   }: ToastStateProps) {
@@ -116,6 +132,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
       message,
       button,
       textColor,
+      scaleAnimation,
     }));
     setTimeout(() => setConfig(null), duration);
   }

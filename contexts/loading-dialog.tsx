@@ -17,22 +17,25 @@ export function LoadingDialog({ children }: PropsWithChildren) {
 
   return (
     <LoadingContext.Provider value={setLoading}>
-      <Modal transparent visible={loading !== false} animationType="fade">
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "#fff",
-            opacity: 0.7,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <ActivityIndicator size={"large"} />
-          <Text style={{ fontSize: moderateFontScale(17) }}>
-            {typeof loading === "string" ? loading : "Loading..."}
-          </Text>
-        </View>
-      </Modal>
+      {loading !== false && (
+        <Modal transparent animationType="fade">
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "#fff",
+              opacity: 0.7,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ActivityIndicator size={"large"} />
+            <Text style={{ fontSize: moderateFontScale(17) }}>
+              {loading !== true ? loading : "Loading..."}
+            </Text>
+          </View>
+        </Modal>
+      )}
+
       {children}
     </LoadingContext.Provider>
   );

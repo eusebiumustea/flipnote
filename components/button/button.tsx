@@ -40,7 +40,7 @@ export function Button({ colors, children, ...pressableProps }: ButtonProps) {
             animate={{
               // backgroundColor: pressed ? focusedBg : bg,
               borderRadius: pressed ? 6 : 24,
-              backgroundColor: pressed ? theme.yellow : theme.primary,
+              backgroundColor: pressed ? theme.yellowAccent : theme.primary,
             }}
           >
             <Text style={{ color: theme.onPrimary }}>{children}</Text>

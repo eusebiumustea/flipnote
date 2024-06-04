@@ -1,16 +1,9 @@
 import * as FileSystem from "expo-file-system";
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useToast } from "../components";
 import { NOTES_PATH } from "../constants";
 import { note } from "../screens";
 import { useRequest } from "./use-request";
-import { useFocusEffect } from "@react-navigation/native";
 export function useNoteStorage(
   id: number,
   editNote: note,
@@ -27,6 +20,7 @@ export function useNoteStorage(
     async function getData() {
       try {
         const { exists } = await FileSystem.getInfoAsync(notePath);
+
         if (!exists) {
           setPreventDelete(false);
           setLoading(false);

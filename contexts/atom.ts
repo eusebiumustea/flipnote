@@ -8,6 +8,7 @@ export const EMPTY_NOTE_STATE = {
   background: "#fff",
   styles: [],
   reminder: null,
+  imageOpacity: 0,
 };
 export const notesValue = selector({
   key: "notesValue",

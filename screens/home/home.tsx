@@ -9,7 +9,6 @@ export function Home() {
   const [optionsSelection, setOptionsSelection] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [favorite, setFavorite] = useState(false);
-
   useBackHandler(() => {
     if (optionsSelection.length > 0) {
       setOptionsSelection([]);

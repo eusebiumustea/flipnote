@@ -1,3 +1,4 @@
+import { deleteAsync } from "expo-file-system";
 import { AnimatePresence, MotiView } from "moti";
 import { useEffect } from "react";
 import { Modal, Pressable, View, useWindowDimensions } from "react-native";
@@ -12,11 +13,14 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ImportIcon } from "../../../components";
+import { DeleteIcon, ImportIcon } from "../../../components";
+import { NOTES_PATH } from "../../../constants";
 import { useTheme } from "../../../hooks";
+import { useStorageUtils } from "../../../hooks/use-storage-utils";
 import { verticalScale } from "../../../utils";
 import { OptionItem, OptionItemProps } from "./option-item";
-import { useStorageUtils } from "../../../hooks/use-storage-utils";
+import { useRequest } from "../../../hooks/use-request";
+import { useLoading } from "../../../hooks/use-loading-dialog";
 interface OptionsOverlayProps {
   open: boolean;
   onClose: () => void;
@@ -24,14 +28,29 @@ interface OptionsOverlayProps {
 
 export function OptionsOverlay({ open, onClose }: OptionsOverlayProps) {
   const { importNotes } = useStorageUtils();
+  const { syncState } = useRequest();
+  const loading = useLoading();
   const OptionsItems: OptionItemProps[] = [
     {
       label: "Import notes",
       icon: <ImportIcon />,
       onPress: async () => {
-        await importNotes(), onClose();
+        loading(true);
+        await importNotes();
+        loading(false);
+        onClose();
       },
     },
+    // {
+    //   label: "Erase app data",
+    //   textColor: "red",
+    //   icon: <DeleteIcon color={"red"} />,
+    //   onPress: async () => {
+    //     await deleteAsync(NOTES_PATH, { idempotent: true });
+    //     await syncState();
+    //     onClose();
+    //   },
+    // },
   ];
   const h = 80 * OptionsItems.length + 16;
   const valueY = useSharedValue(0);
@@ -137,6 +156,7 @@ export function OptionsOverlay({ open, onClose }: OptionsOverlayProps) {
                         key={i}
                         onPress={item.onPress}
                         icon={item.icon}
+                        textColor={item.textColor}
                         label={item.label}
                       />
                     );

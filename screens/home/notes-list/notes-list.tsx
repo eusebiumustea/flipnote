@@ -47,7 +47,6 @@ export const NotesList = memo(
       "teal",
       "chartreuse",
     ];
-
     return (
       <>
         <FlatList
@@ -55,7 +54,6 @@ export const NotesList = memo(
             <RefreshControl
               progressViewOffset={verticalScale(70) + top}
               tintColor={
-                Platform.OS === "ios" &&
                 activityIndicatorColors[
                   Math.floor(Math.random() * activityIndicatorColors.length)
                 ]
@@ -123,6 +121,7 @@ export const NotesList = memo(
                     id: item.id,
                     relativeX: pageX - locationX,
                     relativeY: pageY - locationY,
+                    background: item.background,
                     isCreating: false,
                   });
                 }

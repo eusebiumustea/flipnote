@@ -26,15 +26,16 @@ export function AppRouting() {
         cardOverlayEnabled: true,
         detachPreviousScreen: true,
       }}
-      initialRouteName="Home"
+      initialRouteName="home"
     >
-      <Stack.Screen component={Home} name="Home" />
+      <Stack.Screen component={Home} name="home" />
 
       <Stack.Screen
         component={ImagePreview}
         name="image-preview"
         options={{
           gestureDirection: "vertical",
+          detachPreviousScreen: false,
           cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
         }}
       />
@@ -49,7 +50,7 @@ export function AppRouting() {
               },
               close: {
                 animation: "timing",
-                config: { duration: 200, easing: Easing.sin },
+                config: { duration: 160, easing: Easing.sin },
               },
             },
             cardStyleInterpolator: TransitionInterpolator({

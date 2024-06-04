@@ -36,50 +36,46 @@ export function useStorageUtils() {
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: "application/zip",
+        copyToCacheDirectory: false,
       });
       if (result.canceled) {
         return;
       }
       const zipFilePath = result.assets[0].uri;
-      loading(true);
       const zipFileContents = await FileSystem.readAsStringAsync(zipFilePath, {
         encoding: FileSystem.EncodingType.Base64,
+        position: 0,
+        length: 115775520,
       });
       const zip = await JSZip.loadAsync(zipFileContents, {
         base64: true,
       });
       const zipItems = Object.keys(zip.files);
-      let notesAlreadyExists = 0;
       await Promise.all(
         zipItems.map(async (file) => {
-          const { exists } = await FileSystem.getInfoAsync(
-            `${NOTES_PATH}/${file}`
-          );
-
-          if (exists) {
-            notesAlreadyExists++;
-            return;
-          }
           const content = await zip.files[file].async("text");
 
           if (!validateJSON(content)) {
-            loading(false);
             toast({ message: "Invalid flipnote backup" });
             return;
           }
 
-          await FileSystem.writeAsStringAsync(`${NOTES_PATH}/${file}`, content);
+          const parsedContent: note = JSON.parse(content);
+
+          const newContent: note = {
+            ...parsedContent,
+            id: new Date().getTime() / parsedContent.id,
+          };
+          await FileSystem.writeAsStringAsync(
+            `${NOTES_PATH}/${newContent.id}`,
+            JSON.stringify(newContent)
+          );
         })
       );
 
       await syncState();
-      loading(false);
-      if (notesAlreadyExists > 0) {
-        toast({ message: `${notesAlreadyExists} notes already exists` });
-      }
     } catch (error) {
-      console.log(error.message);
-      loading(false);
+      toast({ message: "Can't import notes", textColor: "red" });
     }
   };
   return { importNotes };

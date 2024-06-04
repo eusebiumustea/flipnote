@@ -12,7 +12,7 @@ import { NoteCard } from "../../components";
 import { NOTES_PATH } from "../../constants";
 import { useTheme } from "../../hooks";
 import { useRequest } from "../../hooks/use-request";
-import { dateTime, moderateFontScale } from "../../utils";
+import { dateTime, moderateFontScale, verticalScale } from "../../utils";
 import { notesValue, receivedNotifications } from "../note";
 export async function removeReceivedReminder(id: number) {
   await Notifications.cancelScheduledNotificationAsync(id.toString());
@@ -62,7 +62,10 @@ export function UpcomingReminders() {
 
         return (
           <Fragment key={i}>
-            <NoteCard containerStyle={{ width: width - 32 }} item={note} />
+            <NoteCard
+              containerStyle={{ width: width - 32, height: verticalScale(170) }}
+              item={note}
+            />
             <View
               style={{
                 flexDirection: "row",

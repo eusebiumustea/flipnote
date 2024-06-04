@@ -1,8 +1,8 @@
-import { Dispatch, SetStateAction, forwardRef, useEffect, useRef } from "react";
+import { Dispatch, SetStateAction, useRef } from "react";
 
-import { Platform, TextInput, TextInputProps } from "react-native";
+import { TextInput, TextInputProps } from "react-native";
 import { contentLengthLimit } from "../../constants";
-import { useEditNoteContent, useTheme } from "../../hooks";
+import { useTheme } from "../../hooks";
 import { InputSelectionProps, note } from "./types";
 type NoteContentInputProps = {
   setEditNote: Dispatch<SetStateAction<note>>;
@@ -25,15 +25,16 @@ export const NoteContentInput = ({
   return (
     <TextInput
       ref={inputRef}
-      onSelectionChange={(e) => {
-        selectionRef.start = e.nativeEvent.selection.start;
-        selectionRef.end = e.nativeEvent.selection.end;
-        setInputSelection(e.nativeEvent.selection);
+      onSelectionChange={({ nativeEvent: { selection } }) => {
+        selectionRef.start = selection.start;
+        selectionRef.end = selection.end;
+        setInputSelection(selection);
       }}
       importantForAutofill="no"
       placeholderTextColor={theme.placeholder}
       scrollEnabled={false}
       autoCorrect={false}
+      cursorColor={"#FFCB09"}
       spellCheck={false}
       autoComplete="off"
       textAlign={editNote.contentPosition}
@@ -80,6 +81,42 @@ export const NoteContentInput = ({
                   },
                 };
               }
+              if (
+                textSelected &&
+                decrement &&
+                selectionRef.start > style.interval.start &&
+                selectionRef.start < style.interval.end
+              ) {
+                return {
+                  ...style,
+                  interval: {
+                    start: style.interval.start,
+                    end:
+                      style.interval.end -
+                      (style.interval.end - selectionRef.start),
+                  },
+                };
+              }
+              // if (
+              //   textSelected &&
+              //   decrement &&
+              //   selectionRef.end > style.interval.start &&
+              //   selectionRef.end < style.interval.end
+              // ) {
+              //   return {
+              //     ...style,
+              //     interval: {
+              //       start:
+              //         style.interval.start -
+              //         (editNote.text.length - text.length) +
+              //         selectionRef.end -
+              //         style.interval.start,
+
+              //       end:
+              //         style.interval.end - (editNote.text.length - text.length),
+              //     },
+              //   };
+              // }
               if (selectionRef.end <= style.interval.start) {
                 return {
                   ...style,
@@ -113,15 +150,27 @@ export const NoteContentInput = ({
                   selectionRef.end >= style.interval.end) ||
                 (textSelected &&
                   decrement &&
-                  selectionRef.start > style.interval.start &&
-                  selectionRef.start < style.interval.end) ||
-                (textSelected &&
-                  decrement &&
                   selectionRef.end > style.interval.start &&
                   selectionRef.end < style.interval.end)
               ) {
                 return false;
               }
+              // if (
+              //   (textSelected &&
+              //     decrement &&
+              //     selectionRef.start <= style.interval.start &&
+              //     selectionRef.end >= style.interval.end) ||
+              //   (textSelected &&
+              //     decrement &&
+              //     selectionRef.start > style.interval.start &&
+              //     selectionRef.start < style.interval.end) ||
+              //   (textSelected &&
+              //     decrement &&
+              //     selectionRef.end > style.interval.start &&
+              //     selectionRef.end < style.interval.end)
+              // ) {
+              //   return false;
+              // }
               return true;
             }),
         }));
@@ -129,13 +178,6 @@ export const NoteContentInput = ({
       multiline
       placeholder="Take the note"
       {...inputProps}
-    >
-      {useEditNoteContent(
-        editNote.styles,
-        editNote.text,
-        editNote.background,
-        editNote.imageOpacity
-      )}
-    </TextInput>
+    />
   );
 };

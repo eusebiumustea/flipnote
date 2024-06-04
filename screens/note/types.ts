@@ -46,6 +46,7 @@ export interface NotePreviewTypes {
   isFavorite: boolean;
   background: string;
   reminder: number | null;
+  imageOpacity: number;
 }
 export interface InputSelectionProps {
   start: number;

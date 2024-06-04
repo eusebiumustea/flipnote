@@ -31,7 +31,7 @@ export function useHTMLRenderedContent(
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
       <style>
-       ${HTML_FONTS}
+       ${Platform.OS === "android" ? HTML_FONTS : ""}
       </style>
     </head>
     <body style="background-color: ${

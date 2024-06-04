@@ -1,13 +1,24 @@
 import { ReactNode } from "react";
-import { TouchableHighlight, TouchableOpacity, View } from "react-native";
+import {
+  ColorValue,
+  TouchableHighlight,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Text } from "react-native-fast-text";
 import { useTheme } from "../../../hooks";
 export interface OptionItemProps {
   icon: ReactNode;
   label: string;
+  textColor?: ColorValue | string;
   onPress: () => void;
 }
-export function OptionItem({ icon, label, onPress }: OptionItemProps) {
+export function OptionItem({
+  icon,
+  label,
+  onPress,
+  textColor,
+}: OptionItemProps) {
   const theme = useTheme();
   return (
     <TouchableHighlight
@@ -23,16 +34,15 @@ export function OptionItem({ icon, label, onPress }: OptionItemProps) {
       <View
         style={{
           width: "100%",
-
           flexDirection: "row",
           alignItems: "center",
-          gap: 12,
+          gap: 8,
         }}
       >
         {icon}
         <Text
           style={{
-            color: theme.onPrimary,
+            color: textColor || theme.onPrimary,
             fontSize: 16,
             fontWeight: "600",
           }}

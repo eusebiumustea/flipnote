@@ -5,7 +5,12 @@ import { moderateScale, verticalScale } from "../../../utils";
 import { IconButtonBase } from "./types";
 import { useTheme } from "../../../hooks";
 
-export function ShareIcon({ svgProps, onPress, btnProps }: IconButtonBase) {
+export function ShareIcon({
+  svgProps,
+  onPress,
+  btnProps,
+  color,
+}: IconButtonBase) {
   const theme = useTheme();
   return (
     <TouchableOpacity
@@ -24,14 +29,14 @@ export function ShareIcon({ svgProps, onPress, btnProps }: IconButtonBase) {
       >
         <Path
           d="M12 8V2m0 0l-2 2m2-2l2 2"
-          stroke={theme.onBackground}
+          stroke={!color ? theme.onBackground : color}
           strokeWidth={1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <Path
           d="M5 12v-2c0-2.01 0-3.67 3-3.96M19 12v-2c0-2.01 0-3.67-3-3.96M7 12c-4 0-4 1.79-4 4v1c0 2.76 0 5 5 5h8c4 0 5-2.24 5-5v-1c0-2.21 0-4-4-4-1 0-1.28.21-1.8.6l-1.02 1.08a3 3 0 01-4.37 0L8.8 12.6C8.28 12.21 8 12 7 12z"
-          stroke={theme.onBackground}
+          stroke={!color ? theme.onBackground : color}
           strokeWidth={1.5}
           strokeMiterlimit={10}
           strokeLinecap="round"

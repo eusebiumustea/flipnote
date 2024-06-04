@@ -6,7 +6,13 @@ export function useRequest() {
   const [notes, setNotes] = useRecoilState(notesData);
 
   const syncState = async () => {
+    const { exists } = await FileSystem.getInfoAsync(NOTES_PATH);
+    if (!exists) {
+      await FileSystem.makeDirectoryAsync(NOTES_PATH);
+      return;
+    }
     const files = await FileSystem.readDirectoryAsync(NOTES_PATH);
+
     if (files.length === 0) {
       setNotes([]);
     }
@@ -22,6 +28,7 @@ export function useRequest() {
         background: newNote.background,
         isFavorite: newNote.isFavorite,
         reminder: newNote.reminder,
+        imageOpacity: newNote.imageOpacity,
       } as NotePreviewTypes;
     });
     const data = await Promise.all(promisesDataFiles);

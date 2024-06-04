@@ -1,53 +1,56 @@
 import { BlurView } from "expo-blur";
 import {
-  Dimensions,
+  Animated,
+  GestureResponderEvent,
   Platform,
   View,
-  useColorScheme,
-  Animated,
+  useWindowDimensions,
 } from "react-native";
-import { Text } from "react-native-fast-text";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   BackIcon,
   ClipboardIcon,
   HeartIcon,
+  InfoIcon,
   ReminderIcon,
   ShareIcon,
 } from "../../components/assets";
 
+import { useCardAnimation } from "@react-navigation/stack";
 import { memo } from "react";
 import { useTheme } from "../../hooks";
-import { moderateFontScale } from "../../utils";
 import { contentLengthLimit } from "../../constants";
-import { useCardAnimation } from "@react-navigation/stack";
 
 interface NoteScreenHeaderProps {
-  onClipboard: () => void;
+  onClipboardCopy: (e: GestureResponderEvent) => void;
   onBack: () => void;
   onFavoriteAdd?: () => void;
   onShare: () => void;
   onReminderOpen?: () => void;
   favorite?: boolean;
   emptyNote: boolean;
-  textLength: number;
+  iconsThemeColor: string;
+  onShowNoteInfo: (e: GestureResponderEvent) => void;
+  textLength?: number;
 }
 export const NoteScreenHeader = memo(
   ({
-    onClipboard,
+    onClipboardCopy,
     onBack,
     onFavoriteAdd,
     onShare,
     favorite,
     onReminderOpen,
     emptyNote,
+    iconsThemeColor,
+    onShowNoteInfo,
     textLength,
   }: NoteScreenHeaderProps) => {
     const { top } = useSafeAreaInsets();
-    const { width } = Dimensions.get("window");
-    const theme = useTheme();
-    const colorScheme = useColorScheme();
+
+    const { width } = useWindowDimensions();
     const { current } = useCardAnimation();
+    const theme = useTheme();
     return (
       <Animated.View
         style={{
@@ -69,17 +72,18 @@ export const NoteScreenHeader = memo(
             }}
           />
         )}
+
         {Platform.OS === "ios" && (
           <BlurView
-            tint={colorScheme}
-            intensity={30}
+            tint={"systemUltraThinMaterial"}
             style={{
-              width: width,
+              width,
               height: "100%",
               position: "absolute",
             }}
           />
         )}
+
         <View
           style={{
             width: "100%",
@@ -91,7 +95,10 @@ export const NoteScreenHeader = memo(
             alignItems: "center",
           }}
         >
-          <BackIcon onPress={onBack} />
+          <BackIcon
+            color={Platform.OS === "ios" && iconsThemeColor}
+            onPress={onBack}
+          />
 
           {!emptyNote && (
             <View
@@ -102,20 +109,35 @@ export const NoteScreenHeader = memo(
                 zIndex: 1,
               }}
             >
-              <Text
-                style={{
-                  color: theme.onPrimary,
-                  fontSize: moderateFontScale(13),
-                }}
-              >{`${textLength} / ${contentLengthLimit() + 1000}`}</Text>
+              <InfoIcon
+                onPress={onShowNoteInfo}
+                color={
+                  textLength >= contentLengthLimit()
+                    ? "orange"
+                    : Platform.OS === "ios" && iconsThemeColor
+                }
+              />
 
-              <ReminderIcon onPress={onReminderOpen} />
+              <ReminderIcon
+                color={Platform.OS === "ios" && iconsThemeColor}
+                onPress={onReminderOpen}
+              />
 
-              <ClipboardIcon onPress={onClipboard} />
+              <ClipboardIcon
+                color={Platform.OS === "ios" && iconsThemeColor}
+                onPress={onClipboardCopy}
+              />
 
-              <HeartIcon onPress={onFavoriteAdd} focused={favorite} />
+              <HeartIcon
+                color={Platform.OS === "ios" && iconsThemeColor}
+                onPress={onFavoriteAdd}
+                focused={favorite}
+              />
 
-              <ShareIcon onPress={onShare} />
+              <ShareIcon
+                color={Platform.OS === "ios" && iconsThemeColor}
+                onPress={onShare}
+              />
             </View>
           )}
         </View>

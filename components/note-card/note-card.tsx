@@ -1,6 +1,6 @@
 import Checkbox from "expo-checkbox";
 import { Image } from "expo-image";
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import {
   GestureResponderEvent,
   Pressable,
@@ -33,37 +33,55 @@ export const NoteCard = memo(
   }: NoteCardProps) => {
     const { width } = useWindowDimensions();
     const styles = useStyle(noteCardStyles);
+    const defaultThemeText = useMemo(() => {
+      if (item.imageOpacity > 0.4) {
+        return "#ffffff";
+      }
+      if (darkCardColors.includes(item.background)) {
+        return "#ffffff";
+      } else {
+        return "#000000";
+      }
+    }, [item.imageOpacity, item.background]);
     return (
       <Pressable
         onLongPress={onLongPress}
         onPress={onPress}
         style={styles.root({ width, item, containerStyle })}
       >
-        {item.background.includes("/") && (
-          <Image
-            transition={{ duration: 500 }}
-            source={{ uri: item.background }}
-            style={{
-              height: containerStyle?.height
-                ? containerStyle?.height
-                : verticalScale(250),
-              width: containerStyle?.width
-                ? containerStyle?.width
-                : width / 2 - 16,
-              borderRadius: 16,
-              position: "absolute",
-              zIndex: -1,
-              top: 0,
-            }}
-          />
+        {item.background?.includes("/") && (
+          <>
+            <View
+              style={{
+                height: containerStyle?.height || verticalScale(250),
+                width: containerStyle?.width || width / 2 - 16,
+                position: "absolute",
+                zIndex: -1,
+                top: 0,
+                borderRadius: 14,
+                backgroundColor: "#000",
+                opacity: item.imageOpacity,
+              }}
+            />
+            <Image
+              transition={{ duration: 500 }}
+              source={{ uri: item.background }}
+              style={{
+                height: containerStyle?.height || verticalScale(250),
+                width: containerStyle?.width || width / 2 - 16,
+                borderRadius: 16,
+                position: "absolute",
+                zIndex: -2,
+                top: 0,
+              }}
+            />
+          </>
         )}
         <View style={{ overflow: "hidden", flex: 1 }}>
           {item.title && (
             <Text
               style={{
-                color: darkCardColors.includes(item.background)
-                  ? "#ffffff"
-                  : "#000000",
+                color: defaultThemeText,
                 fontSize: moderateFontScale(20),
                 fontWeight: "bold",
                 fontFamily: "OpenSans",
@@ -77,7 +95,7 @@ export const NoteCard = memo(
             style={{
               fontSize: moderateFontScale(14),
               fontFamily: "OpenSans",
-              color: darkCardColors.includes(item.background) ? "#fff" : "#000",
+              color: defaultThemeText,
             }}
           >
             {item.text}

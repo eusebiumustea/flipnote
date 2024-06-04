@@ -46,7 +46,11 @@ export function useNoitication() {
             title,
             body,
             sound: true,
+            data: {
+              url: `flipnote://note/${id}`,
+            },
           },
+
           trigger: null,
         });
       }
@@ -58,6 +62,9 @@ export function useNoitication() {
             title,
             body,
             sound: true,
+            data: {
+              url: `flipnote://note/${id}`,
+            },
           },
           trigger: {
             date: reminderSplit,
@@ -71,8 +78,6 @@ export function useNoitication() {
           message: `Reminder set for ${dateTime(reminderSplit)}`,
         });
       }
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 }

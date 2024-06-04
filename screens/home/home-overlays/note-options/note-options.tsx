@@ -1,9 +1,11 @@
 import {
+  FlatList,
   Platform,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
+  VirtualizedList,
 } from "react-native";
 
 import Checkbox from "expo-checkbox";
@@ -27,7 +29,7 @@ import {
   removeEmptySpace,
   verticalScale,
 } from "../../../../utils";
-import { note, notesValue } from "../../../note";
+import { NotePreviewTypes, note, notesValue } from "../../../note";
 import { NOTES_PATH } from "../../../../constants";
 interface NoteOptionsProps {
   onDelete: () => void;
@@ -78,6 +80,7 @@ export const NoteOptions = memo(
                 JSON.stringify({
                   ...parsedNote,
                   background: "#fff",
+                  imageData: "",
                   imageOpacity: 0,
                 })
               );
@@ -102,6 +105,7 @@ export const NoteOptions = memo(
       } finally {
         onModalClose();
         loading(false);
+        onClose();
       }
     }
 
@@ -131,34 +135,37 @@ export const NoteOptions = memo(
           action={Share}
           animation="fade"
           backgroundBlur={Platform.OS === "ios"}
-          styles={{ width: "90%", borderRadius: 16 }}
+          styles={{ width: "90%", borderRadius: 16, paddingVertical: 20 }}
         >
-          <ScrollView
+          <FlatList
+            data={shareNotes}
+            keyExtractor={(_, i) => i.toString()}
+            renderItem={({ item }: { item: NotePreviewTypes }) => {
+              return (
+                <Text
+                  style={{
+                    textAlign: "center",
+                    fontSize: moderateFontScale(16),
+                    fontFamily: "OpenSans",
+                    color: theme.onPrimary,
+
+                    borderRadius: 6,
+                    padding: 5,
+                  }}
+                >
+                  {item.title.length > 0
+                    ? removeEmptySpace(item.title.substring(0, 60))
+                    : removeEmptySpace(item.text.substring(0, 60))}
+                </Text>
+              );
+            }}
             contentContainerStyle={{
               flexDirection: "column",
               alignItems: "center",
             }}
             style={{ width: "100%" }}
-          >
-            {shareNotes.map((e, i) => (
-              <Text
-                key={i}
-                style={{
-                  textAlign: "center",
-                  fontSize: moderateFontScale(16),
-                  fontFamily: "OpenSans",
-                  color: theme.onPrimary,
+          />
 
-                  borderRadius: 6,
-                  padding: 5,
-                }}
-              >
-                {e.title.length > 0
-                  ? removeEmptySpace(e.title.substring(0, 60))
-                  : removeEmptySpace(e.text.substring(0, 60))}
-              </Text>
-            ))}
-          </ScrollView>
           {/* <TextInput
             onChangeText={onChangeText}
             value={textValue}

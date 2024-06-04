@@ -10,6 +10,7 @@ export function DeleteIcon({
   onPress,
   style,
   btnProps,
+  color,
 }: IconButtonBase) {
   const theme = useTheme();
 
@@ -27,7 +28,7 @@ export function DeleteIcon({
       <Svg
         width={"100%"}
         height={"100%"}
-        fill={theme.onPrimary}
+        fill={color || theme.onPrimary}
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         {...svgProps}

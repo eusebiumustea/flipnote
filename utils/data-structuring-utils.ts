@@ -1,4 +1,3 @@
-import { ColorValue, OpaqueColorValue } from "react-native";
 import { TextNoteStyle, note } from "../screens/note";
 export function toggleArrayElement<T>(array: T[], value: T) {
   const indexOfValue = array.indexOf(value);
@@ -6,6 +5,12 @@ export function toggleArrayElement<T>(array: T[], value: T) {
     return [...array, value];
   }
   return removeElementAtIndex(array, indexOfValue);
+}
+export function formatBytes(bytes: number): string {
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  if (bytes === 1 || bytes === 0) return bytes + " Byte";
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + " " + sizes[i];
 }
 
 export function toggleState<T>(

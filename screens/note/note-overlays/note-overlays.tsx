@@ -2,11 +2,12 @@ import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 import * as Clipboard from "expo-clipboard";
+import { useMemo, useState } from "react";
 import { TextStyle } from "react-native";
-import { useToast } from "../../../components";
+import { DateTimePickerDialog, useToast } from "../../../components";
 import { fontNames } from "../../../constants";
+import { cardColors, darkCardColors } from "../../../constants/colors";
 import { useNoitication } from "../../../hooks/use-notification-handler";
-import { cardColors } from "../../../constants/colors";
 import {
   BackgroundOptions,
   ColorOptions,
@@ -14,13 +15,12 @@ import {
   FontOptions,
   FontSizeOptions,
 } from "../customize-bar";
-import { DateTimePickerDialog } from "../date-time-picker";
 import { NoteScreenHeader } from "../note-screen-header";
 import { StyleEvent, onFontColor } from "../style-events";
 import { OptionProps } from "../types";
-import { NoteOverlaysProps } from "./types";
 import { NoteSharingDialog } from "./note-sharing-dialog";
-import { useState } from "react";
+import { NoteOverlaysProps } from "./types";
+import { NoteInfo } from "./note-info";
 export function NoteOverlays({
   id,
   editNote,
@@ -37,7 +37,20 @@ export function NoteOverlays({
   sharePdf,
 }: NoteOverlaysProps) {
   const notification = useNoitication();
+  const defaultIconsTheme = useMemo(() => {
+    if (editNote.imageOpacity > 0.4) {
+      return "#ffffff";
+    }
+    if (darkCardColors.includes(editNote.background)) {
+      return "#ffffff";
+    } else {
+      return "#000000";
+    }
+  }, [editNote.imageOpacity, editNote.background]);
   const [sharingDialog, setSharingDialog] = useState(false);
+  const [showNoteInfo, setShowNoteInfo] = useState<{ x: number; y: number }>(
+    null
+  );
   const toast = useToast();
   const currentIndex = editNote.styles.indexOf(currentSelectedStyle);
   const fontFamilyFocused = currentSelectedStyle?.style?.fontFamily;
@@ -70,6 +83,14 @@ export function NoteOverlays({
   };
   return (
     <>
+      <NoteInfo
+        textLength={editNote.text.length + editNote.title.length}
+        id={id}
+        show={showNoteInfo !== null}
+        startPositionX={showNoteInfo?.x}
+        startPositionY={showNoteInfo?.y}
+        onClose={() => setShowNoteInfo(null)}
+      />
       <NoteSharingDialog
         visible={sharingDialog}
         shareImage={async () => {
@@ -126,19 +147,30 @@ export function NoteOverlays({
       />
 
       <NoteScreenHeader
-        emptyNote={noteStateIsEmpty}
         textLength={editNote.text.length + editNote.title.length}
+        onShowNoteInfo={({
+          nativeEvent: { pageX, pageY, locationX, locationY },
+        }) =>
+          setShowNoteInfo({ x: pageX - locationX + 15, y: pageY - locationY })
+        }
+        iconsThemeColor={defaultIconsTheme}
+        emptyNote={noteStateIsEmpty}
         onReminderOpen={onReminderOpen}
-        onClipboard={async () => {
+        onClipboardCopy={async ({ nativeEvent: { pageX } }) => {
           try {
             await Clipboard.setStringAsync(editNote.text);
             toast({
               message: "Copied",
+              scaleAnimation: {
+                x: pageX,
+                y: -30,
+              },
             });
           } catch (error) {
             toast({
               message: "Note is too large to copy in clipboard",
               textColor: "orange",
+              scaleAnimation: { x: pageX, y: -30 },
             });
           }
         }}
