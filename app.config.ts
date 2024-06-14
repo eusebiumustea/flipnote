@@ -25,7 +25,7 @@ export default {
         iCloudContainerEnvironment: "Production",
       },
     ],
-    "expo-font",
+    ["expo-font"],
   ],
   assetBundlePatterns: ["**/*"],
   ios: {

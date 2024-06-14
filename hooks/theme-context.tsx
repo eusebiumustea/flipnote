@@ -11,6 +11,8 @@ export function ThemeProvider({ children }: PropsWithChildren) {
         return dark;
       case "light":
         return light;
+      default:
+        return light;
     }
   }, [colorScheme]);
 

@@ -8,4 +8,6 @@ export interface HomeOverlaysProps extends NotesListProps {
   searchQuery?: string;
   setSearchQuery?: Dispatch<SetStateAction<string>>;
   hidden?: boolean;
+  badge?: boolean;
+  setBadge?: Dispatch<SetStateAction<boolean>>;
 }

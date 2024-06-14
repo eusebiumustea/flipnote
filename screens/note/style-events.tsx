@@ -5,13 +5,13 @@ import {
   replaceElementAtIndex,
   sortStyles,
 } from "../../utils";
-import { InputSelectionProps, TextNoteStyle, note } from "./types";
+import { InputSelectionProps, TextNoteStyle, Note } from "./types";
 
 export function FontColorEvent(
   currentFocused: TextNoteStyle | undefined,
   hex: string,
   selection: InputSelectionProps,
-  setEditNote: Dispatch<SetStateAction<note>>,
+  setEditNote: Dispatch<SetStateAction<Note>>,
   currentIndex: number
 ) {
   if (!currentFocused && selection.end !== selection.start) {
@@ -61,7 +61,7 @@ export function FontSizeEvent(
   currentFocused: TextNoteStyle | undefined,
   value: number,
   selection: InputSelectionProps,
-  setEditNote: Dispatch<SetStateAction<note>>,
+  setEditNote: Dispatch<SetStateAction<Note>>,
   currentIndex: number
 ) {
   if (!currentFocused && selection.end !== selection.start) {
@@ -92,7 +92,7 @@ export function StyleEvent(
   keyStyle: keyof TextStyle,
   value: string | number,
   selection: InputSelectionProps,
-  setEditNote: React.Dispatch<React.SetStateAction<note>>,
+  setEditNote: React.Dispatch<React.SetStateAction<Note>>,
   currentIndex: number
 ) {
   if (!currentFocused && selection.end !== selection.start) {
@@ -135,7 +135,7 @@ export function FontFamilyEvent(
   currentFocused: TextNoteStyle | undefined,
   e: string,
   selection: InputSelectionProps,
-  setEditNote: React.Dispatch<React.SetStateAction<note>>,
+  setEditNote: React.Dispatch<React.SetStateAction<Note>>,
   currentIndex: number
 ) {
   if (!currentFocused && selection.end !== selection.start) {
@@ -170,7 +170,7 @@ export function FontFamilyEvent(
 export function onFontColor(
   currentFocused: TextNoteStyle | undefined,
   selection: InputSelectionProps,
-  setEditNote: React.Dispatch<React.SetStateAction<note>>,
+  setEditNote: React.Dispatch<React.SetStateAction<Note>>,
   currentIndex: number
 ) {
   if (!currentFocused && selection.end !== selection.start) {

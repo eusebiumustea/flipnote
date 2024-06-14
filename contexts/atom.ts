@@ -1,27 +1,40 @@
 import { atom, selector } from "recoil";
-import { NotePreviewTypes, NotificationProp } from "../screens/note/types";
-export const EMPTY_NOTE_STATE = {
+import {
+  NotePreviewTypes,
+  NotificationProp,
+  UserdataState,
+} from "../screens/note/types";
+export const EMPTY_NOTE_STATE: NotePreviewTypes = {
   id: 0,
   title: "",
   text: "",
   isFavorite: false,
   background: "#fff",
-  styles: [],
   reminder: null,
   imageOpacity: 0,
+  contentPosition: "left",
 };
 export const notesValue = selector({
   key: "notesValue",
   get: ({ get }) => {
     return get(notesData)
-      .slice()
+      .data.slice()
       .sort((a, b) => b.id - a.id);
   },
 });
+export const notesIdentifiers = selector({
+  key: "notesId",
+  get: ({ get }) => {
+    return get(notesData).data.map((e) => e.id.toString());
+  },
+});
 
-export const notesData = atom<NotePreviewTypes[]>({
+export const notesData = atom<UserdataState>({
   key: "userdata",
-  default: [],
+  default: {
+    loading: true,
+    data: [],
+  },
 });
 
 export const receivedNotifications = atom<NotificationProp[]>({

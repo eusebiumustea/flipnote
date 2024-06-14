@@ -29,7 +29,7 @@ export function LeftAlignIcon({
         <Path
           d="M12 4.5H3m9 5H3m18 5H3m18 5H3"
           stroke={active ? theme.primary : theme.textUnselected}
-          strokeWidth={1.5}
+          strokeWidth={active ? 2 : 1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
         />

@@ -1,68 +1,34 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { useFonts } from "expo-font";
-import * as Notifications from "expo-notifications";
 import * as SplashScreen from "expo-splash-screen";
-import { useCallback, useEffect } from "react";
 import "react-native-gesture-handler";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 import { RecoilRoot } from "recoil";
-import { AppRouting } from "./app-routing";
-import { ToastProvider } from "./components";
-import { AppStorageContext } from "./contexts";
-import { LoadingDialog } from "./contexts/loading-dialog";
-import { ThemeProvider } from "./hooks";
-import { StatusBarController } from "./utils";
+import { AppRoot } from "./app-root";
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-  useEffect(() => {
-    async function registerNotifications() {
-      let { status: existingStatus } =
-        await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== "granted") {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-    }
-    registerNotifications();
-  }, []);
-  const [fontLoaded, error] = useFonts({
-    OpenSans: require("./assets/fonts/OpenSans-VariableFont_wdthwght.ttf"),
-    "OpenSans-bold": require("./assets/fonts/OpenSans-Bold.ttf"),
-    "OpenSans-italic": require("./assets/fonts/OpenSans-Italic.ttf"),
-    "OpenSans-bold-italic": require("./assets/fonts/OpenSans-BoldItalic.ttf"),
-    Tinos: require("./assets/fonts/Tinos-Regular.ttf"),
-    "Tinos-bold": require("./assets/fonts/Tinos-Bold.ttf"),
-    "Tinos-italic": require("./assets/fonts/Tinos-Italic.ttf"),
-    "Tinos-bold-italic": require("./assets/fonts/Tinos-BoldItalic.ttf"),
-  });
-  const onLayoutRootView = useCallback(async () => {
-    if (fontLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontLoaded]);
+  // const [fontsLoaded, fontError] = useFonts({
+  //   OpenSans: require("./assets/fonts/OpenSans.ttf"),
+  //   "OpenSans-Bold": require("./assets/fonts/OpenSans-Bold.ttf"),
+  //   "OpenSans-Italic": require("./assets/fonts/OpenSans-Italic.ttf"),
+  //   "OpenSans-BoldItalic": require("./assets/fonts/OpenSans-BoldItalic.ttf"),
+  //   Tinos: require("./assets/fonts/Tinos.ttf"),
+  //   "Tinos-Bold": require("./assets/fonts/Tinos-Bold.ttf"),
+  //   "Tinos-Italic": require("./assets/fonts/Tinos-Italic.ttf"),
+  //   "Tinos-BoldItalic": require("./assets/fonts/Tinos-BoldItalic.ttf"),
+  // });
 
-  if (!fontLoaded) {
-    return null;
-  }
+  // const onLayoutRootView = useCallback(async () => {
+  //   if (!fontsLoaded && !fontError) {
+  //   console.log('error');
+
+  // }
+  //   if (fontsLoaded || fontError) {
+  //     await SplashScreen.hideAsync();
+  //   }
+  // }, [fontsLoaded, fontError]);
 
   return (
     <RecoilRoot>
-      <SafeAreaProvider onLayout={onLayoutRootView}>
-        <ThemeProvider>
-          <ToastProvider>
-            <NavigationContainer>
-              <LoadingDialog>
-                <AppStorageContext>
-                  <StatusBarController />
-                  <AppRouting />
-                </AppStorageContext>
-              </LoadingDialog>
-            </NavigationContainer>
-          </ToastProvider>
-        </ThemeProvider>
-      </SafeAreaProvider>
+      <AppRoot />
     </RecoilRoot>
   );
 }

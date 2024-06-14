@@ -2,12 +2,11 @@ import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
 import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
 import { Alert } from "react-native";
-import { useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { useToast } from "../components";
 import { NOTES_PATH } from "../constants";
-import { notesValue } from "../screens";
+import { notesData } from "../screens";
 import { useLoading } from "./use-loading-dialog";
-import { useRequest } from "./use-request";
 
 export function useHomeUtils(
   searchQuery: string,
@@ -18,10 +17,9 @@ export function useHomeUtils(
   setFavorite: Dispatch<SetStateAction<boolean>>,
   setSelected: Dispatch<SetStateAction<string[]>>
 ) {
-  const notes = useRecoilValue(notesValue);
+  const [notes, setNotes] = useRecoilState(notesData);
   const toast = useToast();
-  const loading = useLoading();
-  const { syncState } = useRequest();
+  const setLoading = useLoading();
   function deleteNotes() {
     const noteCount = optionsSelection.length;
     const plural = noteCount === 1 ? "" : "s";
@@ -35,7 +33,7 @@ export function useHomeUtils(
           style: "destructive",
           onPress: async () => {
             try {
-              loading("Deleting...");
+              setLoading("Deleting...");
               await Promise.all(
                 optionsSelection.map(async (id) => {
                   await FileSystem.deleteAsync(`${NOTES_PATH}/${id}`, {
@@ -46,12 +44,15 @@ export function useHomeUtils(
                   );
                 })
               );
-              await syncState();
+              setNotes((prev) => ({
+                ...prev,
+                data: prev.data.filter((e) => !optionsSelection.includes(e.id)),
+              }));
               setOptionsSelection([]);
-              loading(false);
             } catch (_) {
               toast({ message: "Can't delete notes", textColor: "red" });
-              loading(false);
+            } finally {
+              setLoading(false);
             }
           },
         },
@@ -59,7 +60,7 @@ export function useHomeUtils(
     );
   }
   const searchFilter = useMemo(() => {
-    const searchFiltered = notes.filter((e) => {
+    const searchFiltered = notes.data.filter((e) => {
       return (
         e.text.includes(searchQuery.toLowerCase()) ||
         e.title.includes(searchQuery.toLowerCase())
@@ -69,8 +70,8 @@ export function useHomeUtils(
     if (searchQuery) {
       return searchFiltered;
     }
-    return notes;
-  }, [notes, searchQuery]);
+    return notes.data;
+  }, [notes.data, searchQuery]);
   const selectionFiltered = useMemo(() => {
     const newData = searchFilter.filter((e) => selected.includes(e.title));
     if (selected.length > 0) {

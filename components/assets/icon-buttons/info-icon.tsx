@@ -1,9 +1,9 @@
 import * as React from "react";
-import { TouchableOpacity } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useTheme } from "../../../hooks";
 import { moderateScale, verticalScale } from "../../../utils";
 import { IconButtonBase } from "./types";
+import { TouchableOpacity } from "react-native";
 
 export function InfoIcon({
   svgProps,

@@ -1,39 +1,50 @@
-import { Dispatch, SetStateAction, useRef } from "react";
+import { Dispatch, LegacyRef, SetStateAction, forwardRef, useRef } from "react";
 
 import { TextInput, TextInputProps } from "react-native";
 import { contentLengthLimit } from "../../constants";
 import { useTheme } from "../../hooks";
-import { InputSelectionProps, note } from "./types";
+import { InputSelectionProps, Note } from "./types";
 type NoteContentInputProps = {
-  setEditNote: Dispatch<SetStateAction<note>>;
-  editNote: note;
+  setEditNote: Dispatch<SetStateAction<Note>>;
+  editNote: Note;
   setInputSelection: Dispatch<SetStateAction<InputSelectionProps>>;
   inputProps: TextInputProps;
+  inputSelection: InputSelectionProps;
 };
 export const NoteContentInput = ({
   editNote,
   setEditNote,
   setInputSelection,
   inputProps,
+  inputSelection,
 }: NoteContentInputProps) => {
   const theme = useTheme();
   let selectionRef = useRef<InputSelectionProps>({
     start: 0,
     end: 0,
   }).current;
-  const inputRef = useRef<TextInput>(null);
+
   return (
     <TextInput
-      ref={inputRef}
-      onSelectionChange={({ nativeEvent: { selection } }) => {
+      onSelectionChange={(e) => {
+        const {
+          nativeEvent: { selection },
+        } = e;
+
         selectionRef.start = selection.start;
         selectionRef.end = selection.end;
-        setInputSelection(selection);
+        setInputSelection((prev) => ({
+          ...prev,
+          start: selection.start,
+          end: selection.end,
+        }));
       }}
       importantForAutofill="no"
       placeholderTextColor={theme.placeholder}
       scrollEnabled={false}
       autoCorrect={false}
+      selection={inputSelection}
+      style={editNote.generalStyles}
       cursorColor={"#FFCB09"}
       spellCheck={false}
       autoComplete="off"
@@ -46,6 +57,7 @@ export const NoteContentInput = ({
         const textSelected = selectionRef.end > selectionRef.start + 1;
         const increment = text.length > editNote.text.length;
         const decrement = text.length < editNote.text.length;
+
         setEditNote((prev) => ({
           ...prev,
           text,

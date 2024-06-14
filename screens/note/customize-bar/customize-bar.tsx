@@ -1,11 +1,11 @@
 import { useKeyboard } from "@react-native-community/hooks";
+import { useCardAnimation } from "@react-navigation/stack";
 import { MotiView } from "moti";
 import {
   Dispatch,
   PropsWithChildren,
   ReactNode,
   SetStateAction,
-  useCallback,
   useEffect,
   useState,
 } from "react";
@@ -20,6 +20,7 @@ import {
 } from "react-native";
 import { Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useToast } from "../../../components";
 import {
   BackgroundIcon,
   BoldIcon,
@@ -41,10 +42,8 @@ import {
   toggleState,
   verticalScale,
 } from "../../../utils";
-import { InputSelectionProps, note } from "../types";
+import { InputSelectionProps, Note } from "../types";
 import { OptionContainer } from "./option-container";
-import { useToast } from "../../../components";
-import { useCardAnimation } from "@react-navigation/stack";
 interface CustomizeBarProps {
   boldFocused?: boolean;
   italicFocused?: boolean;
@@ -61,7 +60,7 @@ interface CustomizeBarProps {
   focusedColor?: ColorValue | string;
   onUndo?: () => void;
   onRedo?: () => void;
-  setEditNote?: Dispatch<SetStateAction<note>>;
+  setEditNote?: Dispatch<SetStateAction<Note>>;
   contentPosition?: "center" | "left" | "right";
   isImgBg: boolean;
   currentIndex: number;
@@ -78,6 +77,7 @@ export function CustomizeBar({
   onUnderline,
   fontColorOptions,
   onFontColor,
+
   selection,
   focusedColor,
   fontSizeOptions,
@@ -97,22 +97,21 @@ export function CustomizeBar({
       case "background":
         return isImgBg ? 100 : 60;
       case "font-color":
-        return 160;
+        return focusedColor ? 160 : 116;
       case "font-size":
-        return 100;
+        return 60;
       default:
         return 60;
     }
   }
+
   const { bottom } = useSafeAreaInsets();
   useEffect(() => {
     if (selection.end === selection.start && showOption) {
       setShowOption(null);
     }
   }, [selection]);
-  const { width } = useWindowDimensions();
 
-  const toast = useToast();
   const { current } = useCardAnimation();
   return (
     <Animated.View
@@ -121,8 +120,7 @@ export function CustomizeBar({
 
         position: "absolute",
 
-        alignSelf: "center",
-        width: width - 16,
+        paddingHorizontal: 12,
         bottom: 0,
       }}
     >
@@ -152,24 +150,22 @@ export function CustomizeBar({
         <OptionContainer
           children={backgroundOptions}
           show={showOption === "background"}
-          scroll={false}
         />
 
         <OptionContainer children={fontOptions} show={showOption === "font"} />
 
         <OptionContainer
-          scroll={false}
           children={fontColorOptions}
           show={showOption === "font-color"}
         />
 
         <OptionContainer
-          scroll={false}
           children={fontSizeOptions}
           show={showOption === "font-size"}
         />
 
         <ScrollView
+          showsHorizontalScrollIndicator={false}
           decelerationRate={"fast"}
           contentContainerStyle={{
             padding: 12,
@@ -209,48 +205,46 @@ export function CustomizeBar({
           )}
 
           <BoldIcon active={boldFocused} onPress={onBold} />
-
           <ItalicIcon active={italicFocused} onPress={onItalic} />
-
           <UnderlineIcon active={underLinedFocused} onPress={onUnderline} />
-
           <TextIcon
             onPress={() => {
-              if (selection.end !== selection.start) {
-                setShowOption(toggleState(null, "font"));
-              } else {
-                toast({
-                  message: "Select text",
-                  duration: 400,
-                });
-              }
+              setShowOption(toggleState(null, "font"));
+              // if (selection.end !== selection.start) {
+              //   setShowOption(toggleState(null, "font"));
+              // } else {
+              //   toast({
+              //     message: "Select text",
+              //     duration: 400,
+              //   });
+              // }
             }}
           />
-
           <FontColorIcon
             color={focusedColor}
             onPress={() => {
-              if (selection.end !== selection.start) {
-                setShowOption(toggleState(null, "font-color", onFontColor));
-              } else {
-                toast({
-                  message: "Select text",
-                  duration: 400,
-                });
-              }
+              setShowOption(toggleState(null, "font-color"));
+              // if (selection.end !== selection.start) {
+              //   setShowOption(toggleState(null, "font-color"));
+              // } else {
+              //   toast({
+              //     message: "Select text",
+              //     duration: 400,
+              //   });
+              // }
             }}
           />
-
           <FormatSizeIcon
             onPress={() => {
-              if (selection.end !== selection.start) {
-                setShowOption(toggleState(null, "font-size"));
-              } else {
-                toast({
-                  message: "Select text",
-                  duration: 400,
-                });
-              }
+              setShowOption(toggleState(null, "font-size"));
+              // if (selection.end !== selection.start) {
+              //   setShowOption(toggleState(null, "font-size"));
+              // } else {
+              //   toast({
+              //     message: "Select text",
+              //     duration: 400,
+              //   });
+              // }
             }}
           />
 

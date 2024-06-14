@@ -29,7 +29,7 @@ export function ItalicIcon({
         <Path
           d="M9.62 3h9.25M5.12 21h9.25m-.12-18l-4.5 18"
           stroke={active ? theme.primary : theme.textUnselected}
-          strokeWidth={1.5}
+          strokeWidth={active ? 2 : 1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
         />

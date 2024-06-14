@@ -15,17 +15,20 @@ interface ButtonProps extends PressableProps {
 export function Button({ colors, children, ...pressableProps }: ButtonProps) {
   const theme = useTheme();
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-  // const focusedBg = colors ? colors.focusedColor : theme.onPrimary;
-  // const bg = colors ? colors.color : theme.primary;
-  // const focusedTextColor = colors ? colors.textColorFocused : theme.primary;
-  // const textColor = colors ? colors.textColor : theme.onPrimary;
+  const focusedBg = colors ? colors.focusedColor : theme.onPrimary;
+  const bg = colors ? colors.color : theme.primary;
+  const focusedTextColor = colors ? colors.textColorFocused : theme.primary;
+  const textColor = colors ? colors.textColor : theme.onPrimary;
   return (
     <AnimatedPressable {...pressableProps}>
       {({ pressed }) => {
         return (
           <MotiView
             transition={
-              { type: "timing", borderRadius: { duration: 100 } } as any
+              {
+                type: "timing",
+                duration: 100,
+              } as any
             }
             style={{
               paddingHorizontal: 20,
@@ -35,15 +38,22 @@ export function Button({ colors, children, ...pressableProps }: ButtonProps) {
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.3,
               shadowRadius: 10,
+              borderRadius: 16,
             }}
-            from={{ backgroundColor: theme.primary, borderRadius: 16 }}
+            from={{
+              backgroundColor: theme.primary,
+
+              scale: 1,
+            }}
             animate={{
-              // backgroundColor: pressed ? focusedBg : bg,
-              borderRadius: pressed ? 6 : 24,
-              backgroundColor: pressed ? theme.yellowAccent : theme.primary,
+              backgroundColor: pressed ? focusedBg : bg,
+
+              scale: pressed ? 0.9 : 1,
             }}
           >
-            <Text style={{ color: theme.onPrimary }}>{children}</Text>
+            <Text style={{ color: pressed ? focusedTextColor : textColor }}>
+              {children}
+            </Text>
           </MotiView>
         );
       }}

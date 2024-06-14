@@ -1,5 +1,5 @@
 import { BlurView } from "expo-blur";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { Modal, Text, View, useWindowDimensions } from "react-native";
 import { useTheme } from "../../hooks";
 import { moderateFontScale } from "../../utils";
@@ -9,17 +9,21 @@ import { DialogProps } from "./types";
 export const Dialog = memo(
   ({
     onCencel,
-    action,
+
     visible,
     title,
     children,
-    actionLabel,
+    buttons,
     animation = "none",
     statusBarTranslucent = false,
     styles,
     backgroundBlur = false,
+    buttonsContainerStyle,
   }: DialogProps) => {
     const theme = useTheme();
+    const filteredButtons = useMemo(() => {
+      return buttons.filter((btn) => !btn.hidden);
+    }, [buttons]);
     const { height } = useWindowDimensions();
     return (
       <Modal
@@ -106,10 +110,15 @@ export const Dialog = memo(
                 bottom: 0,
                 right: 0,
                 margin: 10,
+                ...buttonsContainerStyle,
               }}
             >
               <Button onPress={onCencel}>Cencel</Button>
-              <Button onPress={action}>{actionLabel}</Button>
+              {filteredButtons.map(({ title, onPress }, i) => (
+                <Button key={i} onPress={onPress}>
+                  {title}
+                </Button>
+              ))}
             </View>
           </View>
         </View>

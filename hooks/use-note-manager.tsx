@@ -2,12 +2,12 @@ import * as FileSystem from "expo-file-system";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useToast } from "../components";
 import { NOTES_PATH } from "../constants";
-import { note } from "../screens";
+import { Note } from "../screens";
 import { useRequest } from "./use-request";
 export function useNoteStorage(
   id: number,
-  editNote: note,
-  setEditNote: Dispatch<SetStateAction<note>>,
+  editNote: Note,
+  setEditNote: Dispatch<SetStateAction<Note>>,
   setLoading: Dispatch<SetStateAction<boolean>>
 ) {
   const toast = useToast();
@@ -15,7 +15,7 @@ export function useNoteStorage(
   const noteStateIsEmpty =
     editNote.text.length === 0 && editNote.title.length === 0;
   const [preventDelete, setPreventDelete] = useState(true);
-  const { syncState } = useRequest();
+  const { updateNote } = useRequest();
   useEffect(() => {
     async function getData() {
       try {
@@ -27,7 +27,7 @@ export function useNoteStorage(
           return;
         }
         const data = await FileSystem.readAsStringAsync(notePath);
-        const content: note = JSON.parse(data);
+        const content: Note = JSON.parse(data);
         setTimeout(() => {
           setEditNote(content);
           setLoading(false);
@@ -57,7 +57,7 @@ export function useNoteStorage(
   }, [preventDelete, editNote]);
   useEffect(() => {
     return () => {
-      syncState();
+      updateNote(id);
     };
   }, []);
 }

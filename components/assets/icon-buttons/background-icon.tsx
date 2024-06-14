@@ -9,6 +9,7 @@ export function BackgroundIcon({
   svgProps,
   onPress,
   btnProps,
+  color,
 }: IconButtonBase) {
   const theme = useTheme();
   return (
@@ -25,7 +26,7 @@ export function BackgroundIcon({
         width={"100%"}
         height={"100%"}
         viewBox="0 0 24 24"
-        fill={theme.primary}
+        fill={color || theme.primary}
         {...svgProps}
       >
         <Path d="M8.5 13.5l2.5 3 3.5-4.5 4.5 6H5m16 1V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2z" />

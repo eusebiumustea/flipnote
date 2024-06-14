@@ -8,7 +8,6 @@ import {
 import { ActivityIndicator, Modal, View } from "react-native";
 import { Text } from "react-native-fast-text";
 import { moderateFontScale } from "../utils";
-
 export const LoadingContext =
   createContext<Dispatch<SetStateAction<boolean | string>>>(null);
 
@@ -17,24 +16,27 @@ export function LoadingDialog({ children }: PropsWithChildren) {
 
   return (
     <LoadingContext.Provider value={setLoading}>
-      {loading !== false && (
-        <Modal transparent animationType="fade">
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "#fff",
-              opacity: 0.7,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <ActivityIndicator size={"large"} />
-            <Text style={{ fontSize: moderateFontScale(17) }}>
-              {loading !== true ? loading : "Loading..."}
-            </Text>
-          </View>
-        </Modal>
-      )}
+      <Modal
+        visible={loading !== (false as boolean)}
+        transparent
+        animationType="fade"
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "#fff",
+            opacity: 0.7,
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 12,
+          }}
+        >
+          <ActivityIndicator size={"large"} />
+          <Text style={{ fontSize: moderateFontScale(17) }}>
+            {loading !== true ? loading : "Loading..."}
+          </Text>
+        </View>
+      </Modal>
 
       {children}
     </LoadingContext.Provider>

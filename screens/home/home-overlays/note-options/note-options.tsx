@@ -1,18 +1,8 @@
-import {
-  FlatList,
-  Platform,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-  VirtualizedList,
-} from "react-native";
+import { FlatList, Platform, Text, TouchableOpacity, View } from "react-native";
 
 import Checkbox from "expo-checkbox";
-import * as FileSystem from "expo-file-system";
-import * as Sharing from "expo-sharing";
-import JSZip from "jszip";
 import { memo, useMemo } from "react";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilValue } from "recoil";
 import { Dialog } from "../../../../components";
@@ -22,15 +12,14 @@ import {
   ExportIcon,
 } from "../../../../components/assets";
 import { useTheme } from "../../../../hooks";
-import { useLoading } from "../../../../hooks/use-loading-dialog";
+import { useStorageUtils } from "../../../../hooks/use-storage-utils";
 import {
   moderateFontScale,
   moderateScale,
   removeEmptySpace,
   verticalScale,
 } from "../../../../utils";
-import { NotePreviewTypes, note, notesValue } from "../../../note";
-import { NOTES_PATH } from "../../../../constants";
+import { NotePreviewTypes, notesValue } from "../../../note";
 interface NoteOptionsProps {
   onDelete: () => void;
   onClose: () => void;
@@ -55,7 +44,7 @@ export const NoteOptions = memo(
     onModalClose,
     selectedNotes,
   }: NoteOptionsProps) => {
-    const loading = useLoading();
+    const { Share, Save } = useStorageUtils();
     const theme = useTheme();
     const { top } = useSafeAreaInsets();
     const notes = useRecoilValue(notesValue);
@@ -63,54 +52,9 @@ export const NoteOptions = memo(
       return notes.filter((e) => selectedNotes.includes(e.id));
     }, [selectedNotes, notes]);
 
-    async function Share() {
-      try {
-        loading(true);
-        const output = `${FileSystem.cacheDirectory}flipnotebackup.zip`;
-        const zip = new JSZip();
-        await Promise.all(
-          shareNotes.map(async (note) => {
-            const noteStorageContent = await FileSystem.readAsStringAsync(
-              `${NOTES_PATH}/${note.id}`
-            );
-            const parsedNote: note = JSON.parse(noteStorageContent);
-            if (parsedNote.background.includes("/")) {
-              zip.file(
-                `${note.id}`,
-                JSON.stringify({
-                  ...parsedNote,
-                  background: "#fff",
-                  imageData: "",
-                  imageOpacity: 0,
-                })
-              );
-              return;
-            }
-            zip.file(`${note.id}`, noteStorageContent);
-          })
-        );
-        const zipContent = await zip.generateAsync({
-          type: "base64",
-          compression: "STORE",
-        });
-
-        await FileSystem.writeAsStringAsync(output, zipContent, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-
-        await Sharing.shareAsync(output, {
-          mimeType: "application/zip",
-        });
-      } catch (error) {
-      } finally {
-        onModalClose();
-        loading(false);
-        onClose();
-      }
-    }
-
     return (
-      <View
+      <Animated.View
+        entering={FadeIn.springify(1000)}
         style={{
           width: "100%",
           justifyContent: "space-between",
@@ -126,13 +70,19 @@ export const NoteOptions = memo(
         }}
       >
         <Dialog
-          actionLabel={"Share"}
           title={`Share selected ${
             shareNotes.length === 1 ? "note" : "notes"
           } as zip archive format?`}
           visible={showModal}
           onCencel={onModalClose}
-          action={Share}
+          buttons={[
+            {
+              title: "Save",
+              onPress: () => Save(shareNotes, "flipnotebackup"),
+              hidden: Platform.OS === "ios",
+            },
+            { title: "Share", onPress: () => Share(shareNotes) },
+          ]}
           animation="fade"
           backgroundBlur={Platform.OS === "ios"}
           styles={{ width: "90%", borderRadius: 16, paddingVertical: 20 }}
@@ -236,7 +186,7 @@ export const NoteOptions = memo(
           <ExportIcon onPress={onModalOpen} />
           <DeleteIcon onPress={onDelete} />
         </View>
-      </View>
+      </Animated.View>
     );
   }
 );

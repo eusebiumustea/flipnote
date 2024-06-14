@@ -21,6 +21,7 @@ import { OptionProps } from "../types";
 import { NoteSharingDialog } from "./note-sharing-dialog";
 import { NoteOverlaysProps } from "./types";
 import { NoteInfo } from "./note-info";
+import { toggleObjectKeyValue } from "../../../utils";
 export function NoteOverlays({
   id,
   editNote,
@@ -31,45 +32,42 @@ export function NoteOverlays({
   currentSelectedStyle,
   selection,
   reminderDialog,
-
+  defaultContentTheme,
   setReminderDialog,
   shareImage,
   sharePdf,
+  saveImage,
+  savePdf,
 }: NoteOverlaysProps) {
   const notification = useNoitication();
-  const defaultIconsTheme = useMemo(() => {
-    if (editNote.imageOpacity > 0.4) {
-      return "#ffffff";
-    }
-    if (darkCardColors.includes(editNote.background)) {
-      return "#ffffff";
-    } else {
-      return "#000000";
-    }
-  }, [editNote.imageOpacity, editNote.background]);
+
   const [sharingDialog, setSharingDialog] = useState(false);
   const [showNoteInfo, setShowNoteInfo] = useState<{ x: number; y: number }>(
     null
   );
   const toast = useToast();
   const currentIndex = editNote.styles.indexOf(currentSelectedStyle);
-  const fontFamilyFocused = currentSelectedStyle?.style?.fontFamily;
+  const fontFamilyFocused =
+    currentSelectedStyle?.style?.fontFamily ||
+    editNote.generalStyles?.fontFamily;
   const noteStateIsEmpty =
     editNote.text.length === 0 && editNote.title.length === 0;
   const navigation = useNavigation<StackNavigationHelpers>();
   function setStyleEvent(key: keyof TextStyle, value: string) {
-    if (selection.end === selection.start) {
-      toast({ message: "Select text", duration: 400 });
-      return;
+    if (selection.end > selection.start && !editNote.generalStyles[key]) {
+      return StyleEvent(
+        currentSelectedStyle,
+        key,
+        value,
+        selection,
+        setEditNote,
+        currentIndex
+      );
     }
-    return StyleEvent(
-      currentSelectedStyle,
-      key,
-      value,
-      selection,
-      setEditNote,
-      currentIndex
-    );
+    setEditNote((prev) => ({
+      ...prev,
+      generalStyles: toggleObjectKeyValue(prev.generalStyles, key, value),
+    }));
   }
   const optionsProps: OptionProps = {
     selection,
@@ -80,7 +78,9 @@ export function NoteOverlays({
     editNote,
     fontFamilyFocused,
     fonts: fontNames,
+    defaultTextColor: defaultContentTheme,
   };
+  const generalStyles = editNote.generalStyles;
   return (
     <>
       <NoteInfo
@@ -93,14 +93,10 @@ export function NoteOverlays({
       />
       <NoteSharingDialog
         visible={sharingDialog}
-        shareImage={async () => {
-          await shareImage();
-          setSharingDialog(false);
-        }}
-        sharePdf={async () => {
-          await sharePdf();
-          setSharingDialog(false);
-        }}
+        shareImage={shareImage}
+        sharePdf={sharePdf}
+        saveImage={saveImage}
+        savePdf={savePdf}
         onCencel={() => setSharingDialog(false)}
       />
       <DateTimePickerDialog
@@ -147,13 +143,16 @@ export function NoteOverlays({
       />
 
       <NoteScreenHeader
+        background={editNote.background}
         textLength={editNote.text.length + editNote.title.length}
         onShowNoteInfo={({
           nativeEvent: { pageX, pageY, locationX, locationY },
         }) =>
           setShowNoteInfo({ x: pageX - locationX + 15, y: pageY - locationY })
         }
-        iconsThemeColor={defaultIconsTheme}
+        iconsThemeColor={
+          editNote.background.includes("/") ? "#fff" : defaultContentTheme
+        }
         emptyNote={noteStateIsEmpty}
         onReminderOpen={onReminderOpen}
         onClipboardCopy={async ({ nativeEvent: { pageX } }) => {
@@ -190,24 +189,33 @@ export function NoteOverlays({
         isImgBg={editNote.background.includes("/")}
         contentPosition={editNote.contentPosition}
         setEditNote={setEditNote}
-        focusedColor={currentSelectedStyle?.style?.color}
+        focusedColor={
+          currentSelectedStyle?.style?.color || generalStyles?.color
+        }
         selection={selection}
-        italicFocused={currentSelectedStyle?.style?.fontStyle === "italic"}
+        italicFocused={
+          generalStyles?.fontStyle === "italic" ||
+          currentSelectedStyle?.style?.fontStyle === "italic"
+        }
         onItalic={() => setStyleEvent("fontStyle", "italic")}
         onBold={() => setStyleEvent("fontWeight", "bold")}
-        boldFocused={currentSelectedStyle?.style?.fontWeight === "bold"}
+        boldFocused={
+          generalStyles?.fontWeight === "bold" ||
+          currentSelectedStyle?.style?.fontWeight === "bold"
+        }
         onUnderline={() => setStyleEvent("textDecorationLine", "underline")}
         underLinedFocused={
+          generalStyles?.textDecorationLine === "underline" ||
           currentSelectedStyle?.style?.textDecorationLine === "underline"
         }
-        onFontColor={() =>
-          onFontColor(
-            currentSelectedStyle,
-            selection,
-            setEditNote,
-            currentIndex
-          )
-        }
+        // onFontColor={() =>
+        //   onFontColor(
+        //     currentSelectedStyle,
+        //     selection,
+        //     setEditNote,
+        //     currentIndex
+        //   )
+        // }
         fontSizeOptions={<FontSizeOptions {...optionsProps} />}
         fontColorOptions={<ColorOptions {...optionsProps} />}
         backgroundOptions={<BackgroundOptions {...optionsProps} />}

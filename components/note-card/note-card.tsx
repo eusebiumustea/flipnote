@@ -4,18 +4,18 @@ import React, { memo, useMemo } from "react";
 import {
   GestureResponderEvent,
   Pressable,
-  Text,
   View,
   ViewStyle,
   useWindowDimensions,
 } from "react-native";
+import { Text } from "react-native-fast-text";
 import { darkCardColors } from "../../constants/colors";
 import { useStyle } from "../../hooks/use-style";
 import { NotePreviewTypes } from "../../screens/note";
 import { moderateFontScale, verticalScale } from "../../utils";
 import { noteCardStyles } from "./styles";
 interface NoteCardProps {
-  item: NotePreviewTypes;
+  item?: NotePreviewTypes;
   onPress?: (event: GestureResponderEvent) => void;
   onLongPress?: () => void;
   selectedForOptions?: boolean;
@@ -64,7 +64,7 @@ export const NoteCard = memo(
               }}
             />
             <Image
-              transition={{ duration: 500 }}
+              transition={{ duration: 100 }}
               source={{ uri: item.background }}
               style={{
                 height: containerStyle?.height || verticalScale(250),
@@ -77,30 +77,31 @@ export const NoteCard = memo(
             />
           </>
         )}
-        <View style={{ overflow: "hidden", flex: 1 }}>
-          {item.title && (
-            <Text
-              style={{
-                color: defaultThemeText,
-                fontSize: moderateFontScale(20),
-                fontWeight: "bold",
-                fontFamily: "OpenSans",
-                maxHeight: verticalScale(250),
-              }}
-            >
-              {item.title}
-            </Text>
-          )}
+
+        {item.title && (
           <Text
             style={{
-              fontSize: moderateFontScale(14),
-              fontFamily: "OpenSans",
               color: defaultThemeText,
+              fontSize: moderateFontScale(22),
+              fontWeight: "bold",
+              fontFamily: "OpenSans",
+              maxHeight: verticalScale(250),
+              textAlign: item.contentPosition,
             }}
           >
-            {item.text}
+            {item.title}
           </Text>
-        </View>
+        )}
+        <Text
+          style={{
+            fontSize: moderateFontScale(17),
+            fontFamily: "OpenSans",
+            color: defaultThemeText,
+            textAlign: item.contentPosition,
+          }}
+        >
+          {item.text}
+        </Text>
 
         {options && (
           <Checkbox

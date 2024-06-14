@@ -1,21 +1,15 @@
-import * as Notifications from "expo-notifications";
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { Animated, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRecoilState } from "recoil";
 
 import { InboxIcon, MenuIcon, SearchIcon } from "../../../../components/assets";
-import { receivedNotifications } from "../../../../contexts/atom";
 import { useTheme } from "../../../../hooks";
-import { useRequest } from "../../../../hooks/use-request";
 import {
   moderateFontScale,
   moderateScale,
   verticalScale,
 } from "../../../../utils";
-import { removeReceivedReminder } from "../../../inbox/upcoming-reminders";
 import { HeaderProps } from "./types";
-import { ZoomIn } from "react-native-reanimated";
 export const Header = memo(
   ({
     searchValue,
@@ -23,48 +17,18 @@ export const Header = memo(
     scrollY,
     onInboxOpen,
     onShowOptions,
+    setBadge,
+    badge,
   }: HeaderProps) => {
+    const opacity = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+      Animated.spring(opacity, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    }, []);
     const theme = useTheme();
     const { top } = useSafeAreaInsets();
-    const [badge, setBadge] = useState(false);
-
-    const [notifications, setNotifications] = useRecoilState(
-      receivedNotifications
-    );
-
-    useEffect(() => {
-      const listen = Notifications.addNotificationReceivedListener(
-        async (e) => {
-          try {
-          } catch (error) {}
-          setNotifications((data) => [
-            ...data,
-            {
-              content: e.request.content.body,
-              time: new Date(e.date),
-              title: e.request.content.title,
-            },
-          ]);
-          if (!badge) {
-            setBadge(true);
-            setTimeout(() => setBadge(false), 120000);
-          }
-
-          await removeReceivedReminder(+e.request.identifier);
-          await syncState();
-        }
-      );
-
-      return () => {
-        listen.remove();
-      };
-    }, []);
-    useEffect(() => {
-      if (notifications.length === 0 && badge) {
-        setBadge(false);
-      }
-    }, [notifications]);
-    const { syncState } = useRequest();
 
     return (
       <Animated.View
@@ -76,6 +40,7 @@ export const Header = memo(
           backgroundColor: theme.background,
           top: 0,
           paddingTop: top,
+          opacity,
           transform: [
             {
               translateY: Animated.diffClamp(scrollY, 0, 160).interpolate({

@@ -4,40 +4,34 @@ export interface TextNoteStyle {
   interval?: InputSelectionProps;
   style?: TextStyle;
 }
-export interface ContentStyled {
-  text: string;
-  styles: TextStyle;
-}
-export type Content = string | ContentStyled[];
 export interface ReminderProps {
   date: Date;
   time: Date;
 }
 export interface OptionProps {
-  setEditNote?: Dispatch<SetStateAction<note>>;
+  setEditNote?: Dispatch<SetStateAction<Note>>;
   colors?: string[];
-  editNote?: note;
+  editNote?: Note;
   fonts?: string[];
   currentSelectedStyle?: TextNoteStyle;
   fontFamilyFocused?: string;
   currentIndex?: number;
   selection?: InputSelectionProps;
+  defaultTextColor?: string;
 }
-export interface ElementPositionTypes {
-  relativeY: number;
-  relativeX: number;
-}
-export interface note {
+
+export interface Note {
   id: number;
   title: string;
   text: string;
   isFavorite: boolean;
   background: string;
   styles: TextNoteStyle[];
+  generalStyles: TextStyle;
   reminder: number | null;
   contentPosition: "center" | "left" | "right";
-  imageOpacity?: number;
-  imageData?: string;
+  imageOpacity: number;
+  imageData: string;
 }
 export interface NotePreviewTypes {
   id: number;
@@ -47,14 +41,15 @@ export interface NotePreviewTypes {
   background: string;
   reminder: number | null;
   imageOpacity: number;
+  contentPosition: "center" | "left" | "right";
 }
 export interface InputSelectionProps {
   start: number;
   end: number;
 }
 export interface UserdataState {
-  loading?: boolean;
-  data: note[] | null;
+  loading: boolean;
+  data: NotePreviewTypes[];
 }
 export type NotificationProp = {
   title: string;
@@ -64,4 +59,3 @@ export type NotificationProp = {
 export interface NotificationState {
   data: NotificationProp[];
 }
-export interface StyleEventProps {}

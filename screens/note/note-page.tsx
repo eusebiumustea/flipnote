@@ -1,29 +1,20 @@
-import { NavigatorScreenParams, useNavigation } from "@react-navigation/native";
+import { NavigatorScreenParams } from "@react-navigation/native";
 import { useCardAnimation } from "@react-navigation/stack";
-import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
-import { deleteAsync } from "expo-file-system";
 import { Image } from "expo-image";
-
-import * as Print from "expo-print";
-import { shareAsync } from "expo-sharing";
 import { MotiView } from "moti";
 import { memo, useMemo, useRef, useState } from "react";
 import {
   Animated,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  TextInput,
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
-import {
-  useEditNoteContent,
-  useHTMLRenderedContent,
-  useTheme,
-} from "../../hooks";
-import { useLoading } from "../../hooks/use-loading-dialog";
+import { darkCardColors } from "../../constants";
+import { useEditNoteContent, useTheme } from "../../hooks";
 import { useNoteStorage } from "../../hooks/use-note-manager";
 import { useNoteUtils } from "../../hooks/use-note-utills";
 import { verticalScale } from "../../utils";
@@ -31,7 +22,7 @@ import { NoteContentInput } from "./note-content-input";
 import { NoteOverlays } from "./note-overlays";
 import { LoadingItem } from "./note-overlays/loading-item";
 import { NoteTitleInput } from "./note-title-input";
-import { InputSelectionProps, ReminderProps, note } from "./types";
+import { InputSelectionProps, Note, ReminderProps } from "./types";
 interface ParamsProps {
   id: number;
   isCreating: boolean;
@@ -41,22 +32,23 @@ type NotePageProps = {
   route: NavigatorScreenParams<{}>;
 };
 export const NotePage = memo(({ route }: NotePageProps) => {
-  const loading = useLoading();
   const theme = useTheme();
   const { id, isCreating, background }: ParamsProps = route.params;
   const [loadingProgress, setLoadingProgress] = useState(!isCreating);
-  const [editNote, setEditNote] = useState<note>({
+  const [editNote, setEditNote] = useState<Note>({
     id,
     title: "",
     text: "",
     isFavorite: false,
     background: "#fff",
     styles: [],
+    generalStyles: {},
     reminder: null,
     contentPosition: "left",
     imageOpacity: 0,
     imageData: "",
   });
+
   useNoteStorage(id, editNote, setEditNote, setLoadingProgress);
   const [reminder, setReminder] = useState<ReminderProps>({
     date: new Date(),
@@ -67,75 +59,28 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     end: 0,
   });
   const [reminderDialog, setReminderDialog] = useState(false);
-  const { currentSelectedStyle, openReminder } = useNoteUtils(
-    id,
-    selection,
-    editNote,
-    setEditNote,
-    setReminderDialog
-  );
-  const nav = useNavigation<StackNavigationHelpers>();
   const viewShotRef = useRef<ViewShot>(null);
   const { top } = useSafeAreaInsets();
   const [capturing, setCapturing] = useState(false);
   const [showTitle, setShowTitle] = useState(true);
+  const {
+    currentSelectedStyle,
+    openReminder,
 
-  const html = useHTMLRenderedContent(
-    editNote.styles,
-    editNote.text,
-    editNote.title,
-    editNote.background,
-    editNote.imageOpacity,
-    editNote.contentPosition,
-    editNote.imageData
+    SaveImage,
+    SavePDF,
+    ShareImage,
+    SharePDF,
+  } = useNoteUtils(
+    id,
+    selection,
+    editNote,
+    setEditNote,
+    setReminderDialog,
+    setShowTitle,
+    setCapturing,
+    viewShotRef
   );
-  async function SharePDF() {
-    try {
-      loading("Preparing PDF...");
-      const result = await Print.printToFileAsync({
-        html,
-        width: 794,
-        height: 1102,
-        useMarkupFormatter: !isImgBg,
-      });
-
-      await shareAsync(result.uri, {
-        UTI: ".pdf",
-        mimeType: "application/pdf",
-      });
-      await deleteAsync(result.uri, { idempotent: true });
-      loading(false);
-    } catch (error) {
-      loading(false);
-    }
-  }
-  async function ShareImage() {
-    try {
-      loading("Preparing image...");
-      Keyboard.dismiss();
-      setCapturing(true);
-      if (editNote.title.length === 0) {
-        setShowTitle(false);
-      }
-      setTimeout(async () => {
-        try {
-          const image = await viewShotRef.current.capture();
-
-          if (editNote.title.length === 0) {
-            setShowTitle(true);
-          }
-          setCapturing(false);
-
-          nav.navigate("image-preview", { uri: image });
-          loading(false);
-        } catch (e) {
-          loading(false);
-        }
-      }, 500);
-    } catch (error) {
-      loading(false);
-    }
-  }
   const isImgBg = editNote.background.includes("/");
   const captureBackground = useMemo(() => {
     if (capturing && isImgBg) {
@@ -146,6 +91,16 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     }
     return null;
   }, [capturing, isImgBg]);
+  const defaultContentTheme = useMemo(() => {
+    if (editNote.imageOpacity > 0.4) {
+      return "#ffffff";
+    }
+    if (darkCardColors.includes(editNote.background)) {
+      return "#ffffff";
+    } else {
+      return "#000000";
+    }
+  }, [editNote.imageOpacity, editNote.background]);
   const { height, width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
   const { current } = useCardAnimation();
@@ -153,8 +108,12 @@ export const NotePage = memo(({ route }: NotePageProps) => {
     editNote.styles,
     editNote.text,
     editNote.background,
-    editNote.imageOpacity
+    editNote.imageOpacity,
+    editNote.generalStyles?.color
+      ? (editNote.generalStyles?.color as string)
+      : defaultContentTheme
   );
+
   if (loadingProgress) {
     return <LoadingItem bg={background} />;
   }
@@ -215,7 +174,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
             bounces={false}
             ref={scrollRef}
             showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
+            keyboardShouldPersistTaps="always"
             keyboardDismissMode="none"
             contentContainerStyle={{
               paddingTop: capturing ? 0 : verticalScale(70) + top,
@@ -250,6 +209,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
               )}
 
               <NoteContentInput
+                inputSelection={selection}
                 inputProps={{
                   caretHidden: capturing,
                   children: Content,
@@ -264,6 +224,9 @@ export const NotePage = memo(({ route }: NotePageProps) => {
       </ViewShot>
 
       <NoteOverlays
+        saveImage={SaveImage}
+        savePdf={SavePDF}
+        defaultContentTheme={defaultContentTheme}
         shareImage={ShareImage}
         sharePdf={SharePDF}
         reminderDialog={reminderDialog}

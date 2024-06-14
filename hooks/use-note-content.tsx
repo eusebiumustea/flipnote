@@ -111,24 +111,18 @@ export function useEditNoteContent(
   styles: TextNoteStyle[],
   text: string,
   bg: string,
-  imageOpacity?: number
+  imageOpacity: number,
+  defaultThemeText: string
 ) {
-  const defaultThemeText = useMemo(() => {
-    if (imageOpacity > 0.4) {
-      return "#ffffff";
-    }
-    if (darkCardColors.includes(bg)) {
-      return "#ffffff";
-    } else {
-      return "#000000";
-    }
-  }, [imageOpacity, bg]);
-
   return useMemo(() => {
     const isStyled = styles.length > 0;
     if (isStyled) {
       return (
-        <Text style={{ color: defaultThemeText }}>
+        <Text
+          style={{
+            color: defaultThemeText,
+          }}
+        >
           {text.slice(0, styles[0]?.interval.start).length > 0 &&
             text.slice(0, styles[0]?.interval.start)}
           {styles.map((e, i, arr) => {
@@ -159,5 +153,5 @@ export function useEditNoteContent(
       );
     }
     return <Text style={{ color: defaultThemeText }}>{text}</Text>;
-  }, [styles, bg, imageOpacity]);
+  }, [styles, bg, imageOpacity, defaultThemeText]);
 }

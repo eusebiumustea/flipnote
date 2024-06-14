@@ -1,5 +1,5 @@
 import { Linking } from "react-native";
-import { ReminderProps, note } from "../screens";
+import { ReminderProps, Note } from "../screens";
 import { dateTime } from "../utils";
 import * as Notifications from "expo-notifications";
 import { Dispatch, SetStateAction } from "react";
@@ -11,7 +11,7 @@ export function useNoitication() {
     body: string,
     id: number,
     reminderState: ReminderProps,
-    onReminderSet: Dispatch<SetStateAction<note>>
+    onReminderSet: Dispatch<SetStateAction<Note>>
   ) => {
     try {
       const reminderSplit: Date = new Date(

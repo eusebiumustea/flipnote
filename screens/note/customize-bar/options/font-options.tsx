@@ -1,5 +1,4 @@
-import { useCallback } from "react";
-import { TouchableOpacity, Text, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "../../../../hooks";
 import {
   moderateFontScale,
@@ -20,7 +19,16 @@ export function FontOptions({
   const theme = useTheme();
 
   return (
-    <>
+    <ScrollView
+      keyboardShouldPersistTaps="always"
+      horizontal
+      style={{ alignSelf: "flex-start" }}
+      contentContainerStyle={{
+        flexDirection: "row",
+        justifyContent: "space-evenly",
+        gap: 16,
+      }}
+    >
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => {
@@ -42,7 +50,16 @@ export function FontOptions({
                       ),
                     }),
             }));
+            return;
           }
+          setEditNote((prev) => ({
+            ...prev,
+            generalStyles: { ...prev.generalStyles, fontFamily: "" },
+          }));
+          // setEditNote((prev) => ({
+          //   ...prev,
+          //   generalStyles: removeObjectKey(prev.generalStyles, "fontFamily"),
+          // }));
         }}
         style={{
           borderRadius: 16,
@@ -73,15 +90,21 @@ export function FontOptions({
         return (
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() =>
-              FontFamilyEvent(
-                currentSelectedStyle,
-                font,
-                selection,
-                setEditNote,
-                currentIndex
-              )
-            }
+            onPress={() => {
+              if (selection.end > selection.start) {
+                return FontFamilyEvent(
+                  currentSelectedStyle,
+                  font,
+                  selection,
+                  setEditNote,
+                  currentIndex
+                );
+              }
+              setEditNote((prev) => ({
+                ...prev,
+                generalStyles: { ...prev.generalStyles, fontFamily: font },
+              }));
+            }}
             style={{
               borderRadius: 16,
               justifyContent: "center",
@@ -111,6 +134,6 @@ export function FontOptions({
           </TouchableOpacity>
         );
       })}
-    </>
+    </ScrollView>
   );
 }

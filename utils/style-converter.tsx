@@ -9,13 +9,13 @@ export function fontCSS(fontName: string, style: string[]) {
   const weight = style.includes("font-weight: bold;");
   const italic = style.includes("font-style: italic;");
   if (weight && !italic) {
-    return fontName + "-bold";
+    return fontName + "-Bold";
   }
   if (italic && !weight) {
-    return fontName + "-italic";
+    return fontName + "-Italic";
   }
   if (italic && weight) {
-    return fontName + "-bold-italic";
+    return fontName + "-BoldItalic";
   }
   return fontName;
 }
@@ -23,13 +23,13 @@ export function font(fontName: string, style: TextStyle) {
   const weight = style?.fontWeight;
   const italic = style?.fontStyle;
   if (weight && !italic) {
-    return fontName + "-bold";
+    return fontName + "-Bold";
   }
   if (italic && !weight) {
-    return fontName + "-italic";
+    return fontName + "-Italic";
   }
   if (italic && weight) {
-    return fontName + "-bold-italic";
+    return fontName + "-BoldItalic";
   }
   return fontName;
 }

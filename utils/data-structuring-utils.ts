@@ -1,4 +1,4 @@
-import { TextNoteStyle, note } from "../screens/note";
+import { NotePreviewTypes, TextNoteStyle, Note } from "../screens/note";
 export function toggleArrayElement<T>(array: T[], value: T) {
   const indexOfValue = array.indexOf(value);
   if (indexOfValue === -1) {
@@ -6,6 +6,20 @@ export function toggleArrayElement<T>(array: T[], value: T) {
   }
   return removeElementAtIndex(array, indexOfValue);
 }
+export function areObjectsEqual<o>(obj1: o, obj2: o): boolean {
+  const keys1 = Object.keys(obj1).sort();
+  const keys2 = Object.keys(obj2).sort();
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+  for (let i = 0; i < keys1.length; i++) {
+    if (keys1[i] !== keys2[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
 export function formatBytes(bytes: number): string {
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
   if (bytes === 1 || bytes === 0) return bytes + " Byte";
@@ -27,10 +41,10 @@ export function toggleState<T>(
     }
   };
 }
-export function toggleObjectKeyValue<O, K extends keyof O>(
+export function toggleObjectKeyValue<O, K extends keyof O, V>(
   object: O,
   key: K,
-  value: any
+  value: V
 ) {
   if (Object.keys(object).includes(key.toString())) {
     return removeObjectKey(object, key);
@@ -53,7 +67,7 @@ export function generateUniqueFileId() {
 //     ...array.slice(arrayIndexOfId + 1),
 //   ];
 // }
-export function reinjectElementInArray(array: note[], newElement: note) {
+export function reinjectElementInArray(array: Note[], newElement: Note) {
   const prevIndex = array.findLastIndex((e) => e.id < newElement.id);
   return [
     ...array.slice(0, prevIndex + 1),
@@ -72,31 +86,51 @@ export function replaceElementAtIndex<T>(
   replaceIndex: number,
   newElement: T
 ) {
-  return [
-    ...array.slice(0, replaceIndex),
-    newElement,
-    ...array.slice(replaceIndex + 1),
-  ];
+  if (replaceIndex > -1) {
+    return [
+      ...array.slice(0, replaceIndex),
+      newElement,
+      ...array.slice(replaceIndex + 1),
+    ];
+  }
+  return array;
 }
 export function removeElement<T>(array: T[], removeElement: T) {
   const removeIndex = array.indexOf(removeElement);
   return [...array.slice(0, removeIndex), ...array.slice(removeIndex + 1)];
 }
+
 export function removeObjectKey<T, K extends keyof T>(obj: T, removeKey: K) {
   const { [removeKey]: removedKey, ...newObj } = obj;
   return newObj;
 }
 export function replaceElementAtId(
-  array: note[],
+  array: NotePreviewTypes[],
   replaceId: number,
-  newElement: note
+  newElement: NotePreviewTypes
 ) {
   const arrayIndexOfId = array.findIndex((e) => e.id === replaceId);
-  return [
-    ...array.slice(0, arrayIndexOfId),
-    newElement,
-    ...array.slice(arrayIndexOfId + 1),
-  ];
+  if (arrayIndexOfId > -1) {
+    return [
+      ...array.slice(0, arrayIndexOfId),
+      newElement,
+      ...array.slice(arrayIndexOfId + 1),
+    ];
+  }
+  return [newElement, ...array];
+}
+export function removeElementAtId(
+  array: NotePreviewTypes[],
+  replaceId: number
+) {
+  const arrayIndexOfId = array.findIndex((e) => e.id === replaceId);
+  if (arrayIndexOfId > -1) {
+    return [
+      ...array.slice(0, arrayIndexOfId),
+      ...array.slice(arrayIndexOfId + 1),
+    ];
+  }
+  return array;
 }
 export function removeArrayKeyDuplicates<T, K extends keyof T>(
   array: T[],
@@ -111,15 +145,15 @@ export function removeArrayKeyDuplicates<T, K extends keyof T>(
   }, []);
 }
 
-export function excludeNotes(array: note[], elementsToRemove: number[]) {
+export function excludeNotes(array: Note[], elementsToRemove: number[]) {
   return recalculateId(
-    array.filter((e: note) => !elementsToRemove.includes(e.id))
+    array.filter((e: Note) => !elementsToRemove.includes(e.id))
   );
 }
 export function excludeArrayElements<T>(array: T[], itemsToRemove: T[]) {
   return array.filter((e: T) => !itemsToRemove.includes(e));
 }
-export function recalculateId(array: note[]) {
+export function recalculateId(array: Note[]) {
   return array.map((item) => {
     const prevItemIndex = array.findLastIndex((e) => e.id < item.id);
     return {
@@ -128,7 +162,7 @@ export function recalculateId(array: note[]) {
     };
   });
 }
-export function incrementId(array: note[]) {
+export function incrementId(array: Note[]) {
   return array.map((item, i) => {
     return {
       ...item,
@@ -136,7 +170,7 @@ export function incrementId(array: note[]) {
     };
   });
 }
-export function uniqueIdCheck(array: note[]) {
+export function uniqueIdCheck(array: Note[]) {
   let passed = true;
   array.map((item, i) => {
     const prevIndex = array.findLastIndex((e) => e.id < item.id);

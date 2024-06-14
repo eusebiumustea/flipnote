@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from "react";
 import { Animated } from "react-native";
 
 export interface HeaderProps {
@@ -6,4 +7,6 @@ export interface HeaderProps {
   scrollY: Animated.Value;
   onInboxOpen: () => void;
   onShowOptions: () => void;
+  setBadge: Dispatch<SetStateAction<boolean>>;
+  badge: boolean;
 }

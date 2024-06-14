@@ -2,6 +2,7 @@ import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
 import { Fragment, useMemo } from "react";
 import {
+  FlatList,
   Text,
   TouchableOpacity,
   View,
@@ -17,7 +18,7 @@ import { notesValue, receivedNotifications } from "../note";
 export async function removeReceivedReminder(id: number) {
   await Notifications.cancelScheduledNotificationAsync(id.toString());
   const data = await FileSystem.readAsStringAsync(`${NOTES_PATH}/${id}`);
-  const parsedNote = await JSON.parse(data);
+  const parsedNote = JSON.parse(data);
   await FileSystem.writeAsStringAsync(
     `${NOTES_PATH}/${id}`,
     JSON.stringify({ ...parsedNote, reminder: null })
@@ -30,7 +31,7 @@ export function UpcomingReminders() {
   const upcomingNotifications = useMemo(() => {
     return notes.filter((e) => e.reminder && new Date() < new Date(e.reminder));
   }, [notes]);
-  const { syncState } = useRequest();
+  const { updateNote } = useRequest();
   const { width } = useWindowDimensions();
   return (
     <>
@@ -63,7 +64,7 @@ export function UpcomingReminders() {
         return (
           <Fragment key={i}>
             <NoteCard
-              containerStyle={{ width: width - 32, height: verticalScale(170) }}
+              containerStyle={{ width: width - 32, height: "auto" }}
               item={note}
             />
             <View
@@ -77,7 +78,7 @@ export function UpcomingReminders() {
               <TouchableOpacity
                 onPress={async () => {
                   await removeReceivedReminder(note.id);
-                  await syncState();
+                  await updateNote(note.id);
                 }}
               >
                 <Text

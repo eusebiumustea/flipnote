@@ -20,6 +20,8 @@ import { useCardAnimation } from "@react-navigation/stack";
 import { memo } from "react";
 import { useTheme } from "../../hooks";
 import { contentLengthLimit } from "../../constants";
+import { AnimatePresence, MotiView } from "moti";
+import { Easing } from "react-native-reanimated";
 
 interface NoteScreenHeaderProps {
   onClipboardCopy: (e: GestureResponderEvent) => void;
@@ -32,6 +34,7 @@ interface NoteScreenHeaderProps {
   iconsThemeColor: string;
   onShowNoteInfo: (e: GestureResponderEvent) => void;
   textLength?: number;
+  background: string;
 }
 export const NoteScreenHeader = memo(
   ({
@@ -45,6 +48,7 @@ export const NoteScreenHeader = memo(
     iconsThemeColor,
     onShowNoteInfo,
     textLength,
+    background,
   }: NoteScreenHeaderProps) => {
     const { top } = useSafeAreaInsets();
 
@@ -63,12 +67,13 @@ export const NoteScreenHeader = memo(
         {Platform.OS === "android" && (
           <View
             style={{
-              width: width,
+              width,
               height: "100%",
               position: "absolute",
-
-              backgroundColor: theme.primary,
-              opacity: 0.7,
+              opacity: background.includes("/") ? 0.3 : 1,
+              backgroundColor: background.includes("/")
+                ? theme.onPrimary
+                : background,
             }}
           />
         )}
@@ -95,11 +100,7 @@ export const NoteScreenHeader = memo(
             alignItems: "center",
           }}
         >
-          <BackIcon
-            color={Platform.OS === "ios" && iconsThemeColor}
-            onPress={onBack}
-          />
-
+          <BackIcon color={iconsThemeColor} onPress={onBack} />
           {!emptyNote && (
             <View
               style={{
@@ -114,30 +115,24 @@ export const NoteScreenHeader = memo(
                 color={
                   textLength >= contentLengthLimit()
                     ? "orange"
-                    : Platform.OS === "ios" && iconsThemeColor
+                    : iconsThemeColor
                 }
               />
 
-              <ReminderIcon
-                color={Platform.OS === "ios" && iconsThemeColor}
-                onPress={onReminderOpen}
-              />
+              <ReminderIcon color={iconsThemeColor} onPress={onReminderOpen} />
 
               <ClipboardIcon
-                color={Platform.OS === "ios" && iconsThemeColor}
+                color={iconsThemeColor}
                 onPress={onClipboardCopy}
               />
 
               <HeartIcon
-                color={Platform.OS === "ios" && iconsThemeColor}
+                color={iconsThemeColor}
                 onPress={onFavoriteAdd}
                 focused={favorite}
               />
 
-              <ShareIcon
-                color={Platform.OS === "ios" && iconsThemeColor}
-                onPress={onShare}
-              />
+              <ShareIcon color={iconsThemeColor} onPress={onShare} />
             </View>
           )}
         </View>

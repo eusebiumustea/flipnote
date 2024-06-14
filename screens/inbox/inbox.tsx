@@ -4,6 +4,7 @@ import { useTheme } from "../../hooks";
 import { verticalScale } from "../../utils";
 import { ReceivedReminders } from "./received-reminders";
 import { UpcomingReminders } from "./upcoming-reminders";
+import { Text } from "react-native-fast-text";
 
 export function Inbox() {
   const theme = useTheme();

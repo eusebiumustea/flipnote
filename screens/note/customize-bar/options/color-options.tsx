@@ -14,9 +14,15 @@ export function ColorOptions({
   currentIndex,
   selection,
   setEditNote,
+  defaultTextColor,
+  editNote,
 }: OptionProps) {
   const theme = useTheme();
-
+  const generalStyles =
+    selection.end === selection.start && editNote.generalStyles;
+  const focusedColor =
+    generalStyles?.color !== undefined ||
+    currentSelectedStyle?.style?.color !== undefined;
   return (
     <ColorPicker
       style={{
@@ -27,21 +33,38 @@ export function ColorOptions({
         flexDirection: "column",
       }}
       thumbShape="circle"
-      onComplete={({ hex }) =>
-        FontColorEvent(
-          currentSelectedStyle,
-          hex,
-          selection,
-          setEditNote,
-          currentIndex
-        )
+      onComplete={({ hex }) => {
+        if (selection.end > selection.start) {
+          return FontColorEvent(
+            currentSelectedStyle,
+            hex,
+            selection,
+            setEditNote,
+            currentIndex
+          );
+        }
+        if (hex === defaultTextColor) {
+          setEditNote((prev) => ({
+            ...prev,
+            generalStyles: removeObjectKey(prev.generalStyles, "color"),
+          }));
+        } else {
+          setEditNote((prev) => ({
+            ...prev,
+            generalStyles: { ...prev.generalStyles, color: hex },
+          }));
+        }
+      }}
+      value={
+        (currentSelectedStyle?.style?.color as string) ||
+        (generalStyles?.color as string) ||
+        defaultTextColor
       }
-      value={(currentSelectedStyle?.style?.color as string) || "#0213f5"}
     >
       <HueSlider boundedThumb />
       <SaturationSlider boundedThumb />
       <BrightnessSlider boundedThumb />
-      {currentSelectedStyle?.style?.color !== undefined && (
+      {focusedColor && (
         <Text
           onPress={() => {
             if (
@@ -49,7 +72,7 @@ export function ColorOptions({
               Object.keys(currentSelectedStyle.style).includes("color") &&
               Object.keys(currentSelectedStyle.style).length >= 1
             ) {
-              setEditNote((prev) => ({
+              return setEditNote((prev) => ({
                 ...prev,
                 styles:
                   Object.keys(currentSelectedStyle.style).length === 1
@@ -63,11 +86,16 @@ export function ColorOptions({
                       }),
               }));
             }
+            setEditNote((prev) => ({
+              ...prev,
+              generalStyles: removeObjectKey(prev.generalStyles, "color"),
+            }));
           }}
           style={{
             color: theme.primary,
             alignSelf: "flex-start",
             padding: 5,
+            zIndex: 1,
           }}
         >
           Reset

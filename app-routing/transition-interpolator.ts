@@ -1,3 +1,5 @@
+import { StackCardStyleInterpolator } from "@react-navigation/stack";
+
 type InterpolateStylesProps = {
   overlay?: boolean;
   fade?: boolean;
@@ -13,7 +15,7 @@ export function TransitionInterpolator({
   fade,
   overlay = true,
   initial: { scale = 0, scaleX = 0, scaleY = 0, x, y },
-}: InterpolateStylesProps) {
+}: InterpolateStylesProps): StackCardStyleInterpolator {
   return ({
     current,
     layouts: {

@@ -31,7 +31,7 @@ export function ReceivedReminders() {
         return (
           <NoteCard
             key={i}
-            containerStyle={{ width: "100%", height: verticalScale(125) }}
+            containerStyle={{ width: "100%", height: verticalScale(170) }}
             item={{
               ...EMPTY_NOTE_STATE,
               title: item.title,

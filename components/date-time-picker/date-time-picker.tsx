@@ -24,8 +24,7 @@ export function DateTimePickerDialog({
       styles={{ width: "90%" }}
       backgroundBlur={Platform.OS === "ios"}
       animation="fade"
-      action={action}
-      actionLabel="Set reminder"
+      buttons={[{ title: "Set reminder", onPress: action }]}
       title="Schedule a reminder for task"
       onCencel={onCencel}
       visible={show}

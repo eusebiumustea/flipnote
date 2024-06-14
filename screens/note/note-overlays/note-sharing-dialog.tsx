@@ -1,39 +1,71 @@
-import { useState } from "react";
-import { Dialog } from "../../../components";
-import { Pressable, TouchableOpacity, View } from "react-native";
-import Checkbox from "expo-checkbox";
+import { Picker } from "@react-native-picker/picker";
+import { useCallback, useState } from "react";
+import { Platform, View } from "react-native";
+import { BackgroundIcon, Dialog, PdfIcon } from "../../../components";
 import { useTheme } from "../../../hooks";
-import { Text } from "react-native-fast-text";
+import * as fs from "expo-file-system";
 interface NoteSharingDialogProps {
   visible: boolean;
   onCencel: () => void;
-  sharePdf: () => void;
-  shareImage: () => void;
+  sharePdf: () => Promise<void>;
+  shareImage: () => Promise<void>;
+  savePdf: () => Promise<void>;
+  saveImage: () => Promise<void>;
 }
-const options = ["Pdf document", "Image"];
+
 export function NoteSharingDialog({
   visible,
   shareImage,
   sharePdf,
   onCencel,
+  saveImage,
+  savePdf,
 }: NoteSharingDialogProps) {
-  const [option, setOption] = useState<string>("Image");
+  const [option, setOption] = useState<number>(0);
+  const Icon = useCallback(() => {
+    return options.find((_, i) => i === option)?.icon;
+  }, [option]);
   const theme = useTheme();
+  const options = [
+    { label: "Image", icon: <BackgroundIcon color={theme.onPrimary} /> },
+    { label: "PDF", icon: <PdfIcon /> },
+  ];
+
   return (
     <Dialog
-      actionLabel="Share"
       title="Share note content as:"
       onCencel={onCencel}
       styles={{ width: "90%" }}
       animation="fade"
       visible={visible}
-      action={() => {
-        if (option === "Image") {
-          shareImage();
-        } else {
-          sharePdf();
-        }
+      buttonsContainerStyle={{
+        justifyContent: "center",
+        position: "relative",
+        marginVertical: -10,
       }}
+      buttons={[
+        {
+          title: "Save",
+          onPress() {
+            if (option === 0) {
+              saveImage().then(onCencel);
+            } else {
+              savePdf().then(onCencel);
+            }
+          },
+          hidden: option !== 0 && Platform.OS === "ios",
+        },
+        {
+          title: "Share",
+          onPress() {
+            if (option === 0) {
+              shareImage().then(onCencel);
+            } else {
+              sharePdf().then(onCencel);
+            }
+          },
+        },
+      ]}
     >
       <View
         style={{
@@ -43,21 +75,26 @@ export function NoteSharingDialog({
           paddingVertical: 8,
         }}
       >
-        {options.map((label, i) => {
-          return (
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => setOption(label)}
-              style={{ flexDirection: "row", gap: 8, alignItems: "center" }}
-              key={i}
-            >
-              <Checkbox value={option === label} />
-              <Text style={{ color: theme.onPrimary, fontSize: 17 }}>
-                {label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+        <Icon />
+        <Picker
+          style={{ flex: 1 }}
+          selectedValue={option}
+          mode="dropdown"
+          dropdownIconColor={theme.onPrimary}
+          onValueChange={(_, i) => setOption(i)}
+        >
+          {options.map(({ label }, i) => {
+            return (
+              <Picker.Item
+                color={theme.onPrimary}
+                key={i}
+                style={{ backgroundColor: theme.primary }}
+                value={i}
+                label={label}
+              />
+            );
+          })}
+        </Picker>
       </View>
     </Dialog>
   );

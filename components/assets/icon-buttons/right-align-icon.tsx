@@ -29,7 +29,7 @@ export function RightAlignIcon({
         <Path
           d="M12 4.5h9m-9 5h9m-18 5h18m-18 5h18"
           stroke={active ? theme.primary : theme.textUnselected}
-          strokeWidth={1.5}
+          strokeWidth={active ? 2 : 1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
         />

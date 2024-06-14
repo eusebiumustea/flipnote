@@ -29,7 +29,7 @@ export function CenterAlignIcon({
         <Path
           d="M3 4.5h18m-13.74 5h9.48M3 14.5h18m-13.74 5h9.48"
           stroke={active ? theme.primary : theme.textUnselected}
-          strokeWidth={1.5}
+          strokeWidth={active ? 2 : 1.5}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
