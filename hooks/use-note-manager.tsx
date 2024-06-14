@@ -49,7 +49,7 @@ export function useNoteStorage(
             JSON.stringify(editNote)
           );
         }
-      } catch (_) {
+      } catch (e) {
         toast({ message: "Failed to save note", textColor: "red" });
       }
     }

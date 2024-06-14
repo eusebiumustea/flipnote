@@ -184,8 +184,6 @@ export function useStorageUtils() {
 
       await updateListOfNotes(importedNotes);
     } catch (error) {
-      console.log(error);
-
       toast({ message: "Error: corrupted archive", textColor: "red" });
     } finally {
       setLoading(false);

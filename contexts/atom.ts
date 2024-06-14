@@ -34,6 +34,7 @@ export const notesData = atom<UserdataState>({
   default: {
     loading: true,
     data: [],
+    loaded: false,
   },
 });
 

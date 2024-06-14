@@ -50,6 +50,7 @@ export interface InputSelectionProps {
 export interface UserdataState {
   loading: boolean;
   data: NotePreviewTypes[];
+  loaded: boolean;
 }
 export type NotificationProp = {
   title: string;

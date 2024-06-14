@@ -1,5 +1,5 @@
-import * as SplashScreen from "expo-splash-screen";
 import "react-native-gesture-handler";
+import * as SplashScreen from "expo-splash-screen";
 import { RecoilRoot } from "recoil";
 import { AppRoot } from "./app-root";
 SplashScreen.preventAutoHideAsync();

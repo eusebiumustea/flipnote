@@ -39,12 +39,12 @@ export const NotesList = memo(
     const theme = useTheme();
     const scrollRef = useRef<FlatList>(null);
     const { top } = useSafeAreaInsets();
-    const { syncState } = useRequest();
+    const { loadPreviewNotes } = useRequest();
     const [refreshing, setRefreshing] = useState(false);
     const { loading } = useRecoilValue(notesData);
     const onRefresh = useCallback(async () => {
       setRefreshing(true);
-      await syncState();
+      await loadPreviewNotes();
       setRefreshing(false);
     }, []);
 
