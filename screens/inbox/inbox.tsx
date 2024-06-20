@@ -1,28 +1,24 @@
-import React from "react";
-import { ScrollView } from "react-native";
+import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import React, { useState } from "react";
+import { View } from "react-native";
 import { useTheme } from "../../hooks";
-import { verticalScale } from "../../utils";
 import { ReceivedReminders } from "./received-reminders";
 import { UpcomingReminders } from "./upcoming-reminders";
-
 export function Inbox() {
   const theme = useTheme();
-
+  const [selected, setSelected] = useState(0);
   return (
-    <ScrollView
-      contentContainerStyle={{
-        paddingHorizontal: 16,
-        paddingVertical: verticalScale(10),
-        rowGap: 8,
-        paddingBottom: 30,
-      }}
-      style={{
-        backgroundColor: theme.background,
-        flex: 1,
-      }}
-    >
-      <UpcomingReminders />
-      <ReceivedReminders />
-    </ScrollView>
+    <View style={{ flex: 1, backgroundColor: theme.primary }}>
+      <SegmentedControl
+        values={["Upcoming", "Recent"]}
+        selectedIndex={selected}
+        style={{ margin: 16 }}
+        onChange={(event) => {
+          setSelected(event.nativeEvent.selectedSegmentIndex);
+        }}
+      />
+      {selected === 0 && <UpcomingReminders />}
+      {selected === 1 && <ReceivedReminders />}
+    </View>
   );
 }

@@ -2679,6 +2679,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-segmented-control/segmented-control@npm:^2.5.2":
+  version: 2.5.2
+  resolution: "@react-native-segmented-control/segmented-control@npm:2.5.2"
+  peerDependencies:
+    react: ">=16.0"
+    react-native: ">=0.62"
+  checksum: 6970cb1e3bfdce0df4646d431a9665df73ad56da07330be46834715aead6434132358e40d9c078703a43beff1e268a3079a65ca75658269c9b6df58b18743221
+  languageName: node
+  linkType: hard
+
 "@react-native/assets-registry@npm:0.74.84":
   version: 0.74.84
   resolution: "@react-native/assets-registry@npm:0.74.84"
@@ -5243,6 +5253,7 @@ __metadata:
     "@react-native-community/datetimepicker": 8.0.1
     "@react-native-community/hooks": ^3.0.0
     "@react-native-picker/picker": 2.7.5
+    "@react-native-segmented-control/segmented-control": ^2.5.2
     "@react-navigation/native": ^6.1.9
     "@react-navigation/stack": ^6.3.29
     "@types/react": ~18.2.79

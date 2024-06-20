@@ -1,6 +1,6 @@
 import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
-import { Fragment, useMemo } from "react";
+import { useMemo } from "react";
 import {
   FlatList,
   Text,
@@ -33,9 +33,19 @@ export function UpcomingReminders() {
   }, [notes]);
   const { updateNote } = useRequest();
   const { width } = useWindowDimensions();
-  return (
-    <>
-      {upcomingNotifications.length === 0 && received.length === 0 && (
+  const renderHeader = useMemo(() => {
+    if (upcomingNotifications.length > 0) {
+      <Text
+        style={{
+          color: theme.onPrimary,
+          fontSize: moderateFontScale(18),
+        }}
+      >
+        Upcoming
+      </Text>;
+    }
+    if (upcomingNotifications.length === 0 && received.length === 0) {
+      return (
         <Text
           style={{
             color: theme.onPrimary,
@@ -47,25 +57,31 @@ export function UpcomingReminders() {
         >
           No upcoming notifications
         </Text>
-      )}
-      {upcomingNotifications.length > 0 && (
-        <Text
-          style={{
-            color: theme.onPrimary,
-            fontSize: moderateFontScale(18),
-          }}
-        >
-          Upcoming
-        </Text>
-      )}
-      {upcomingNotifications.map((note, i) => {
-        const reminder = new Date(note.reminder);
+      );
+    }
+  }, [upcomingNotifications, received]);
+  return (
+    <FlatList
+      contentContainerStyle={{
+        paddingHorizontal: 16,
+        paddingVertical: verticalScale(10),
+        paddingBottom: 30,
+      }}
+      style={{
+        backgroundColor: theme.background,
+        flex: 1,
+      }}
+      ListHeaderComponent={renderHeader}
+      data={upcomingNotifications}
+      keyExtractor={(_, i) => i.toString()}
+      renderItem={({ item }) => {
+        const reminder = new Date(item.reminder);
 
         return (
-          <Fragment key={i}>
+          <>
             <NoteCard
               containerStyle={{ width: width - 32, height: "auto" }}
-              item={note}
+              item={item}
             />
             <View
               style={{
@@ -73,12 +89,13 @@ export function UpcomingReminders() {
                 justifyContent: "space-between",
                 width: "100%",
                 alignItems: "center",
+                marginVertical: 12,
               }}
             >
               <TouchableOpacity
                 onPress={async () => {
-                  await removeReceivedReminder(note.id);
-                  await updateNote(note.id);
+                  await removeReceivedReminder(item.id);
+                  await updateNote(item.id);
                 }}
               >
                 <Text
@@ -102,9 +119,9 @@ export function UpcomingReminders() {
                 {dateTime(reminder)}
               </Text>
             </View>
-          </Fragment>
+          </>
         );
-      })}
-    </>
+      }}
+    />
   );
 }

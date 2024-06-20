@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TextInput,
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -66,7 +65,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   const {
     currentSelectedStyle,
     openReminder,
-
     SaveImage,
     SavePDF,
     ShareImage,

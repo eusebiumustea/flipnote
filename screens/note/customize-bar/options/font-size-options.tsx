@@ -93,7 +93,7 @@ export function FontSizeOptions({
         minimumTrackTintColor={"#007AFF"}
         trackStyle={{ width: "100%" }}
         minimumValue={14}
-        maximumValue={70}
+        maximumValue={40}
       />
       {focusedFontSize && (
         <Text

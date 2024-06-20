@@ -56,10 +56,6 @@ export function FontOptions({
             ...prev,
             generalStyles: { ...prev.generalStyles, fontFamily: "" },
           }));
-          // setEditNote((prev) => ({
-          //   ...prev,
-          //   generalStyles: removeObjectKey(prev.generalStyles, "fontFamily"),
-          // }));
         }}
         style={{
           borderRadius: 16,
