@@ -32,14 +32,7 @@ export function LoadingItem({ bg }: { bg: string }) {
         }}
       />
 
-      <ActivityIndicator
-        color={
-          activityIndicatorColors[
-            Math.floor(Math.random() * activityIndicatorColors.length)
-          ]
-        }
-        size={"large"}
-      />
+      <ActivityIndicator size={"large"} />
     </View>
   );
 }

@@ -1,20 +1,23 @@
-import { AnimatePresence, MotiView } from "moti";
-import { Text } from "react-native-fast-text";
-import { useTheme } from "../../../hooks";
-import { Modal, Platform, useWindowDimensions } from "react-native";
-import { MotiPressable } from "moti/interactions";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { dateTime, formatBytes, verticalScale } from "../../../utils";
-import { Easing } from "react-native-reanimated";
-import { useEffect, useMemo, useState } from "react";
 import * as fs from "expo-file-system";
+import { AnimatePresence, MotiView } from "moti";
+import { useEffect, useMemo, useState } from "react";
+import { Modal, Platform, Pressable, useWindowDimensions } from "react-native";
+import { Text } from "react-native-fast-text";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { NOTES_PATH, contentLengthLimit } from "../../../constants";
+import { useTheme } from "../../../hooks";
+import {
+  dateTime,
+  extractText,
+  formatBytes,
+  verticalScale,
+} from "../../../utils";
 import { shadows } from "../../../ui-config";
+import { Note } from "../types";
 interface NoteInfoProps {
   id: number;
   show: boolean;
   onClose: () => void;
-  textLength: number;
   startPositionX?: number;
   startPositionY?: number;
 }
@@ -27,15 +30,9 @@ type FileInfoTypes = {
   md5?: string;
 };
 
-export function NoteInfo({
-  id,
-  show,
-  onClose,
-  startPositionX,
-  textLength,
-}: NoteInfoProps) {
+export function NoteInfo({ id, show, onClose, startPositionX }: NoteInfoProps) {
   const theme = useTheme();
-  const [info, setInfo] = useState({ size: 0 });
+  const [info, setInfo] = useState({ size: 0, textLength: 0 });
   const { width, height } = useWindowDimensions();
   const { top } = useSafeAreaInsets();
   useEffect(() => {
@@ -48,13 +45,18 @@ export function NoteInfo({
     const { size } = (await fs.getInfoAsync(notePath, {
       size: true,
     })) as FileInfoTypes;
-    setInfo({ size });
+    const data = await fs.readAsStringAsync(notePath);
+    const note: Note = JSON.parse(data);
+    setInfo({
+      size,
+      textLength: extractText(note.text).length + note.title.length,
+    });
   }
   const infoObj = useMemo(
     () => ({
       Size: formatBytes(info.size),
       "Created at": dateTime(new Date(id)),
-      "Characters count": `${textLength}/${contentLengthLimit() + 1000}`,
+      "Characters count": `${info.textLength}/${contentLengthLimit() + 1000}`,
     }),
     [info]
   );
@@ -62,21 +64,16 @@ export function NoteInfo({
   return (
     <AnimatePresence>
       {show && (
-        <Modal transparent onRequestClose={onClose}>
-          <MotiPressable
+        <Modal transparent visible={show} onRequestClose={onClose}>
+          <Pressable
             onPress={onClose}
-            transition={{ type: "timing", duration: 120 }}
             style={{
               width,
               height: height + top,
-              backgroundColor: "#000",
 
               position: "absolute",
               zIndex: -1,
             }}
-            from={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            exit={{ opacity: 0 }}
           />
           <MotiView
             transition={{ type: "timing", duration: 120 }}
@@ -88,6 +85,7 @@ export function NoteInfo({
               marginTop: verticalScale(40),
               alignSelf: "center",
               gap: 16,
+              ...shadows(theme),
             }}
             from={{
               translateY: verticalScale(-70),

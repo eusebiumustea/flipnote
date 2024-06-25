@@ -34,19 +34,6 @@ export default {
   },
   android: {
     package: "com.eusebiu.flipnote",
-    // intentFilters: [
-    //   {
-    //     action: "VIEW",
-    //     data: [
-    //       {
-    //         scheme: "flipnote",
-    //         host: "note",
-    //         pathPrefix: "/",
-    //       },
-    //     ],
-    //     category: ["BROWSABLE", "DEFAULT"],
-    //   },
-    // ],
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
       backgroundColor: "#FEFFEF",

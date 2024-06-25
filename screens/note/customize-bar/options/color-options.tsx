@@ -1,28 +1,26 @@
-import { Text } from "react-native";
 import ColorPicker, {
   BrightnessSlider,
   HueSlider,
   SaturationSlider,
 } from "reanimated-color-picker";
-import { useTheme } from "../../../../hooks";
-import { removeObjectKey, replaceElementAtIndex } from "../../../../utils";
-import { FontColorEvent } from "../../style-events";
+import { Button } from "../../../../components";
 import { OptionProps } from "../../types";
+import { useState } from "react";
+import { View } from "react-native";
+import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import { useTheme } from "../../../../hooks";
+import { moderateFontScale } from "../../../../utils";
+import { Controller, useForm } from "react-hook-form";
 
-export function ColorOptions({
-  currentSelectedStyle,
-  currentIndex,
-  selection,
-  setEditNote,
-  defaultTextColor,
-  editNote,
-}: OptionProps) {
+export function ColorOptions({ defaultTextColor, onColorChange }: OptionProps) {
+  const [noticeColorChange, setNoticeColorChange] = useState(defaultTextColor);
   const theme = useTheme();
-  const generalStyles =
-    selection.end === selection.start && editNote.generalStyles;
-  const focusedColor =
-    generalStyles?.color !== undefined ||
-    currentSelectedStyle?.style?.color !== undefined;
+  const { handleSubmit, control, getValues } = useForm({
+    defaultValues: {
+      option: 0,
+    },
+  });
+
   return (
     <ColorPicker
       style={{
@@ -32,75 +30,53 @@ export function ColorOptions({
         justifyContent: "center",
         flexDirection: "column",
       }}
+      value={noticeColorChange}
       thumbShape="circle"
       onComplete={({ hex }) => {
-        if (selection.end > selection.start) {
-          return FontColorEvent(
-            currentSelectedStyle,
-            hex,
-            selection,
-            setEditNote,
-            currentIndex
-          );
-        }
-        if (hex === defaultTextColor) {
-          setEditNote((prev) => ({
-            ...prev,
-            generalStyles: removeObjectKey(prev.generalStyles, "color"),
-          }));
-        } else {
-          setEditNote((prev) => ({
-            ...prev,
-            generalStyles: { ...prev.generalStyles, color: hex },
-          }));
-        }
+        const { option } = getValues();
+        onColorChange(hex, option === 0 ? "font-color" : "text-background");
+        setNoticeColorChange(hex);
       }}
-      value={
-        (currentSelectedStyle?.style?.color as string) ||
-        (generalStyles?.color as string) ||
-        defaultTextColor
-      }
     >
       <HueSlider boundedThumb />
       <SaturationSlider boundedThumb />
       <BrightnessSlider boundedThumb />
-      {focusedColor && (
-        <Text
-          onPress={() => {
-            if (
-              currentSelectedStyle &&
-              Object.keys(currentSelectedStyle.style).includes("color") &&
-              Object.keys(currentSelectedStyle.style).length >= 1
-            ) {
-              return setEditNote((prev) => ({
-                ...prev,
-                styles:
-                  Object.keys(currentSelectedStyle.style).length === 1
-                    ? prev.styles.filter((e) => e !== currentSelectedStyle)
-                    : replaceElementAtIndex(prev.styles, currentIndex, {
-                        ...currentSelectedStyle,
-                        style: removeObjectKey(
-                          currentSelectedStyle.style,
-                          "color"
-                        ),
-                      }),
-              }));
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 8,
+          alignSelf: "center",
+        }}
+      >
+        <Button
+          onPress={handleSubmit(({ option }) => {
+            if (option === 0) {
+              setNoticeColorChange(defaultTextColor);
+              onColorChange(defaultTextColor, "font-color");
+            } else {
+              setNoticeColorChange(defaultTextColor);
+              onColorChange("transparent", "text-background");
             }
-            setEditNote((prev) => ({
-              ...prev,
-              generalStyles: removeObjectKey(prev.generalStyles, "color"),
-            }));
-          }}
-          style={{
-            color: theme.primary,
-            alignSelf: "flex-start",
-            padding: 5,
-            zIndex: 1,
-          }}
+          })}
+          style={{ alignItems: "center", alignSelf: "flex-start" }}
         >
           Reset
-        </Text>
-      )}
+        </Button>
+        <Controller
+          name="option"
+          render={({ field: { onChange, value } }) => (
+            <SegmentedControl
+              onChange={(e) => onChange(e.nativeEvent.selectedSegmentIndex)}
+              selectedIndex={value}
+              fontStyle={{ fontSize: moderateFontScale(14) }}
+              style={{ flex: 1, backgroundColor: theme.primary }}
+              values={["font color", "text background"]}
+            />
+          )}
+          control={control}
+        />
+      </View>
     </ColorPicker>
   );
 }

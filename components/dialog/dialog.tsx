@@ -1,10 +1,19 @@
 import { BlurView } from "expo-blur";
 import { memo, useMemo } from "react";
-import { Modal, Text, View, useWindowDimensions } from "react-native";
+import {
+  Keyboard,
+  Modal,
+  Pressable,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { useTheme } from "../../hooks";
 import { moderateFontScale } from "../../utils";
 import { Button } from "../button";
 import { DialogProps } from "./types";
+import { MotiView } from "moti";
 
 export const Dialog = memo(
   ({
@@ -19,6 +28,7 @@ export const Dialog = memo(
     styles,
     backgroundBlur = false,
     buttonsContainerStyle,
+    animate,
   }: DialogProps) => {
     const theme = useTheme();
     const filteredButtons = useMemo(() => {
@@ -39,7 +49,6 @@ export const Dialog = memo(
             tint="dark"
             style={{
               flex: 1,
-
               zIndex: -1,
             }}
           />
@@ -54,74 +63,77 @@ export const Dialog = memo(
             }}
           />
         )}
-
-        <View
-          style={{
-            height: "100%",
-            width: "100%",
-            position: "absolute",
-            zIndex: 1,
-            justifyContent: "center",
-          }}
-        >
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
           <View
             style={{
+              height: "100%",
               width: "100%",
-              backgroundColor: theme.primary,
-              height: "auto",
+              position: "absolute",
+              zIndex: 1,
               justifyContent: "center",
-              alignSelf: "center",
-              padding: 10,
-              flexDirection: "column",
-              maxHeight: height / 2,
-              paddingBottom: 30,
-              elevation: 10,
-              borderRadius: 16,
-              shadowColor: "#000000",
-              shadowOffset: {
-                width: 0,
-                height: 3,
-              },
-              shadowOpacity: 0.17,
-              shadowRadius: 3.05,
-              ...styles,
             }}
           >
-            <View style={{ width: "100%", padding: 25 }}>{children}</View>
-            <Text
+            <MotiView
+              transition={{ type: "timing", duration: 200 }}
+              animate={animate}
               style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                paddingHorizontal: 10,
-                paddingVertical: 5,
-                color: theme.onPrimary,
-                fontSize: moderateFontScale(16),
+                width: "100%",
+                backgroundColor: theme.primary,
+                height: "auto",
+                justifyContent: "center",
+                alignSelf: "center",
+                padding: 10,
+                flexDirection: "column",
+                maxHeight: height / 2,
+                paddingBottom: 30,
+                elevation: 10,
+                borderRadius: 16,
+                shadowColor: "#000000",
+                shadowOffset: {
+                  width: 0,
+                  height: 3,
+                },
+                shadowOpacity: 0.17,
+                shadowRadius: 3.05,
+                ...styles,
               }}
             >
-              {title}
-            </Text>
+              <View style={{ width: "100%", padding: 25 }}>{children}</View>
+              <Text
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  paddingHorizontal: 10,
+                  paddingVertical: 5,
+                  color: theme.onPrimary,
+                  fontSize: moderateFontScale(16),
+                }}
+              >
+                {title}
+              </Text>
 
-            <View
-              style={{
-                columnGap: 20,
-                flexDirection: "row",
-                position: "absolute",
-                bottom: 0,
-                right: 0,
-                margin: 10,
-                ...buttonsContainerStyle,
-              }}
-            >
-              <Button onPress={onCencel}>Cencel</Button>
-              {filteredButtons.map(({ title, onPress }, i) => (
-                <Button key={i} onPress={onPress}>
-                  {title}
-                </Button>
-              ))}
-            </View>
+              <View
+                style={{
+                  columnGap: 20,
+                  flexDirection: "row",
+                  position: "absolute",
+                  bottom: 0,
+                  right: 0,
+                  margin: 10,
+                  ...buttonsContainerStyle,
+                }}
+              >
+                <Button onPress={onCencel}>Cencel</Button>
+                {filteredButtons.map(({ title, onPress }, i) => (
+                  <Button key={i} onPress={onPress}>
+                    {title}
+                  </Button>
+                ))}
+              </View>
+            </MotiView>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
     );
   }

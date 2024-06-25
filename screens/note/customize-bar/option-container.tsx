@@ -11,7 +11,6 @@ type OptionContainerProps = {
 export function OptionContainer({
   show,
   children,
-
   style,
 }: OptionContainerProps) {
   const theme = useTheme();
@@ -21,16 +20,16 @@ export function OptionContainer({
         <MotiView
           from={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ type: "timing", delay: 180, duration: 120 } as any}
+          transition={{ type: "timing", delay: 180, duration: 120 }}
           exit={{ opacity: 0 }}
-          exitTransition={{ delay: 0 } as any}
+          exitTransition={{ delay: 0, duration: 60 }}
           style={{
             backgroundColor: theme.customizeBarColor,
             position: "absolute",
             borderTopLeftRadius: 16,
             borderTopRightRadius: 16,
             top: 0,
-            padding: 15,
+            padding: 16,
             alignItems: "center",
             justifyContent: "center",
             width: "100%",

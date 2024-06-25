@@ -1,10 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import {
-  InputSelectionProps,
-  Note,
-  ReminderProps,
-  TextNoteStyle,
-} from "../types";
+import { Note, ReminderProps } from "../types";
 
 export interface NoteOverlaysProps {
   id: number;
@@ -14,12 +9,12 @@ export interface NoteOverlaysProps {
   reminder: ReminderProps;
   onReminderOpen: () => void;
   defaultContentTheme: string;
-  currentSelectedStyle: TextNoteStyle;
   reminderDialog: boolean;
   setReminderDialog: Dispatch<SetStateAction<boolean>>;
-  selection: InputSelectionProps;
-  shareImage: () => Promise<void>;
-  sharePdf: () => Promise<void>;
-  saveImage: () => Promise<void>;
-  savePdf: () => Promise<void>;
+  shareImage: () => void;
+  sharePdf: () => void;
+  saveImage: () => void;
+  savePdf: () => void;
+  noteStateIsEmpty: boolean;
+  textFiltered: string;
 }

@@ -6,6 +6,9 @@ export function toggleArrayElement<T>(array: T[], value: T) {
   }
   return removeElementAtIndex(array, indexOfValue);
 }
+export function extractText(html: string): string {
+  return html.replace(/<(.|\n)*?>/g, "").trim();
+}
 export function areObjectsEqual<o>(obj1: o, obj2: o): boolean {
   const keys1 = Object.keys(obj1).sort();
   const keys2 = Object.keys(obj2).sort();
@@ -118,6 +121,25 @@ export function replaceElementAtId(
     ];
   }
   return [newElement, ...array];
+}
+
+type Timer = ReturnType<typeof setTimeout>;
+
+export function debounce<T extends (...args: any[]) => void>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: Timer | null = null;
+
+  return function (...args: Parameters<T>) {
+    if (timeout !== null) {
+      clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(() => {
+      func(...args);
+    }, wait);
+  };
 }
 export function removeElementAtId(
   array: NotePreviewTypes[],

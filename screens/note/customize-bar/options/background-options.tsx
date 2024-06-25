@@ -1,6 +1,5 @@
 import { Slider } from "@miblanchard/react-native-slider";
 import * as ImagePicker from "expo-image-picker";
-import * as fs from "expo-file-system";
 import { Linking, ScrollView, View } from "react-native";
 import { ImageBox, ImagePlusIcon, useToast } from "../../../../components";
 import { ColorBox } from "../../../../components/color-box";
@@ -21,6 +20,7 @@ export function BackgroundOptions({
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync(
         true
       );
+
       if (status === ImagePicker.PermissionStatus.DENIED) {
         toast({
           message: "Media access permission denied",
@@ -40,6 +40,7 @@ export function BackgroundOptions({
       if (result.canceled) {
         return;
       }
+
       setEditNote((prev) => ({
         ...prev,
         background: result.assets[0].uri,

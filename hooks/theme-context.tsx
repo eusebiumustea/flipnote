@@ -9,8 +9,6 @@ export function ThemeProvider({ children }: PropsWithChildren) {
     switch (colorScheme) {
       case "dark":
         return dark;
-      case "light":
-        return light;
       default:
         return light;
     }

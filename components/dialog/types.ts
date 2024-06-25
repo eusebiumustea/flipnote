@@ -1,3 +1,4 @@
+import { MotiProps } from "moti";
 import { PropsWithChildren, ReactNode } from "react";
 import { ViewStyle } from "react-native";
 interface ButtonActionProps {
@@ -11,10 +12,11 @@ export interface DialogProps {
   onCencel: () => void;
   title: string;
   children: PropsWithChildren<ReactNode>;
-
+  onPress?: () => void;
   animation?: "fade" | "none" | "slide";
   statusBarTranslucent?: boolean;
   styles?: ViewStyle;
   backgroundBlur?: boolean;
   buttonsContainerStyle?: ViewStyle;
+  animate?: any;
 }

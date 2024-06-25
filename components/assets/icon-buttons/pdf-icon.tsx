@@ -19,8 +19,8 @@ export function PdfIcon({
       onPress={onPress}
       activeOpacity={0.7}
       style={{
-        width: moderateScale(30),
-        height: verticalScale(30),
+        width: moderateScale(26),
+        height: verticalScale(26),
         ...style,
       }}
       {...btnProps}

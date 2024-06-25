@@ -1,2 +1,2 @@
-export * from "./customize-bar";
 export * from "./options";
+export * from "./new-customize-bar";

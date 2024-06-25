@@ -53,7 +53,7 @@ export const NoteScreenHeader = memo(
     const { top } = useSafeAreaInsets();
 
     const { width } = useWindowDimensions();
-    const { current } = useCardAnimation();
+    const { current, closing } = useCardAnimation();
     const theme = useTheme();
     return (
       <Animated.View
@@ -61,33 +61,37 @@ export const NoteScreenHeader = memo(
           width: "100%",
           position: "absolute",
           top: 0,
-          opacity: current.progress,
+          opacity: closing && current.progress,
         }}
       >
-        {Platform.OS === "android" && (
-          <View
-            style={{
-              width,
-              height: "100%",
-              position: "absolute",
-              opacity: background.includes("/") ? 0.3 : 1,
-              backgroundColor: background.includes("/")
-                ? theme.onPrimary
-                : background,
-            }}
-          />
-        )}
-
-        {Platform.OS === "ios" && (
-          <BlurView
-            tint={"systemUltraThinMaterial"}
-            style={{
-              width,
-              height: "100%",
-              position: "absolute",
-            }}
-          />
-        )}
+        {Platform.select({
+          android: (
+            <MotiView
+              transition={{ duration: 300, type: "timing" }}
+              animate={{
+                backgroundColor: background.includes("/")
+                  ? theme.onPrimary
+                  : background,
+              }}
+              style={{
+                width,
+                height: "100%",
+                position: "absolute",
+                opacity: background.includes("/") ? 0.3 : 1,
+              }}
+            />
+          ),
+          ios: (
+            <BlurView
+              tint={"systemUltraThinMaterial"}
+              style={{
+                width,
+                height: "100%",
+                position: "absolute",
+              }}
+            />
+          ),
+        })}
 
         <View
           style={{

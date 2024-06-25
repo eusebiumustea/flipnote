@@ -2,32 +2,24 @@ import { Slider } from "@miblanchard/react-native-slider";
 import { useState } from "react";
 import { Text, View } from "react-native";
 import { useTheme } from "../../../../hooks";
-import {
-  moderateFontScale,
-  removeObjectKey,
-  replaceElementAtIndex,
-} from "../../../../utils";
-import { FontSizeEvent } from "../../style-events";
-import { OptionProps } from "../../types";
+import { moderateFontScale } from "../../../../utils";
 
 export function FontSizeOptions({
-  currentSelectedStyle,
-  currentIndex,
-  selection,
-  setEditNote,
-  editNote,
-}: OptionProps) {
+  onValueChange,
+  onReset,
+}: {
+  onValueChange: (value: number) => void;
+  onReset: () => void;
+}) {
   const theme = useTheme();
 
-  const [showValue, setShowValue] = useState(0);
-  const focusedFontSize =
-    editNote.generalStyles?.fontSize || currentSelectedStyle?.style?.fontSize;
+  const [showValue, setShowValue] = useState(3);
   return (
     <View
       style={{
         flex: 1,
         flexDirection: "column",
-        gap: 8,
+        gap: 9,
         borderRadius: 8,
         width: "100%",
       }}
@@ -36,91 +28,35 @@ export function FontSizeOptions({
         containerStyle={{ bottom: 10 }}
         onValueChange={(value) => {
           setShowValue(Math.round(value[0]));
+          onValueChange(value[0]);
         }}
         renderAboveThumbComponent={(i, value) => (
           <Text
             style={{
               color: theme.primary,
               top: 5,
-              right: 10,
+              right: 5,
               fontSize: moderateFontScale(12),
             }}
           >
             {Math.round(value)}
           </Text>
         )}
-        onSlidingComplete={(valueArr) => {
-          const value = Math.round(valueArr[0]);
-          if (value < 15 && currentSelectedStyle?.style?.fontSize) {
-            return setEditNote((prev) => ({
-              ...prev,
-              styles:
-                Object.keys(currentSelectedStyle?.style).length === 1
-                  ? prev.styles.filter((e) => e !== currentSelectedStyle)
-                  : replaceElementAtIndex(prev.styles, currentIndex, {
-                      ...currentSelectedStyle,
-                      style: removeObjectKey(
-                        currentSelectedStyle?.style,
-                        "fontSize"
-                      ),
-                    }),
-            }));
-          }
-          if (selection.end > selection.start) {
-            return FontSizeEvent(
-              currentSelectedStyle,
-              value,
-              selection,
-              setEditNote,
-              currentIndex
-            );
-          }
-          setEditNote((prev) => ({
-            ...prev,
-            generalStyles:
-              value < 15
-                ? removeObjectKey(prev.generalStyles, "fontSize")
-                : { ...prev.generalStyles, fontSize: value },
-          }));
-        }}
-        value={
-          currentSelectedStyle?.style?.fontSize ||
-          editNote.generalStyles?.fontSize ||
-          14
-        }
         thumbStyle={{ backgroundColor: "teal" }}
         maximumTrackTintColor={theme.primary}
         minimumTrackTintColor={"#007AFF"}
         trackStyle={{ width: "100%" }}
-        minimumValue={14}
-        maximumValue={40}
+        minimumValue={1}
+        value={showValue}
+        step={1}
+        maximumValue={7}
       />
-      {focusedFontSize && (
+
+      {showValue !== 3 && (
         <Text
           onPress={() => {
-            if (
-              currentSelectedStyle &&
-              Object.keys(currentSelectedStyle.style).includes("fontSize") &&
-              Object.keys(currentSelectedStyle.style).length >= 1
-            ) {
-              return setEditNote((prev) => ({
-                ...prev,
-                styles:
-                  Object.keys(currentSelectedStyle.style).length === 1
-                    ? prev.styles.filter((e) => e !== currentSelectedStyle)
-                    : replaceElementAtIndex(prev.styles, currentIndex, {
-                        ...currentSelectedStyle,
-                        style: removeObjectKey(
-                          currentSelectedStyle.style,
-                          "fontSize"
-                        ),
-                      }),
-              }));
-            }
-            setEditNote((prev) => ({
-              ...prev,
-              generalStyles: removeObjectKey(prev.generalStyles, "fontSize"),
-            }));
+            setShowValue(3);
+            onReset();
           }}
           style={{
             color: theme.primary,

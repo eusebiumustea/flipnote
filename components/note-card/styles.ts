@@ -15,7 +15,9 @@ export const noteCardStyles = (theme: typeof dark) =>
       width: props.width / 2 - 16,
       borderRadius: 16,
       padding: 16,
+
       ...shadows(theme),
+      overflow: "hidden",
       backgroundColor: props.item.background || "#fff",
       ...props.containerStyle,
     }),

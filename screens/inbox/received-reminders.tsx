@@ -21,22 +21,22 @@ export function ReceivedReminders() {
         flex: 1,
       }}
       ListHeaderComponent={
-        received.length > 0 && (
-          <>
-            <Text
-              style={{
-                color: theme.onPrimary,
-                fontSize: moderateFontScale(20),
-                paddingTop: 16,
-              }}
-            >
-              Received notifications
-            </Text>
+        <>
+          <Text
+            style={{
+              color: theme.onPrimary,
+              fontSize: moderateFontScale(17),
+              fontFamily: "OpenSans",
+            }}
+          >
+            Recent notifications:
+          </Text>
+          {received.length > 0 && (
             <View style={{ flexDirection: "row" }}>
               <Button onPress={() => setReceived([])}>Clear all</Button>
             </View>
-          </>
-        )
+          )}
+        </>
       }
       data={received}
       keyExtractor={(_, i) => i.toString()}

@@ -1,52 +1,49 @@
-import * as Notifications from "expo-notifications";
-import * as Print from "expo-print";
 import * as fs from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
-import { Dispatch, SetStateAction, useMemo } from "react";
-import { useToast } from "../components";
-import { InputSelectionProps, Note } from "../screens";
-import { dateTime, range } from "../utils";
-import { useLoading } from "./use-loading-dialog";
-import { useHTMLRenderedContent } from "./use-note-content";
-import { shareAsync } from "expo-sharing";
+import * as Notifications from "expo-notifications";
+import * as Print from "expo-print";
+import * as Share from "expo-sharing";
+import { Dispatch, SetStateAction } from "react";
 import { Keyboard, Platform } from "react-native";
 import ViewShot from "react-native-view-shot";
+import { useToast } from "../components";
+import { Note } from "../screens";
+import { dateTime } from "../utils";
+import { useLoading } from "./use-loading-dialog";
+import { useHTMLRenderedContent } from "./use-note-content";
 export function useNoteUtils(
   id: number,
-  selection: InputSelectionProps,
   editNote: Note,
   setEditNote: Dispatch<SetStateAction<Note>>,
   setReminderDialog: Dispatch<SetStateAction<boolean>>,
   setShowTitle: Dispatch<SetStateAction<boolean>>,
   setCapturing: Dispatch<SetStateAction<boolean>>,
-  viewShotRef: React.MutableRefObject<ViewShot>
+  viewShotRef: React.MutableRefObject<ViewShot>,
+  noteStateIsEmpty: boolean
 ) {
-  const noteStateIsEmpty =
-    editNote.text.length === 0 && editNote.title.length === 0;
   const toast = useToast();
   const setLoading = useLoading();
+
+  const scheduleDateForNotification =
+    editNote.reminder && new Date(editNote.reminder);
   const html = useHTMLRenderedContent(
-    editNote.styles,
     editNote.text,
     editNote.title,
     editNote.background,
     editNote.imageOpacity,
-    editNote.contentPosition,
     editNote.imageData
   );
-  const scheduleDateForNotification =
-    editNote.reminder && new Date(editNote.reminder);
   async function SharePDF() {
     try {
       setLoading("Preparing PDF...");
       const result = await Print.printToFileAsync({
-        html,
         width: 794,
         height: 1102,
+        html,
         useMarkupFormatter: !isImgBg,
       });
 
-      await shareAsync(result.uri, {
+      await Share.shareAsync(result.uri, {
         UTI: ".pdf",
         mimeType: "application/pdf",
       });
@@ -63,9 +60,9 @@ export function useNoteUtils(
         await fs.StorageAccessFramework.requestDirectoryPermissionsAsync();
       if (permission.granted) {
         const result = await Print.printToFileAsync({
-          html,
           width: 794,
           height: 1102,
+          html,
           useMarkupFormatter: !isImgBg,
           base64: true,
         });
@@ -87,32 +84,22 @@ export function useNoteUtils(
   async function ShareImage() {
     try {
       setLoading("Preparing image...");
-      Keyboard.dismiss();
       setCapturing(true);
       if (editNote.title.length === 0) {
         setShowTitle(false);
       }
       const image = await viewShotRef.current.capture();
-
-      if (editNote.title.length === 0) {
-        setShowTitle(true);
-      }
-      setCapturing(false);
-
-      await shareAsync(image);
-      if (Platform.OS === "android") {
-        await fs.deleteAsync(image, { idempotent: true });
-      }
+      await Share.shareAsync(image);
     } catch (error) {
-      toast({ message: "Failed to share image", textColor: "red" });
     } finally {
+      setCapturing(false);
+      setShowTitle(true);
       setLoading(false);
     }
   }
   async function SaveImage() {
     try {
       setLoading("Preparing image...");
-      Keyboard.dismiss();
       setCapturing(true);
       if (editNote.title.length === 0) {
         setShowTitle(false);
@@ -126,11 +113,11 @@ export function useNoteUtils(
       setCapturing(false);
 
       await MediaLibrary.saveToLibraryAsync(image);
-      setLoading(false);
       toast({ message: "Image saved to library" });
     } catch (error) {
-      setLoading(false);
       toast({ message: "Failed to save image", textColor: "red" });
+    } finally {
+      setLoading(false);
     }
   }
   const isImgBg = editNote.background.includes("/");
@@ -164,27 +151,8 @@ export function useNoteUtils(
     }
     setReminderDialog(true);
   }
-  const currentSelectedStyle = useMemo(() => {
-    if (selection.end > selection.start) {
-      return editNote.styles.find(
-        (e) =>
-          (selection.start < e.interval.start &&
-            selection.end > e.interval.end &&
-            Object.keys(e.style).length > 0) ||
-          (range(e.interval.start, e.interval.end).includes(
-            selection.start + 1
-          ) &&
-            Object.keys(e.style).length > 0) ||
-          (range(e.interval.start, e.interval.end).includes(
-            selection.end - 1
-          ) &&
-            Object.keys(e.style).length > 0)
-      );
-    }
-  }, [selection, editNote.styles]);
 
   return {
-    currentSelectedStyle,
     openReminder,
     SaveImage,
     SavePDF,

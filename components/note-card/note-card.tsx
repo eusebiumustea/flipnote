@@ -10,10 +10,10 @@ import {
 } from "react-native";
 import { Text } from "react-native-fast-text";
 import { darkCardColors } from "../../constants/colors";
-import { useStyle } from "../../hooks/use-style";
+import { useTheme } from "../../hooks";
 import { NotePreviewTypes } from "../../screens/note";
+import { shadows } from "../../ui-config";
 import { moderateFontScale, verticalScale } from "../../utils";
-import { noteCardStyles } from "./styles";
 interface NoteCardProps {
   item?: NotePreviewTypes;
   onPress?: (event: GestureResponderEvent) => void;
@@ -32,7 +32,7 @@ export const NoteCard = memo(
     containerStyle,
   }: NoteCardProps) => {
     const { width } = useWindowDimensions();
-    const styles = useStyle(noteCardStyles);
+    const theme = useTheme();
     const defaultThemeText = useMemo(() => {
       if (item.imageOpacity > 0.4) {
         return "#ffffff";
@@ -43,13 +43,22 @@ export const NoteCard = memo(
         return "#000000";
       }
     }, [item.imageOpacity, item.background]);
+    const isImgBg = item.background?.includes("/");
     return (
       <Pressable
         onLongPress={onLongPress}
         onPress={onPress}
-        style={styles.root({ width, item, containerStyle })}
+        style={{
+          height: verticalScale(250),
+          width: width / 2 - 16,
+          borderRadius: 16,
+          padding: 16,
+          backgroundColor: isImgBg ? theme.primary : item.background,
+          ...containerStyle,
+          ...shadows(theme),
+        }}
       >
-        {item.background?.includes("/") && (
+        {isImgBg && (
           <>
             <View
               style={{
@@ -77,31 +86,35 @@ export const NoteCard = memo(
             />
           </>
         )}
-
-        {item.title && (
-          <Text
-            style={{
-              color: defaultThemeText,
-              fontSize: moderateFontScale(22),
-              fontWeight: "bold",
-              fontFamily: "OpenSans",
-              maxHeight: verticalScale(250),
-              textAlign: item.contentPosition,
-            }}
-          >
-            {item.title}
-          </Text>
-        )}
-        <Text
+        <View
           style={{
-            fontSize: moderateFontScale(17),
-            fontFamily: "OpenSans",
-            color: defaultThemeText,
-            textAlign: item.contentPosition,
+            flex: 1,
+            overflow: "hidden",
           }}
         >
-          {item.text}
-        </Text>
+          {item.title && (
+            <Text
+              style={{
+                color: defaultThemeText,
+                fontSize: moderateFontScale(22),
+                fontWeight: "bold",
+                fontFamily: "OpenSans",
+                maxHeight: verticalScale(250),
+              }}
+            >
+              {item.title}
+            </Text>
+          )}
+          <Text
+            style={{
+              fontSize: moderateFontScale(17),
+              fontFamily: "OpenSans",
+              color: defaultThemeText,
+            }}
+          >
+            {item.text}
+          </Text>
+        </View>
 
         {options && (
           <Checkbox

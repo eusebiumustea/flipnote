@@ -1,21 +1,9 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "../../../../hooks";
-import {
-  moderateFontScale,
-  removeObjectKey,
-  replaceElementAtIndex,
-} from "../../../../utils";
-import { FontFamilyEvent } from "../../style-events";
+import { moderateFontScale } from "../../../../utils";
 import { OptionProps } from "../../types";
 
-export function FontOptions({
-  fonts,
-  setEditNote,
-  fontFamilyFocused,
-  currentSelectedStyle,
-  currentIndex,
-  selection,
-}: OptionProps) {
+export function FontOptions({ fonts, setEditNote }: OptionProps) {
   const theme = useTheme();
 
   return (
@@ -31,32 +19,6 @@ export function FontOptions({
     >
       <TouchableOpacity
         activeOpacity={0.8}
-        onPress={() => {
-          if (
-            currentSelectedStyle &&
-            currentSelectedStyle?.style?.fontFamily !== undefined &&
-            Object.keys(currentSelectedStyle.style).length >= 1
-          ) {
-            setEditNote((prev) => ({
-              ...prev,
-              styles:
-                Object.keys(currentSelectedStyle.style).length === 1
-                  ? prev.styles.filter((e) => e !== currentSelectedStyle)
-                  : replaceElementAtIndex(prev.styles, currentIndex, {
-                      ...currentSelectedStyle,
-                      style: removeObjectKey(
-                        currentSelectedStyle.style,
-                        "fontFamily"
-                      ),
-                    }),
-            }));
-            return;
-          }
-          setEditNote((prev) => ({
-            ...prev,
-            generalStyles: { ...prev.generalStyles, fontFamily: "" },
-          }));
-        }}
         style={{
           borderRadius: 16,
           justifyContent: "center",
@@ -72,35 +34,11 @@ export function FontOptions({
         >
           {"Default"}
         </Text>
-        {!fontFamilyFocused && (
-          <View
-            style={{
-              width: "100%",
-              height: 3,
-              backgroundColor: theme.primary,
-            }}
-          />
-        )}
       </TouchableOpacity>
       {fonts.map((font, i) => {
         return (
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => {
-              if (selection.end > selection.start) {
-                return FontFamilyEvent(
-                  currentSelectedStyle,
-                  font,
-                  selection,
-                  setEditNote,
-                  currentIndex
-                );
-              }
-              setEditNote((prev) => ({
-                ...prev,
-                generalStyles: { ...prev.generalStyles, fontFamily: font },
-              }));
-            }}
             style={{
               borderRadius: 16,
               justifyContent: "center",
@@ -118,15 +56,6 @@ export function FontOptions({
             >
               {font}
             </Text>
-            {fontFamilyFocused === font && (
-              <View
-                style={{
-                  width: "100%",
-                  height: 3,
-                  backgroundColor: theme.primary,
-                }}
-              />
-            )}
           </TouchableOpacity>
         );
       })}

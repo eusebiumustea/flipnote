@@ -10,18 +10,18 @@ import {
   ScrollView,
   useWindowDimensions,
 } from "react-native";
+import { RichEditor } from "react-native-pell-rich-editor";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ViewShot from "react-native-view-shot";
 import { darkCardColors } from "../../constants";
-import { useEditNoteContent, useTheme } from "../../hooks";
+import { useTheme } from "../../hooks";
 import { useNoteStorage } from "../../hooks/use-note-manager";
 import { useNoteUtils } from "../../hooks/use-note-utills";
-import { verticalScale } from "../../utils";
-import { NoteContentInput } from "./note-content-input";
+import { debounce, verticalScale } from "../../utils";
 import { NoteOverlays } from "./note-overlays";
 import { LoadingItem } from "./note-overlays/loading-item";
 import { NoteTitleInput } from "./note-title-input";
-import { InputSelectionProps, Note, ReminderProps } from "./types";
+import { Note, ReminderProps } from "./types";
 interface ParamsProps {
   id: number;
   isCreating: boolean;
@@ -31,63 +31,64 @@ type NotePageProps = {
   route: NavigatorScreenParams<{}>;
 };
 export const NotePage = memo(({ route }: NotePageProps) => {
-  const theme = useTheme();
   const { id, isCreating, background }: ParamsProps = route.params;
   const [loadingProgress, setLoadingProgress] = useState(!isCreating);
+
   const [editNote, setEditNote] = useState<Note>({
     id,
     title: "",
     text: "",
     isFavorite: false,
     background: "#fff",
-    styles: [],
-    generalStyles: {},
     reminder: null,
-    contentPosition: "left",
     imageOpacity: 0,
     imageData: "",
   });
 
-  useNoteStorage(id, editNote, setEditNote, setLoadingProgress);
+  const textFiltered = useMemo(() => {
+    return editNote.text.replace(/<(.|\n)*?>/g, "").trim();
+  }, [editNote.text]);
+  const noteStateIsEmpty =
+    textFiltered.length === 0 && editNote.title.length === 0;
+  const editorRef = useRef<RichEditor>(null);
+  useNoteStorage(
+    id,
+    editNote,
+    setEditNote,
+    setLoadingProgress,
+    noteStateIsEmpty
+  );
+
   const [reminder, setReminder] = useState<ReminderProps>({
     date: new Date(),
     time: new Date(),
   });
-  const [selection, setSelection] = useState<InputSelectionProps>({
-    start: 0,
-    end: 0,
-  });
+
   const [reminderDialog, setReminderDialog] = useState(false);
   const viewShotRef = useRef<ViewShot>(null);
   const { top } = useSafeAreaInsets();
   const [capturing, setCapturing] = useState(false);
   const [showTitle, setShowTitle] = useState(true);
-  const {
-    currentSelectedStyle,
-    openReminder,
-    SaveImage,
-    SavePDF,
-    ShareImage,
-    SharePDF,
-  } = useNoteUtils(
-    id,
-    selection,
-    editNote,
-    setEditNote,
-    setReminderDialog,
-    setShowTitle,
-    setCapturing,
-    viewShotRef
-  );
+  const { openReminder, SaveImage, SavePDF, ShareImage, SharePDF } =
+    useNoteUtils(
+      id,
+      editNote,
+      setEditNote,
+      setReminderDialog,
+      setShowTitle,
+      setCapturing,
+      viewShotRef,
+      noteStateIsEmpty
+    );
   const isImgBg = editNote.background.includes("/");
   const captureBackground = useMemo(() => {
     if (capturing && isImgBg) {
-      return null;
+      return "transparent";
     }
     if (capturing && !isImgBg) {
       return editNote.background;
     }
-    return null;
+    return "transparent";
   }, [capturing, isImgBg]);
   const defaultContentTheme = useMemo(() => {
     if (editNote.imageOpacity > 0.4) {
@@ -99,129 +100,131 @@ export const NotePage = memo(({ route }: NotePageProps) => {
       return "#000000";
     }
   }, [editNote.imageOpacity, editNote.background]);
-  const { height, width } = useWindowDimensions();
   const scrollRef = useRef<ScrollView>(null);
-  const { current } = useCardAnimation();
-  const Content = useEditNoteContent(
-    editNote.styles,
-    editNote.text,
-    editNote.background,
-    editNote.imageOpacity,
-    editNote.generalStyles?.color
-      ? (editNote.generalStyles?.color as string)
-      : defaultContentTheme
-  );
+  const { width, height } = useWindowDimensions();
+  const { current, closing } = useCardAnimation();
+  const theme = useTheme();
 
   if (loadingProgress) {
     return <LoadingItem bg={background} />;
   }
-
   return (
-    <>
-      <ViewShot
-        options={{
-          result: "tmpfile",
-          fileName: `flipnote-${id}`,
-        }}
-        ref={isImgBg ? viewShotRef : null}
-        style={[
-          {
-            flex: 1,
-            backgroundColor: !isImgBg ? editNote.background : null,
-          },
-        ]}
+    <MotiView
+      style={{ flex: 1 }}
+      transition={{ type: "timing", duration: 300 }}
+      from={{ backgroundColor: background }}
+      animate={{
+        backgroundColor: !isImgBg ? editNote.background : null,
+      }}
+    >
+      <MotiView
+        from={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 100, type: "timing", duration: 200 }}
+        style={{ flex: 1 }}
       >
-        {isImgBg && (
-          <>
-            <MotiView
-              transition={{ type: "timing", duration: 200 } as any}
-              from={{ opacity: 0 }}
-              animate={{ opacity: editNote.imageOpacity }}
-              style={{
-                height: height + top,
-                width,
-                position: "absolute",
-                zIndex: -1,
-                top: 0,
-                backgroundColor: "#000",
-              }}
-            />
-            <Image
-              source={{
-                uri: editNote.background,
-              }}
-              style={{
-                height: height + top,
-                width,
-                position: "absolute",
-                zIndex: -2,
-                top: 0,
-              }}
-            />
-          </>
-        )}
-
         <KeyboardAvoidingView
+          style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          keyboardVerticalOffset={verticalScale(52)}
-          style={{
-            flex: 1,
-          }}
         >
-          <Animated.ScrollView
-            bounces={false}
-            ref={scrollRef}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="always"
-            keyboardDismissMode="none"
-            contentContainerStyle={{
-              paddingTop: capturing ? 0 : verticalScale(70) + top,
-              paddingBottom: verticalScale(100),
+          <ViewShot
+            options={{
+              result: "tmpfile",
+              fileName: `flipnote-${id}`,
+              format: "jpg",
             }}
+            ref={isImgBg ? viewShotRef : null}
             style={{
               flex: 1,
-              opacity: current.progress,
             }}
           >
-            <ViewShot
+            {isImgBg && (
+              <>
+                <MotiView
+                  transition={{ type: "timing", duration: 200 } as any}
+                  from={{ opacity: 0 }}
+                  animate={{ opacity: editNote.imageOpacity }}
+                  style={{
+                    height: height + top,
+                    width,
+                    position: "absolute",
+                    zIndex: -1,
+                    top: 0,
+                    backgroundColor: "#000",
+                  }}
+                />
+                <Image
+                  source={{
+                    uri: editNote.background,
+                  }}
+                  style={{
+                    height: height + top,
+                    width,
+                    position: "absolute",
+                    zIndex: -2,
+                    top: 0,
+                  }}
+                />
+              </>
+            )}
+
+            <Animated.ScrollView
+              ref={scrollRef}
+              keyboardShouldPersistTaps="always"
+              keyboardDismissMode="none"
+              contentContainerStyle={{
+                paddingBottom: verticalScale(200),
+                paddingTop: capturing ? 0 : verticalScale(70) + top,
+              }}
               style={{
                 flex: 1,
-                backgroundColor: captureBackground,
-                paddingHorizontal: 16,
-                rowGap: verticalScale(12),
-                paddingVertical: !isImgBg && capturing && 16,
+                opacity: closing && current.progress,
               }}
-              options={{
-                result: "tmpfile",
-                useRenderInContext: !isImgBg,
-                fileName: `flipnote-${id}`,
-              }}
-              ref={!isImgBg ? viewShotRef : null}
             >
-              {showTitle && (
-                <NoteTitleInput
-                  theme={theme}
-                  setEditNote={setEditNote}
-                  editNote={editNote}
-                />
-              )}
-
-              <NoteContentInput
-                inputSelection={selection}
-                inputProps={{
-                  caretHidden: capturing,
-                  children: Content,
+              <ViewShot
+                style={{
+                  backgroundColor: captureBackground,
+                  rowGap: verticalScale(12),
+                  paddingVertical: !isImgBg && capturing && 16,
                 }}
-                setEditNote={setEditNote}
-                editNote={editNote}
-                setInputSelection={setSelection}
-              />
-            </ViewShot>
-          </Animated.ScrollView>
+                options={{
+                  result: "tmpfile",
+                  useRenderInContext: !isImgBg,
+                  fileName: `flipnote-${id}`,
+                }}
+                ref={!isImgBg ? viewShotRef : null}
+              >
+                {showTitle && (
+                  <NoteTitleInput
+                    editNote={editNote}
+                    setEditNote={setEditNote}
+                  />
+                )}
+
+                <RichEditor
+                  initialContentHTML={editNote.text}
+                  placeholder="Take the note"
+                  ref={editorRef}
+                  bounces={false}
+                  editorStyle={{
+                    backgroundColor: "transparent",
+                    color: defaultContentTheme,
+                    placeholderColor: theme.placeholder,
+                  }}
+                  onChange={debounce((html: string) => {
+                    setEditNote((prev) => ({ ...prev, text: html }));
+                  }, 0)}
+                />
+              </ViewShot>
+            </Animated.ScrollView>
+          </ViewShot>
         </KeyboardAvoidingView>
-      </ViewShot>
+      </MotiView>
 
       <NoteOverlays
+        ref={editorRef}
+        textFiltered={textFiltered}
+        noteStateIsEmpty={noteStateIsEmpty}
         saveImage={SaveImage}
         savePdf={SavePDF}
         defaultContentTheme={defaultContentTheme}
@@ -231,13 +234,11 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         setReminderDialog={setReminderDialog}
         id={id}
         onReminderOpen={openReminder}
-        selection={selection}
         setEditNote={setEditNote}
         setReminder={setReminder}
-        currentSelectedStyle={currentSelectedStyle}
         reminder={reminder}
         editNote={editNote}
       />
-    </>
+    </MotiView>
   );
 });

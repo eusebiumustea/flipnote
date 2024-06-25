@@ -8,6 +8,7 @@ import { removeReceivedReminder } from "../inbox/upcoming-reminders";
 import { receivedNotifications } from "../note";
 import { HomeOverlays } from "./home-overlays";
 import { NotesList } from "./notes-list";
+import { useLoading } from "../../hooks/use-loading-dialog";
 export function Home() {
   const [selected, setSelected] = useState<string[]>([]);
   const [badge, setBadge] = useState(false);

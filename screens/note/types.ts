@@ -13,11 +13,8 @@ export interface OptionProps {
   colors?: string[];
   editNote?: Note;
   fonts?: string[];
-  currentSelectedStyle?: TextNoteStyle;
-  fontFamilyFocused?: string;
-  currentIndex?: number;
-  selection?: InputSelectionProps;
   defaultTextColor?: string;
+  onColorChange?: (value: string, type: string) => void;
 }
 
 export interface Note {
@@ -26,10 +23,7 @@ export interface Note {
   text: string;
   isFavorite: boolean;
   background: string;
-  styles: TextNoteStyle[];
-  generalStyles: TextStyle;
   reminder: number | null;
-  contentPosition: "center" | "left" | "right";
   imageOpacity: number;
   imageData: string;
 }
@@ -41,7 +35,6 @@ export interface NotePreviewTypes {
   background: string;
   reminder: number | null;
   imageOpacity: number;
-  contentPosition: "center" | "left" | "right";
 }
 export interface InputSelectionProps {
   start: number;

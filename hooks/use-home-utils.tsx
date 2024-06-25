@@ -19,7 +19,6 @@ export function useHomeUtils(
 ) {
   const [notes, setNotes] = useRecoilState(notesData);
   const toast = useToast();
-  const setLoading = useLoading();
   function deleteNotes() {
     const noteCount = optionsSelection.length;
     const plural = noteCount === 1 ? "" : "s";
@@ -33,7 +32,6 @@ export function useHomeUtils(
           style: "destructive",
           onPress: async () => {
             try {
-              setLoading("Deleting...");
               await Promise.all(
                 optionsSelection.map(async (id) => {
                   await FileSystem.deleteAsync(`${NOTES_PATH}/${id}`, {
@@ -51,8 +49,6 @@ export function useHomeUtils(
               setOptionsSelection([]);
             } catch (_) {
               toast({ message: "Can't delete notes", textColor: "red" });
-            } finally {
-              setLoading(false);
             }
           },
         },

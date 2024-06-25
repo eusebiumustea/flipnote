@@ -1,23 +1,31 @@
-import React, { Dispatch, LegacyRef, SetStateAction, forwardRef } from "react";
-import { TextInput, TextInputProps } from "react-native";
+import React, {
+  Dispatch,
+  LegacyRef,
+  SetStateAction,
+  forwardRef,
+  useRef,
+} from "react";
+import { Button, TextInput, TextInputProps } from "react-native";
 import { darkCardColors } from "../../constants/colors";
 import { moderateFontScale } from "../../utils";
 import { Note } from "./types";
+import { useTheme } from "../../hooks";
 type NoteTitleProps = {
   editNote: Note;
   setEditNote: Dispatch<SetStateAction<Note>>;
-  theme: any;
   inputProps?: TextInputProps;
 };
 
 export const NoteTitleInput = ({
   editNote,
   setEditNote,
-  theme,
   inputProps,
 }: NoteTitleProps) => {
+  const inputRef = useRef(null);
+  const theme = useTheme();
   return (
     <TextInput
+      ref={inputRef}
       maxLength={1000}
       placeholderTextColor={theme.placeholder}
       onChangeText={(editedTitle) =>
@@ -40,7 +48,7 @@ export const NoteTitleInput = ({
         fontSize: moderateFontScale(30),
         fontWeight: "bold",
         fontFamily: "OpenSans",
-        textAlign: editNote.contentPosition,
+        marginHorizontal: 8,
       }}
       {...inputProps}
     />

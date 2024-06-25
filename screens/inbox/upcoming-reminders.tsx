@@ -1,3 +1,5 @@
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
 import { useMemo } from "react";
@@ -8,13 +10,13 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import { NoteCard } from "../../components";
 import { NOTES_PATH } from "../../constants";
 import { useTheme } from "../../hooks";
 import { useRequest } from "../../hooks/use-request";
 import { dateTime, moderateFontScale, verticalScale } from "../../utils";
-import { notesValue, receivedNotifications } from "../note";
+import { notesValue } from "../note";
 export async function removeReceivedReminder(id: number) {
   await Notifications.cancelScheduledNotificationAsync(id.toString());
   const data = await FileSystem.readAsStringAsync(`${NOTES_PATH}/${id}`);
@@ -25,7 +27,6 @@ export async function removeReceivedReminder(id: number) {
   );
 }
 export function UpcomingReminders() {
-  const [received] = useRecoilState(receivedNotifications);
   const notes = useRecoilValue(notesValue);
   const theme = useTheme();
   const upcomingNotifications = useMemo(() => {
@@ -33,33 +34,7 @@ export function UpcomingReminders() {
   }, [notes]);
   const { updateNote } = useRequest();
   const { width } = useWindowDimensions();
-  const renderHeader = useMemo(() => {
-    if (upcomingNotifications.length > 0) {
-      <Text
-        style={{
-          color: theme.onPrimary,
-          fontSize: moderateFontScale(18),
-        }}
-      >
-        Upcoming
-      </Text>;
-    }
-    if (upcomingNotifications.length === 0 && received.length === 0) {
-      return (
-        <Text
-          style={{
-            color: theme.onPrimary,
-            fontSize: moderateFontScale(17),
-            textAlign: "center",
-            fontFamily: "OpenSans",
-            paddingTop: 16,
-          }}
-        >
-          No upcoming notifications
-        </Text>
-      );
-    }
-  }, [upcomingNotifications, received]);
+  const nav = useNavigation<StackNavigationHelpers>();
   return (
     <FlatList
       contentContainerStyle={{
@@ -71,7 +46,31 @@ export function UpcomingReminders() {
         backgroundColor: theme.background,
         flex: 1,
       }}
-      ListHeaderComponent={renderHeader}
+      ListEmptyComponent={
+        <Text
+          style={{
+            color: theme.onPrimary,
+            fontSize: moderateFontScale(17),
+            textAlign: "center",
+            fontFamily: "OpenSans",
+            paddingTop: 16,
+          }}
+        >
+          No upcoming notifications
+        </Text>
+      }
+      ListHeaderComponent={
+        upcomingNotifications.length > 0 && (
+          <Text
+            style={{
+              color: theme.onPrimary,
+              fontSize: moderateFontScale(18),
+            }}
+          >
+            Upcoming
+          </Text>
+        )
+      }
       data={upcomingNotifications}
       keyExtractor={(_, i) => i.toString()}
       renderItem={({ item }) => {
@@ -80,6 +79,18 @@ export function UpcomingReminders() {
         return (
           <>
             <NoteCard
+              onPress={() => {
+                if (nav.isFocused()) {
+                  nav.navigate("note", {
+                    id: item.id,
+                    relativeX: 0,
+                    relativeY: 0,
+                    animationEnabled: false,
+                    background: item.background,
+                    isCreating: false,
+                  });
+                }
+              }}
               containerStyle={{ width: width - 32, height: "auto" }}
               item={item}
             />

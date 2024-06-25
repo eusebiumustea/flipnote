@@ -1,7 +1,5 @@
-import { useKeyboard } from "@react-native-community/hooks";
 import * as React from "react";
 import { Pressable } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { useTheme } from "../../../hooks";
 import { moderateScale } from "../../../utils";
@@ -9,8 +7,7 @@ import { IconButtonBase } from "./types";
 
 export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
   const theme = useTheme();
-  const { bottom } = useSafeAreaInsets();
-  const keyboard = useKeyboard();
+
   return (
     <Pressable
       onPress={onPress}
@@ -22,7 +19,7 @@ export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
         alignItems: "center",
         justifyContent: "center",
         position: "absolute",
-        bottom: keyboard.keyboardShown ? -keyboard.keyboardHeight : 0,
+        bottom: 0,
         right: 0,
         margin: 30,
         elevation: 10,

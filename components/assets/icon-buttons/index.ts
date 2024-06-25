@@ -29,3 +29,4 @@ export * from "./justify-align-icon";
 export * from "./chevron-down";
 export * from "./info-icon";
 export * from "./pdf-icon";
+export * from "./chevron-up";

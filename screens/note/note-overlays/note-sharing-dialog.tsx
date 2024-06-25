@@ -1,16 +1,16 @@
 import { Picker } from "@react-native-picker/picker";
 import { useCallback, useState } from "react";
-import { Platform, View } from "react-native";
+import { useForm } from "react-hook-form";
+import { Dimensions, Platform, View } from "react-native";
 import { BackgroundIcon, Dialog, PdfIcon } from "../../../components";
 import { useTheme } from "../../../hooks";
-import * as fs from "expo-file-system";
 interface NoteSharingDialogProps {
   visible: boolean;
   onCencel: () => void;
-  sharePdf: () => Promise<void>;
-  shareImage: () => Promise<void>;
-  savePdf: () => Promise<void>;
-  saveImage: () => Promise<void>;
+  sharePdf: () => void;
+  shareImage: () => void;
+  savePdf: () => void;
+  saveImage: () => void;
 }
 
 export function NoteSharingDialog({
@@ -33,35 +33,30 @@ export function NoteSharingDialog({
 
   return (
     <Dialog
-      title="Share note content as:"
+      title="Share note content"
       onCencel={onCencel}
       styles={{ width: "90%" }}
       animation="fade"
       visible={visible}
-      buttonsContainerStyle={{
-        justifyContent: "center",
-        position: "relative",
-        marginVertical: -10,
-      }}
       buttons={[
         {
           title: "Save",
-          onPress() {
+          onPress: () => {
             if (option === 0) {
-              saveImage().then(onCencel);
+              saveImage();
             } else {
-              savePdf().then(onCencel);
+              savePdf();
             }
           },
           hidden: option !== 0 && Platform.OS === "ios",
         },
         {
           title: "Share",
-          onPress() {
+          onPress: () => {
             if (option === 0) {
-              shareImage().then(onCencel);
+              shareImage();
             } else {
-              sharePdf().then(onCencel);
+              sharePdf();
             }
           },
         },
@@ -71,8 +66,6 @@ export function NoteSharingDialog({
         style={{
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "space-evenly",
-          paddingVertical: 8,
         }}
       >
         <Icon />

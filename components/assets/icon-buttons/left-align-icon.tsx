@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { moderateScale, verticalScale } from "../../../utils";
 import { IconButtonBase } from "./types";
@@ -13,9 +13,7 @@ export function LeftAlignIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={onPress}
+    <View
       style={{ width: moderateScale(25), height: verticalScale(25) }}
       {...btnProps}
     >
@@ -34,6 +32,6 @@ export function LeftAlignIcon({
           strokeLinejoin="round"
         />
       </Svg>
-    </TouchableOpacity>
+    </View>
   );
 }

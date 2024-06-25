@@ -1,14 +1,12 @@
-import { NavigationProp, useNavigation } from "@react-navigation/native";
-import { memo, useEffect, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
+import { memo, useState } from "react";
 import { CreateIcon } from "../../../components";
 import { Header } from "./header";
 import { NoteOptions } from "./note-options";
 import { OptionsOverlay } from "./options-overlay";
 import { HomeOverlaysProps } from "./types";
-import { addNotificationReceivedListener } from "expo-notifications";
-import { receivedNotifications } from "../../note";
-import { removeReceivedReminder } from "../../inbox/upcoming-reminders";
-import { useRecoilState } from "recoil";
+import { cardColors } from "../../../constants";
 
 export const HomeOverlays = memo(
   ({
@@ -22,7 +20,7 @@ export const HomeOverlays = memo(
     badge,
     setBadge,
   }: HomeOverlaysProps) => {
-    const navigation = useNavigation<NavigationProp<any>>();
+    const navigation = useNavigation<StackNavigationHelpers>();
     const [sharingDialog, setSharingDialog] = useState(false);
     const [optionsOverlay, setOptionsOverlay] = useState(false);
 
@@ -30,8 +28,8 @@ export const HomeOverlays = memo(
       return (
         <>
           <OptionsOverlay
-            open={optionsOverlay}
             onClose={() => setOptionsOverlay(false)}
+            open={optionsOverlay}
           />
           <Header
             badge={badge}
@@ -57,7 +55,7 @@ export const HomeOverlays = memo(
               nativeEvent: { pageX, pageY, locationX, locationY },
             }) => {
               if (navigation.isFocused()) {
-                navigation.navigate("note-init", {
+                navigation.navigate("note", {
                   id: new Date().getTime(),
                   relativeX: pageX - locationX,
                   relativeY: pageY - locationY,

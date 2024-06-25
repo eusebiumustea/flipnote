@@ -79,13 +79,17 @@ export const NoteOptions = memo(
             {
               title: "Save",
               onPress: () => Save(shareNotes, "flipnotebackup"),
+
               hidden: Platform.OS === "ios",
             },
-            { title: "Share", onPress: () => Share(shareNotes) },
+            {
+              title: "Share",
+              onPress: () => Share(shareNotes, "flipnotebackup"),
+            },
           ]}
           animation="fade"
           backgroundBlur={Platform.OS === "ios"}
-          styles={{ width: "90%", borderRadius: 16, paddingVertical: 20 }}
+          styles={{ width: "90%", borderRadius: 16 }}
         >
           <FlatList
             data={shareNotes}
@@ -115,35 +119,6 @@ export const NoteOptions = memo(
             }}
             style={{ width: "100%" }}
           />
-
-          {/* <TextInput
-            onChangeText={onChangeText}
-            value={textValue}
-            placeholderTextColor={theme.onBackgroundSearch}
-            placeholder="Archive password (*optional)"
-            style={{
-              width: "100%",
-              borderWidth: 1,
-              color: theme.onPrimary,
-              fontFamily: "OpenSans",
-              paddingLeft: 10,
-              backgroundColor: theme.backgroundSearch,
-              marginBottom: 10,
-            }}
-          />
-          {textValue.length > 0 && (
-            <Text
-              style={{
-                color: "red",
-                fontSize: moderateFontScale(13),
-                paddingBottom: 10,
-                textAlign: "center",
-              }}
-            >
-              Warning: If you forget your password, you may lose access to your
-              data.
-            </Text>
-          )} */}
         </Dialog>
         <View
           style={{

@@ -1,3 +1,4 @@
+import { NavigationContainer } from "@react-navigation/native";
 import {
   CardStyleInterpolators,
   TransitionPresets,
@@ -9,22 +10,22 @@ import { useTheme } from "../hooks";
 import { Home } from "../screens/home";
 import { Inbox } from "../screens/inbox";
 import { NotePage } from "../screens/note/note-page";
-import { note_init_options, note_options } from "./route-options";
-import { NavigationContainer } from "@react-navigation/native";
+import { note_options } from "./route-options";
 enableFreeze(true);
 const Stack = createStackNavigator();
 export function AppRouting() {
   const { width, height } = useWindowDimensions();
   const theme = useTheme();
-
   return (
     <NavigationContainer>
       <Stack.Navigator
-        screenOptions={{
+        screenOptions={(e: any) => ({
           headerShown: false,
           detachPreviousScreen: true,
           cardOverlayEnabled: true,
-        }}
+          animationEnabled:
+            e.route.params?.animationEnabled === false ? false : true,
+        })}
         initialRouteName="home"
       >
         <Stack.Screen component={Home} name="home" />
@@ -34,12 +35,6 @@ export function AppRouting() {
           component={NotePage}
           name="note"
         />
-        <Stack.Screen
-          options={note_init_options}
-          component={NotePage}
-          name="note-init"
-        />
-
         <Stack.Screen
           component={Inbox}
           options={{

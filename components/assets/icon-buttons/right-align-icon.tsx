@@ -13,27 +13,20 @@ export function RightAlignIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={onPress}
-      style={{ width: moderateScale(25), height: verticalScale(25) }}
-      {...btnProps}
+    <Svg
+      width={moderateScale(25)}
+      height={verticalScale(25)}
+      viewBox="0 0 24 24"
+      fill="none"
+      {...svgProps}
     >
-      <Svg
-        width={"100%"}
-        height={"100%"}
-        viewBox="0 0 24 24"
-        fill="none"
-        {...svgProps}
-      >
-        <Path
-          d="M12 4.5h9m-9 5h9m-18 5h18m-18 5h18"
-          stroke={active ? theme.primary : theme.textUnselected}
-          strokeWidth={active ? 2 : 1.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </Svg>
-    </TouchableOpacity>
+      <Path
+        d="M12 4.5h9m-9 5h9m-18 5h18m-18 5h18"
+        stroke={active ? theme.primary : theme.textUnselected}
+        strokeWidth={active ? 2 : 1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
   );
 }

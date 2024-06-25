@@ -21,15 +21,14 @@ interface OptionsOverlayProps {
   open: boolean;
   onClose: () => void;
 }
+
 export function OptionsOverlay({ open, onClose }: OptionsOverlayProps) {
   const { importNotes } = useStorageUtils();
   const OptionsItems: OptionItemProps[] = [
     {
       label: "Import notes",
       icon: <ImportIcon />,
-      onPress: () => {
-        importNotes().then(onClose);
-      },
+      onPress: () => importNotes().then(onClose),
     },
   ];
   const h = 80 * OptionsItems.length + 16;
@@ -62,7 +61,7 @@ export function OptionsOverlay({ open, onClose }: OptionsOverlayProps) {
   return (
     <AnimatePresence>
       {open && (
-        <Modal animationType="none" transparent onRequestClose={onClose}>
+        <Modal transparent animationType="none">
           <MotiView
             style={{
               position: "absolute",

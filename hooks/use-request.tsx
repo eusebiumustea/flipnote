@@ -2,7 +2,7 @@ import * as fs from "expo-file-system";
 import { useRecoilState } from "recoil";
 import { NOTES_PATH, NOTES_PREVIEW_PATH } from "../constants";
 import { Note, NotePreviewTypes, notesData } from "../screens";
-import { removeElementAtId, replaceElementAtId } from "../utils";
+import { extractText, removeElementAtId, replaceElementAtId } from "../utils";
 export function useRequest() {
   const [notes, setNotes] = useRecoilState(notesData);
 
@@ -23,12 +23,11 @@ export function useRequest() {
         data: replaceElementAtId(prev.data, id, {
           id: newNote.id,
           title: newNote.title.substring(0, 110),
-          text: newNote.text.substring(0, 170),
+          text: extractText(newNote.text).substring(0, 170),
           background: newNote.background,
           isFavorite: newNote.isFavorite,
           reminder: newNote.reminder,
           imageOpacity: newNote.imageOpacity,
-          contentPosition: newNote.contentPosition,
         }),
       }));
     } catch (error) {}
@@ -53,12 +52,11 @@ export function useRequest() {
         return {
           id: newNote.id,
           title: newNote.title.substring(0, 110),
-          text: newNote.text.substring(0, 170),
+          text: extractText(newNote.text).substring(0, 170),
           background: newNote.background,
           isFavorite: newNote.isFavorite,
           reminder: newNote.reminder,
           imageOpacity: newNote.imageOpacity,
-          contentPosition: newNote.contentPosition,
         } as NotePreviewTypes;
       });
       const data = await Promise.all(promisesDataFiles);
@@ -95,12 +93,11 @@ export function useRequest() {
         return {
           id: newNote.id,
           title: newNote.title.substring(0, 110),
-          text: newNote.text.substring(0, 170),
+          text: extractText(newNote.text).substring(0, 170),
           background: newNote.background,
           isFavorite: newNote.isFavorite,
           reminder: newNote.reminder,
           imageOpacity: newNote.imageOpacity,
-          contentPosition: newNote.contentPosition,
         } as NotePreviewTypes;
       });
       const newData = await Promise.all(promisesNewDataFiles);

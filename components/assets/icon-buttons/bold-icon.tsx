@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { moderateScale, verticalScale } from "../../../utils";
 import { IconButtonBase } from "./types";
@@ -13,7 +13,7 @@ export function BoldIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
+    <View
       activeOpacity={0.7}
       onPress={onPress}
       style={{ width: moderateScale(25), height: verticalScale(25) }}
@@ -34,6 +34,6 @@ export function BoldIcon({
           strokeLinejoin="round"
         />
       </Svg>
-    </TouchableOpacity>
+    </View>
   );
 }
