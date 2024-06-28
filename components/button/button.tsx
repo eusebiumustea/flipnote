@@ -1,10 +1,17 @@
 import { MotiView } from "moti";
 import { ReactNode } from "react";
-import { Platform, Pressable, PressableProps, Text } from "react-native";
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  PressableProps,
+  Text,
+} from "react-native";
 import Animated from "react-native-reanimated";
 import { useTheme } from "../../hooks";
 interface ButtonProps extends PressableProps {
   children?: ReactNode;
+  loading?: boolean;
   colors?: null | {
     focusedColor: string;
     color: string;
@@ -12,7 +19,12 @@ interface ButtonProps extends PressableProps {
     textColor: string;
   };
 }
-export function Button({ colors, children, ...pressableProps }: ButtonProps) {
+export function Button({
+  loading,
+  colors,
+  children,
+  ...pressableProps
+}: ButtonProps) {
   const theme = useTheme();
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
   const focusedBg = colors ? colors.focusedColor : theme.onPrimary;
@@ -20,16 +32,14 @@ export function Button({ colors, children, ...pressableProps }: ButtonProps) {
   const focusedTextColor = colors ? colors.textColorFocused : theme.primary;
   const textColor = colors ? colors.textColor : theme.onPrimary;
   return (
-    <AnimatedPressable {...pressableProps}>
+    <AnimatedPressable {...pressableProps} disabled={loading}>
       {({ pressed }) => {
         return (
           <MotiView
-            transition={
-              {
-                type: "timing",
-                duration: 100,
-              } as any
-            }
+            transition={{
+              type: "timing",
+              duration: 100,
+            }}
             style={{
               paddingHorizontal: 20,
               paddingVertical: 8,
@@ -39,6 +49,9 @@ export function Button({ colors, children, ...pressableProps }: ButtonProps) {
               shadowOpacity: 0.3,
               shadowRadius: 10,
               borderRadius: 16,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 12,
             }}
             from={{
               backgroundColor: theme.primary,
@@ -47,10 +60,11 @@ export function Button({ colors, children, ...pressableProps }: ButtonProps) {
             }}
             animate={{
               backgroundColor: pressed ? focusedBg : bg,
-
               scale: pressed ? 0.9 : 1,
             }}
           >
+            {loading && <ActivityIndicator size="small" color={"green"} />}
+
             <Text style={{ color: pressed ? focusedTextColor : textColor }}>
               {children}
             </Text>

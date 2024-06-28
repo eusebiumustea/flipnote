@@ -4,13 +4,13 @@ import * as Notifications from "expo-notifications";
 import * as Print from "expo-print";
 import * as Share from "expo-sharing";
 import { Dispatch, SetStateAction } from "react";
-import { Keyboard, Platform } from "react-native";
 import ViewShot from "react-native-view-shot";
 import { useToast } from "../components";
+import { contentLengthLimit } from "../constants";
 import { Note } from "../screens";
 import { dateTime } from "../utils";
-import { useLoading } from "./use-loading-dialog";
 import { useHTMLRenderedContent } from "./use-note-content";
+import { useLoading } from "./use-loading-dialog";
 export function useNoteUtils(
   id: number,
   editNote: Note,
@@ -22,8 +22,7 @@ export function useNoteUtils(
   noteStateIsEmpty: boolean
 ) {
   const toast = useToast();
-  const setLoading = useLoading();
-
+  const loading = useLoading();
   const scheduleDateForNotification =
     editNote.reminder && new Date(editNote.reminder);
   const html = useHTMLRenderedContent(
@@ -33,28 +32,34 @@ export function useNoteUtils(
     editNote.imageOpacity,
     editNote.imageData
   );
-  async function SharePDF() {
-    try {
-      setLoading("Preparing PDF...");
-      const result = await Print.printToFileAsync({
-        width: 794,
-        height: 1102,
-        html,
-        useMarkupFormatter: !isImgBg,
-      });
+  async function SharePDF(cencel: () => void) {
+    loading("Preparing doc file...");
+    Print.printToFileAsync({
+      width: 794,
+      height: 1102,
+      html,
 
-      await Share.shareAsync(result.uri, {
-        UTI: ".pdf",
-        mimeType: "application/pdf",
-      });
-      await fs.deleteAsync(result.uri, { idempotent: true });
-    } catch (error) {
-      setLoading(false);
-    } finally {
-      setLoading(false);
-    }
+      useMarkupFormatter: false,
+    })
+      .then((result) => {
+        Share.shareAsync(result.uri, {
+          UTI: ".pdf",
+          mimeType: "application/pdf",
+        })
+          .then(() =>
+            fs.deleteAsync(result.uri, { idempotent: true }).finally(cencel)
+          )
+          .catch(() =>
+            toast({ message: "Failed to share pdf", textColor: "red" })
+          );
+      })
+      .catch(() =>
+        toast({ message: "Failed to create pdf doc", textColor: "red" })
+      )
+      .finally(() => loading(false));
   }
-  async function SavePDF() {
+  async function SavePDF(cencel: () => void) {
+    loading("Preparing pdf doc file...");
     try {
       const permission =
         await fs.StorageAccessFramework.requestDirectoryPermissionsAsync();
@@ -63,7 +68,6 @@ export function useNoteUtils(
           width: 794,
           height: 1102,
           html,
-          useMarkupFormatter: !isImgBg,
           base64: true,
         });
         const newUri = await fs.StorageAccessFramework.createFileAsync(
@@ -79,48 +83,76 @@ export function useNoteUtils(
       }
     } catch (error) {
       toast({ message: "Failed to save pdf" });
+    } finally {
+      cencel();
+      loading(false);
     }
   }
-  async function ShareImage() {
-    try {
-      setLoading("Preparing image...");
-      setCapturing(true);
-      if (editNote.title.length === 0) {
-        setShowTitle(false);
-      }
-      const image = await viewShotRef.current.capture();
-      await Share.shareAsync(image);
-    } catch (error) {
-    } finally {
+  function ShareImage(cencel: () => void) {
+    if (editNote.text.length > contentLengthLimit()) {
+      toast({
+        message: `Note content is too large for sharing as image format. Limit is up to ${contentLengthLimit()} characters`,
+        duration: 3500,
+        textColor: "orange",
+      });
+      cencel();
+      return;
+    }
+    loading("Preparing image...");
+    setCapturing(true);
+    if (editNote.title.length === 0) {
+      setShowTitle(false);
+    }
+    setTimeout(() => {
+      viewShotRef.current
+        ?.capture()
+        .then((image) => {
+          Share.shareAsync(image).then(cencel);
+        })
+        .finally(() => loading(false));
+    }, 100);
+    setTimeout(() => {
       setCapturing(false);
       setShowTitle(true);
-      setLoading(false);
-    }
+    }, 300);
   }
-  async function SaveImage() {
-    try {
-      setLoading("Preparing image...");
-      setCapturing(true);
-      if (editNote.title.length === 0) {
-        setShowTitle(false);
-      }
+  function SaveImage(cencel: () => void) {
+    if (editNote.text.length > contentLengthLimit()) {
+      toast({
+        message: `Note content is too large for saving as image format. Limit is up to ${contentLengthLimit()} characters`,
+        duration: 3500,
+        textColor: "orange",
+      });
+      cencel();
+      return;
+    }
+    loading("Preparing image...");
+    setCapturing(true);
+    if (editNote.title.length === 0) {
+      setShowTitle(false);
+    }
 
-      const image = await viewShotRef.current.capture();
-
-      if (editNote.title.length === 0) {
-        setShowTitle(true);
-      }
+    setTimeout(() => {
+      viewShotRef.current
+        ?.capture()
+        .then((image) => {
+          MediaLibrary.saveToLibraryAsync(image)
+            .then(() => toast({ message: "Image saved to library" }))
+            .then(cencel)
+            .catch(() =>
+              toast({ message: "Failed to save image", textColor: "red" })
+            );
+        })
+        .catch(() =>
+          toast({ message: "Failed to prepare image", textColor: "red" })
+        )
+        .finally(() => loading(false));
+    }, 100);
+    setTimeout(() => {
       setCapturing(false);
-
-      await MediaLibrary.saveToLibraryAsync(image);
-      toast({ message: "Image saved to library" });
-    } catch (error) {
-      toast({ message: "Failed to save image", textColor: "red" });
-    } finally {
-      setLoading(false);
-    }
+      setShowTitle(true);
+    }, 300);
   }
-  const isImgBg = editNote.background.includes("/");
   function openReminder() {
     if (noteStateIsEmpty) {
       toast({

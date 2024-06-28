@@ -4,7 +4,6 @@ import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BackIcon } from "../../../components";
 import { darkCardColors } from "../../../constants";
-import { activityIndicatorColors } from "../../home/notes-list";
 export function LoadingItem({ bg }: { bg: string }) {
   const { top } = useSafeAreaInsets();
   const nav = useNavigation<StackNavigationHelpers>();

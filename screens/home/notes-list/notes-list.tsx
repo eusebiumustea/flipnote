@@ -38,7 +38,7 @@ export const NotesList = memo(
     const navigation = useNavigation<StackNavigationHelpers>();
     const theme = useTheme();
     const scrollRef = useRef<FlatList>(null);
-    const { top } = useSafeAreaInsets();
+    const { top, bottom } = useSafeAreaInsets();
     const { loadPreviewNotes } = useRequest();
     const [refreshing, setRefreshing] = useState(false);
     const { loading } = useRecoilValue(notesData);
@@ -102,6 +102,7 @@ export const NotesList = memo(
         data={data}
         scrollEnabled={navigation.isFocused()}
         keyExtractor={(_, index) => index.toString()}
+        legacyImplementation
         renderItem={({ item }) => {
           return (
             <NoteCard
@@ -121,6 +122,7 @@ export const NotesList = memo(
                   );
                   return;
                 }
+
                 if (navigation.isFocused()) {
                   navigation.navigate("note", {
                     id: item.id,
@@ -136,7 +138,7 @@ export const NotesList = memo(
           );
         }}
         scrollEventThrottle={16}
-        initialNumToRender={6}
+        initialNumToRender={12}
         keyboardDismissMode="on-drag"
         updateCellsBatchingPeriod={300}
         getItemLayout={(data, index) => ({
@@ -144,14 +146,15 @@ export const NotesList = memo(
           offset: verticalScale(250) * index,
           index,
         })}
-        maxToRenderPerBatch={6}
+        maxToRenderPerBatch={12}
         onScroll={(e) => {
           scrollY.setValue(Math.max(0, e.nativeEvent.contentOffset.y));
         }}
         contentContainerStyle={{
           width: "100%",
           rowGap: 12,
-          paddingBottom: 16,
+          paddingBottom: bottom + 16,
+
           paddingTop: verticalScale(70) + top,
         }}
         style={{

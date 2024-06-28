@@ -7,7 +7,22 @@ export function toggleArrayElement<T>(array: T[], value: T) {
   return removeElementAtIndex(array, indexOfValue);
 }
 export function extractText(html: string): string {
-  return html.replace(/<(.|\n)*?>/g, "").trim();
+  const tagRegex = /<[^>]*>/g;
+  let result = html.replace(tagRegex, "");
+  const entitiesToExclude = [
+    "&nbsp;",
+    "&amp;",
+    "&lt;",
+    "&gt;",
+    "&quot;",
+    "&apos;",
+  ];
+  entitiesToExclude.forEach((entity) => {
+    const entityRegex = new RegExp(entity, "g");
+    result = result.replace(entityRegex, "");
+  });
+
+  return result;
 }
 export function areObjectsEqual<o>(obj1: o, obj2: o): boolean {
   const keys1 = Object.keys(obj1).sort();

@@ -72,12 +72,10 @@ export function OptionsOverlay({ open, onClose }: OptionsOverlayProps) {
               zIndex: -1,
             }}
             from={{ opacity: 0 }}
-            transition={
-              {
-                type: "timing",
-                duration: 150,
-              } as any
-            }
+            transition={{
+              type: "timing",
+              duration: 150,
+            }}
             animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
           />

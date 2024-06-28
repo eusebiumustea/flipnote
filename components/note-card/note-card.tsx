@@ -14,6 +14,7 @@ import { useTheme } from "../../hooks";
 import { NotePreviewTypes } from "../../screens/note";
 import { shadows } from "../../ui-config";
 import { moderateFontScale, verticalScale } from "../../utils";
+import { MotiView } from "moti";
 interface NoteCardProps {
   item?: NotePreviewTypes;
   onPress?: (event: GestureResponderEvent) => void;
@@ -33,6 +34,7 @@ export const NoteCard = memo(
   }: NoteCardProps) => {
     const { width } = useWindowDimensions();
     const theme = useTheme();
+
     const defaultThemeText = useMemo(() => {
       if (item.imageOpacity > 0.4) {
         return "#ffffff";
@@ -52,10 +54,10 @@ export const NoteCard = memo(
           height: verticalScale(250),
           width: width / 2 - 16,
           borderRadius: 16,
-          padding: 16,
           backgroundColor: isImgBg ? theme.primary : item.background,
-          ...containerStyle,
+          padding: 16,
           ...shadows(theme),
+          ...containerStyle,
         }}
       >
         {isImgBg && (

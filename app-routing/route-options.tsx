@@ -1,18 +1,18 @@
 import { ParamListBase, RouteProp } from "@react-navigation/native";
-import {
-  StackNavigationOptions,
-  TransitionSpecs,
-} from "@react-navigation/stack";
+import { StackNavigationOptions } from "@react-navigation/stack";
 import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 import { light } from "../constants";
-import { shadows } from "../ui-config";
+import { shadows, springcfg } from "../ui-config";
 import { moderateScale, verticalScale } from "../utils";
 import { TransitionInterpolator } from "./transition-interpolator";
 import { Easing } from "react-native";
-type NoteRouteParams = {
+
+export type NoteRouteParams = {
+  id: number;
   relativeY: number;
   relativeX: number;
   isCreating: boolean;
+  animationEnabled: boolean;
 };
 interface NoteOptionsProps {
   route: RouteProp<ParamListBase>;
@@ -24,44 +24,33 @@ export const note_options = (
   theme: typeof light
 ) => {
   return ({ route }: NoteOptionsProps): StackNavigationOptions => {
-    const { relativeX, relativeY, isCreating } =
+    const { relativeX, relativeY, isCreating, animationEnabled } =
       route.params as NoteRouteParams;
     return {
+      animationEnabled,
       transitionSpec: {
-        open: {
-          animation: "spring",
-          config: {
-            overshootClamping: true,
-            stiffness: 100,
-            mass: 0.1,
-            damping: 100,
-          },
-        },
+        open: springcfg,
         close: {
           animation: "timing",
-          config: { duration: 160, easing: Easing.inOut(Easing.ease) },
+          config: { duration: 160, easing: Easing.bezier(1, 1, 0, 0) },
         },
       },
       cardStyle: {
         ...shadows(theme),
       },
-      cardStyleInterpolator: isCreating
-        ? TransitionInterpolator({
-            initial: {
-              scale: 0,
-              y: relativeY + verticalScale(40),
-              x: relativeX + moderateScale(40),
-            },
-          })
-        : TransitionInterpolator({
-            initial: {
-              scale: 1,
-              scaleX: (width / 2 - 16) / width,
-              scaleY: verticalScale(250) / height,
-              y: verticalScale(125) + relativeY,
-              x: (width / 2 - 16) / 2 + relativeX,
-            },
-          }),
+      cardStyleInterpolator: TransitionInterpolator({
+        initial: {
+          scale: isCreating ? 0 : 1,
+          scaleX: isCreating ? 1 : (width / 2 - 16) / width,
+          scaleY: isCreating ? 1 : verticalScale(250) / height,
+          y: isCreating
+            ? relativeY + verticalScale(40)
+            : verticalScale(125) + relativeY,
+          x: isCreating
+            ? relativeX + moderateScale(40)
+            : (width / 2 - 16) / 2 + relativeX,
+        },
+      }),
     };
   };
 };

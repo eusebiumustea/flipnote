@@ -125,8 +125,8 @@ export const Dialog = memo(
                 }}
               >
                 <Button onPress={onCencel}>Cencel</Button>
-                {filteredButtons.map(({ title, onPress }, i) => (
-                  <Button key={i} onPress={onPress}>
+                {filteredButtons.map(({ title, onPress, loading }, i) => (
+                  <Button key={i} loading={loading} onPress={onPress}>
                     {title}
                   </Button>
                 ))}

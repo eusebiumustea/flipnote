@@ -72,14 +72,12 @@ export function useStorageUtils() {
       await fs.writeAsStringAsync(output, zipContent, {
         encoding: fs.EncodingType.Base64,
       });
-      console.log(password);
 
       await Sharing.shareAsync(output, {
         mimeType: "application/zip",
       });
       await fs.deleteAsync(output, { idempotent: true });
     } catch (error) {
-      console.log(error);
     } finally {
       setLoading(false);
     }

@@ -7,10 +7,10 @@ import { useTheme } from "../../../hooks";
 interface NoteSharingDialogProps {
   visible: boolean;
   onCencel: () => void;
-  sharePdf: () => void;
-  shareImage: () => void;
-  savePdf: () => void;
-  saveImage: () => void;
+  sharePdf: (onCencel: () => void) => void;
+  shareImage: (onCencel: () => void) => void;
+  savePdf: (onCencel: () => void) => void;
+  saveImage: (onCencel: () => void) => void;
 }
 
 export function NoteSharingDialog({
@@ -43,20 +43,21 @@ export function NoteSharingDialog({
           title: "Save",
           onPress: () => {
             if (option === 0) {
-              saveImage();
+              saveImage(onCencel);
             } else {
-              savePdf();
+              savePdf(onCencel);
             }
           },
+
           hidden: option !== 0 && Platform.OS === "ios",
         },
         {
           title: "Share",
           onPress: () => {
             if (option === 0) {
-              shareImage();
+              shareImage(onCencel);
             } else {
-              sharePdf();
+              sharePdf(onCencel);
             }
           },
         },

@@ -1,7 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import {
   CardStyleInterpolators,
-  TransitionPresets,
   createStackNavigator,
 } from "@react-navigation/stack";
 import { Platform, useWindowDimensions } from "react-native";
@@ -10,6 +9,7 @@ import { useTheme } from "../hooks";
 import { Home } from "../screens/home";
 import { Inbox } from "../screens/inbox";
 import { NotePage } from "../screens/note/note-page";
+import { springcfg } from "../ui-config";
 import { note_options } from "./route-options";
 enableFreeze(true);
 const Stack = createStackNavigator();
@@ -19,13 +19,11 @@ export function AppRouting() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        screenOptions={(e: any) => ({
+        screenOptions={{
           headerShown: false,
           detachPreviousScreen: true,
           cardOverlayEnabled: true,
-          animationEnabled:
-            e.route.params?.animationEnabled === false ? false : true,
-        })}
+        }}
         initialRouteName="home"
       >
         <Stack.Screen component={Home} name="home" />
@@ -48,13 +46,14 @@ export function AppRouting() {
               backgroundColor: theme.background,
               borderWidth: 0,
             },
-
             headerTintColor: theme.onBackground,
             headerShadowVisible: false,
             gestureDirection: Platform.OS === "ios" ? "vertical" : "horizontal",
             gestureEnabled: true,
-            transitionSpec:
-              TransitionPresets.ModalPresentationIOS.transitionSpec,
+            transitionSpec: {
+              open: springcfg,
+              close: springcfg,
+            },
             cardStyleInterpolator:
               Platform.OS === "ios"
                 ? CardStyleInterpolators.forModalPresentationIOS

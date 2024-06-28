@@ -1,5 +1,5 @@
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 import * as Clipboard from "expo-clipboard";
 import { forwardRef, useState } from "react";
@@ -15,7 +15,6 @@ import { NoteOverlaysProps } from "./types";
 export const NoteOverlays = forwardRef(
   (
     {
-      id,
       editNote,
       reminder,
       setReminder,
@@ -33,6 +32,9 @@ export const NoteOverlays = forwardRef(
     }: NoteOverlaysProps,
     editorRef: React.MutableRefObject<RichEditor>
   ) => {
+    const {
+      params: { id },
+    } = useRoute<RouteProp<{}>>();
     const notification = useNoitication();
     const [sharingDialog, setSharingDialog] = useState(false);
     const [showNoteInfo, setShowNoteInfo] = useState<{ x: number; y: number }>(
@@ -51,7 +53,6 @@ export const NoteOverlays = forwardRef(
           setEditNote={setEditNote}
         />
         <NoteInfo
-          id={id}
           show={showNoteInfo !== null}
           startPositionX={showNoteInfo?.x}
           startPositionY={showNoteInfo?.y}

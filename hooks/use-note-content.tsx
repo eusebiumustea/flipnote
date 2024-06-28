@@ -37,11 +37,12 @@ export function useHTMLRenderedContent(
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
   </head>
-  <body style="background-color: ${bg.includes("/") ? "transparent" : bg};">
+  <body style="background: ${
+    bg.includes("/") ? `url(${imageData})` : bg
+  }; margin: 0px">
   ${
     bg.includes("/")
-      ? `<div style="position: fixed; top: 0px; z-index: -2; width: 100vw; height: 100vh; background-image: url(${imageData});"></div>
-      <div style="position: fixed; top: 0px; z-index: -1; width: 100vw; height: 100vh; background-color: #000; opacity: ${imageOpacity}"></div>`
+      ? `<div style="position: fixed; top: 0px; z-index: -1; width: 100vw; height: 100vh; background-color: #000; opacity: ${imageOpacity}"></div>`
       : ""
   }
   <div style="margin: 32px;">

@@ -28,7 +28,7 @@ export function FontSizeOptions({
         containerStyle={{ bottom: 10 }}
         onValueChange={(value) => {
           setShowValue(Math.round(value[0]));
-          onValueChange(value[0]);
+          onValueChange(Math.round(value[0]));
         }}
         renderAboveThumbComponent={(i, value) => (
           <Text

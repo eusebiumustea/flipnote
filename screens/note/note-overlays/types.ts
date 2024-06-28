@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction } from "react";
 import { Note, ReminderProps } from "../types";
+import { Animated } from "react-native";
 
 export interface NoteOverlaysProps {
-  id: number;
   editNote: Note;
   setEditNote: Dispatch<SetStateAction<Note>>;
   setReminder: Dispatch<SetStateAction<ReminderProps>>;
@@ -11,10 +11,10 @@ export interface NoteOverlaysProps {
   defaultContentTheme: string;
   reminderDialog: boolean;
   setReminderDialog: Dispatch<SetStateAction<boolean>>;
-  shareImage: () => void;
-  sharePdf: () => void;
-  saveImage: () => void;
-  savePdf: () => void;
+  shareImage: (onCencel: () => void) => void;
+  sharePdf: (onCencel: () => void) => void;
+  saveImage: (onCencel: () => void) => void;
+  savePdf: (onCencel: () => void) => void;
   noteStateIsEmpty: boolean;
   textFiltered: string;
 }

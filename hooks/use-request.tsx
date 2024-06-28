@@ -22,7 +22,7 @@ export function useRequest() {
         ...prev,
         data: replaceElementAtId(prev.data, id, {
           id: newNote.id,
-          title: newNote.title.substring(0, 110),
+          title: newNote.title.substring(0, 120),
           text: extractText(newNote.text).substring(0, 170),
           background: newNote.background,
           isFavorite: newNote.isFavorite,
@@ -51,7 +51,7 @@ export function useRequest() {
 
         return {
           id: newNote.id,
-          title: newNote.title.substring(0, 110),
+          title: newNote.title.substring(0, 120),
           text: extractText(newNote.text).substring(0, 170),
           background: newNote.background,
           isFavorite: newNote.isFavorite,
@@ -92,7 +92,7 @@ export function useRequest() {
         const newNote: Note = JSON.parse(content);
         return {
           id: newNote.id,
-          title: newNote.title.substring(0, 110),
+          title: newNote.title.substring(0, 120),
           text: extractText(newNote.text).substring(0, 170),
           background: newNote.background,
           isFavorite: newNote.isFavorite,

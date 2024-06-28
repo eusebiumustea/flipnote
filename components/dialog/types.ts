@@ -5,6 +5,7 @@ interface ButtonActionProps {
   title: string;
   onPress: () => void;
   hidden?: boolean;
+  loading?: boolean;
 }
 export interface DialogProps {
   buttons: ButtonActionProps[];

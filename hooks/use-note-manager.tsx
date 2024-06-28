@@ -3,7 +3,13 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useToast } from "../components";
 import { NOTES_PATH } from "../constants";
 import { Note } from "../screens";
+import {
+  getShouldRefreshPreviewNotes,
+  setShouldRefreshPreviewNotes,
+} from "../utils/storage-updater";
 import { useRequest } from "./use-request";
+import { debounce } from "../utils";
+import { Animated } from "react-native";
 export function useNoteStorage(
   id: number,
   editNote: Note,
@@ -17,19 +23,22 @@ export function useNoteStorage(
   const { updateNote } = useRequest();
   async function getData() {
     try {
+      await setShouldRefreshPreviewNotes(true);
       const { exists } = await FileSystem.getInfoAsync(notePath);
 
       if (!exists) {
         setPreventDelete(false);
         return;
       }
+
       const data = await FileSystem.readAsStringAsync(notePath);
       const content: Note = JSON.parse(data);
       setTimeout(() => {
         setEditNote(content);
         setLoading(false);
+
         setPreventDelete(false);
-      }, 200);
+      }, 270);
     } catch (error) {}
   }
   async function storeDataConditional() {
@@ -53,7 +62,7 @@ export function useNoteStorage(
   }, [preventDelete, editNote]);
   useEffect(() => {
     return () => {
-      updateNote(id);
+      updateNote(id).then(() => setShouldRefreshPreviewNotes(false));
     };
   }, []);
 }

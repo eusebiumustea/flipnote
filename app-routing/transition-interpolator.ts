@@ -1,8 +1,6 @@
 import { StackCardStyleInterpolator } from "@react-navigation/stack";
 
 type InterpolateStylesProps = {
-  overlay?: boolean;
-  fade?: boolean;
   initial: {
     x: number;
     y: number;
@@ -12,29 +10,22 @@ type InterpolateStylesProps = {
   };
 };
 export function TransitionInterpolator({
-  fade,
-  overlay = true,
-  initial: { scale = 0, scaleX = 0, scaleY = 0, x, y },
+  initial: { scale = 0, scaleX = 0, scaleY = 0, x = 0, y = 0 },
 }: InterpolateStylesProps): StackCardStyleInterpolator {
   return ({
     current,
     layouts: {
       screen: { width, height },
     },
-    next,
   }) => {
     return {
       overlayStyle: {
-        opacity: overlay
-          ? current.progress.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0, 0.5],
-            })
-          : 0,
+        opacity: current.progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 0.5],
+        }),
       },
-
       cardStyle: {
-        opacity: fade ? current.progress : undefined,
         transform: [
           {
             translateX: current.progress.interpolate({

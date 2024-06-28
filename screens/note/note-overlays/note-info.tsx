@@ -4,18 +4,18 @@ import { useEffect, useMemo, useState } from "react";
 import { Modal, Platform, Pressable, useWindowDimensions } from "react-native";
 import { Text } from "react-native-fast-text";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { NOTES_PATH, contentLengthLimit } from "../../../constants";
+import { NOTES_PATH } from "../../../constants";
 import { useTheme } from "../../../hooks";
+import { shadows } from "../../../ui-config";
 import {
   dateTime,
   extractText,
   formatBytes,
   verticalScale,
 } from "../../../utils";
-import { shadows } from "../../../ui-config";
 import { Note } from "../types";
+import { RouteProp, useRoute } from "@react-navigation/native";
 interface NoteInfoProps {
-  id: number;
   show: boolean;
   onClose: () => void;
   startPositionX?: number;
@@ -30,7 +30,10 @@ type FileInfoTypes = {
   md5?: string;
 };
 
-export function NoteInfo({ id, show, onClose, startPositionX }: NoteInfoProps) {
+export function NoteInfo({ show, onClose, startPositionX }: NoteInfoProps) {
+  const {
+    params: { id },
+  } = useRoute<RouteProp<{}>>();
   const theme = useTheme();
   const [info, setInfo] = useState({ size: 0, textLength: 0 });
   const { width, height } = useWindowDimensions();
@@ -56,7 +59,7 @@ export function NoteInfo({ id, show, onClose, startPositionX }: NoteInfoProps) {
     () => ({
       Size: formatBytes(info.size),
       "Created at": dateTime(new Date(id)),
-      "Characters count": `${info.textLength}/${contentLengthLimit() + 1000}`,
+      "Characters count": `${info.textLength}`,
     }),
     [info]
   );
@@ -91,16 +94,19 @@ export function NoteInfo({ id, show, onClose, startPositionX }: NoteInfoProps) {
               translateY: verticalScale(-70),
               translateX: -width / 2 + startPositionX,
               scale: 0,
+              opacity: 0,
             }}
             animate={{
               translateY: 0,
               translateX: 0,
               scale: 1,
+              opacity: 1,
             }}
             exit={{
               translateY: verticalScale(-70),
               translateX: -width / 2 + startPositionX,
               scale: 0,
+              opacity: 0,
             }}
           >
             {Object.entries(infoObj).map((prop, i) => {

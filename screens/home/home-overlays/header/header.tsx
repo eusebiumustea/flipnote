@@ -52,7 +52,7 @@ export const Header = memo(
           ],
         }}
       >
-        <View
+        <Animated.View
           style={{
             width: "100%",
             height: verticalScale(70),
@@ -60,6 +60,11 @@ export const Header = memo(
             flexDirection: "row",
             alignItems: "center",
             paddingHorizontal: 12,
+            opacity: Animated.diffClamp(scrollY, 0, 160).interpolate({
+              inputRange: [0, 50],
+              outputRange: [1, 0],
+              extrapolate: "clamp",
+            }),
           }}
         >
           <SearchIcon
@@ -104,7 +109,7 @@ export const Header = memo(
             />
             <MenuIcon onPress={onShowOptions} />
           </View>
-        </View>
+        </Animated.View>
       </Animated.View>
     );
   }

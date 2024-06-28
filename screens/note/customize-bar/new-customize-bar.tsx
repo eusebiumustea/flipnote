@@ -3,15 +3,13 @@ import { MotiView } from "moti";
 import React, { Dispatch, SetStateAction, forwardRef, useState } from "react";
 import { Animated, Platform } from "react-native";
 import {
+  FONT_SIZE,
   RichEditor,
   RichToolbar,
   actions,
 } from "react-native-pell-rich-editor";
-import {
-  Easing,
-  useAnimatedKeyboard,
-  useAnimatedStyle,
-} from "react-native-reanimated";
+import { useAnimatedKeyboard, useAnimatedStyle } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   BackgroundIcon,
   BoldIcon,
@@ -27,11 +25,10 @@ import {
 } from "../../../components";
 import { cardColors } from "../../../constants";
 import { useTheme } from "../../../hooks";
-import { moderateScale, toggleState, verticalScale } from "../../../utils";
+import { toggleState } from "../../../utils";
 import { Note, OptionProps } from "../types";
 import { OptionContainer } from "./option-container";
 import { BackgroundOptions, ColorOptions, FontSizeOptions } from "./options";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface CustomizeBarProps {
   editNote: Note;
   setEditNote: Dispatch<SetStateAction<Note>>;
@@ -101,12 +98,15 @@ export const CustomizeBar = forwardRef(
           transition={{
             type: "timing",
             duration: 180,
+            opacity: { duration: 300 },
           }}
           from={{
             paddingTop: 0,
+            opacity: 0,
           }}
           animate={{
             paddingTop: showOption ? optionSizeAdjust() : 0,
+            opacity: 1,
           }}
         >
           <OptionContainer
@@ -114,7 +114,7 @@ export const CustomizeBar = forwardRef(
               <FontSizeOptions
                 onReset={() => editorRef.current.setFontSize(3)}
                 onValueChange={(value) =>
-                  editorRef.current.setFontSize(value as any)
+                  editorRef.current.setFontSize(value as FONT_SIZE)
                 }
               />
             }

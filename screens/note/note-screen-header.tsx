@@ -4,6 +4,7 @@ import {
   GestureResponderEvent,
   Platform,
   View,
+  useAnimatedValue,
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -17,11 +18,12 @@ import {
 } from "../../components/assets";
 
 import { useCardAnimation } from "@react-navigation/stack";
-import { memo } from "react";
-import { useTheme } from "../../hooks";
+import { MotiView } from "moti";
+import { memo, useCallback, useEffect } from "react";
 import { contentLengthLimit } from "../../constants";
-import { AnimatePresence, MotiView } from "moti";
-import { Easing } from "react-native-reanimated";
+import { useTheme } from "../../hooks";
+import { ReanimatedView } from "../../utils/reanimated-view";
+import { FadeIn } from "react-native-reanimated";
 
 interface NoteScreenHeaderProps {
   onClipboardCopy: (e: GestureResponderEvent) => void;
@@ -67,17 +69,16 @@ export const NoteScreenHeader = memo(
         {Platform.select({
           android: (
             <MotiView
-              transition={{ duration: 300, type: "timing" }}
               animate={{
                 backgroundColor: background.includes("/")
                   ? theme.onPrimary
                   : background,
+                opacity: background.includes("/") ? 0.5 : 1,
               }}
               style={{
                 width,
                 height: "100%",
                 position: "absolute",
-                opacity: background.includes("/") ? 0.3 : 1,
               }}
             />
           ),
@@ -106,7 +107,8 @@ export const NoteScreenHeader = memo(
         >
           <BackIcon color={iconsThemeColor} onPress={onBack} />
           {!emptyNote && (
-            <View
+            <ReanimatedView
+              entering={FadeIn.springify(1000)}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -137,7 +139,7 @@ export const NoteScreenHeader = memo(
               />
 
               <ShareIcon color={iconsThemeColor} onPress={onShare} />
-            </View>
+            </ReanimatedView>
           )}
         </View>
       </Animated.View>
