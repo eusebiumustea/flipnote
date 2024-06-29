@@ -65,6 +65,7 @@ export function UpcomingReminders() {
             style={{
               color: theme.onPrimary,
               fontSize: moderateFontScale(18),
+              marginVertical: 12,
             }}
           >
             Upcoming

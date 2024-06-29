@@ -14,7 +14,7 @@ export interface OptionProps {
   editNote?: Note;
   fonts?: string[];
   defaultTextColor?: string;
-  onColorChange?: (value: string, type: string) => void;
+  onColorChange?: (value: string) => void;
 }
 
 export interface Note {

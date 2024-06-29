@@ -53,10 +53,7 @@ export const CustomizeBar = forwardRef(
       setEditNote,
       colors: cardColors,
       defaultTextColor,
-      onColorChange: (value, type) =>
-        type === "font-color"
-          ? editorRef.current?.setForeColor(value)
-          : editorRef.current?.setHiliteColor(value),
+      onColorChange: (value) => editorRef.current?.setForeColor(value),
     };
 
     const isImgBg = editNote.background.includes("/");
@@ -98,7 +95,6 @@ export const CustomizeBar = forwardRef(
           transition={{
             type: "timing",
             duration: 180,
-            opacity: { duration: 300 },
           }}
           from={{
             paddingTop: 0,

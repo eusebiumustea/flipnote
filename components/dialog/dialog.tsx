@@ -115,7 +115,7 @@ export const Dialog = memo(
 
               <View
                 style={{
-                  columnGap: 20,
+                  columnGap: 12,
                   flexDirection: "row",
                   position: "absolute",
                   bottom: 0,

@@ -104,7 +104,7 @@ export const NoteCard = memo(
                 maxHeight: verticalScale(250),
               }}
             >
-              {item.title}
+              {item.title}...
             </Text>
           )}
           <Text
@@ -114,7 +114,7 @@ export const NoteCard = memo(
               color: defaultThemeText,
             }}
           >
-            {item.text}
+            {item.text}...
           </Text>
         </View>
 

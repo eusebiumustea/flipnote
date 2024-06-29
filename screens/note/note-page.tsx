@@ -18,7 +18,7 @@ import { darkCardColors } from "../../constants";
 import { useTheme } from "../../hooks";
 import { useNoteStorage } from "../../hooks/use-note-manager";
 import { useNoteUtils } from "../../hooks/use-note-utills";
-import { debounce, verticalScale } from "../../utils";
+import { dateTime, debounce, verticalScale } from "../../utils";
 import { ReanimatedView } from "../../utils/reanimated-view";
 import { NoteOverlays } from "./note-overlays";
 import { LoadingItem } from "./note-overlays/loading-item";
@@ -70,6 +70,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   const { top } = useSafeAreaInsets();
   const [capturing, setCapturing] = useState(false);
   const [showTitle, setShowTitle] = useState(true);
+
   const { openReminder, SaveImage, SavePDF, ShareImage, SharePDF } =
     useNoteUtils(
       id,
@@ -81,6 +82,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
       viewShotRef,
       noteStateIsEmpty
     );
+
   const isImgBg = editNote.background.includes("/");
   const captureBackground = useMemo(() => {
     if (capturing && isImgBg) {
@@ -104,8 +106,13 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   const scrollRef = useRef<ScrollView>(null);
   const { current, closing } = useCardAnimation();
   const { width, height } = useWindowDimensions();
+  const conditionalViewShotRef = useMemo(() => {
+    if (Platform.OS === "ios") {
+      return viewShotRef;
+    }
+    return isImgBg ? viewShotRef : null;
+  }, [isImgBg]);
   const theme = useTheme();
-
   if (loadingProgress) {
     return <LoadingItem bg={background} />;
   }
@@ -124,10 +131,12 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         <ViewShot
           options={{
             result: "tmpfile",
-            fileName: `flipnote-${id}`,
+            fileName: `flipnote-${dateTime(new Date(id))}`,
             format: "jpg",
+            quality: 0.9,
+            useRenderInContext: !isImgBg,
           }}
-          ref={isImgBg ? viewShotRef : null}
+          ref={conditionalViewShotRef}
           style={{
             flex: 1,
             backgroundColor: captureBackground,
@@ -170,6 +179,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
               ref={scrollRef}
               keyboardShouldPersistTaps="always"
               keyboardDismissMode="none"
+              bounces={false}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={
                 !capturing && {
@@ -189,10 +199,10 @@ export const NotePage = memo(({ route }: NotePageProps) => {
                 }}
                 options={{
                   result: "tmpfile",
-                  useRenderInContext: !isImgBg,
-                  fileName: `flipnote-${id}`,
+                  handleGLSurfaceViewOnAndroid: true,
+                  fileName: `flipnote-${dateTime(new Date(id))}`,
                 }}
-                ref={!isImgBg ? viewShotRef : null}
+                ref={!isImgBg && Platform.OS === "android" ? viewShotRef : null}
               >
                 {showTitle && (
                   <NoteTitleInput
@@ -204,10 +214,13 @@ export const NotePage = memo(({ route }: NotePageProps) => {
                 <RichEditor
                   placeholder="Take the note"
                   ref={editorRef}
-                  editorInitializedCallback={() =>
-                    !isCreating &&
-                    editorRef.current.setContentHTML(editNote.text)
-                  }
+                  pasteAsPlainText
+                  minimumFontSize={16}
+                  bounces={false}
+                  editorInitializedCallback={() => {
+                    if (!isCreating)
+                      editorRef.current.setContentHTML(editNote.text);
+                  }}
                   editorStyle={{
                     backgroundColor: "transparent",
                     color: defaultContentTheme,

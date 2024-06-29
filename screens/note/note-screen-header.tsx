@@ -4,7 +4,6 @@ import {
   GestureResponderEvent,
   Platform,
   View,
-  useAnimatedValue,
   useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,11 +18,11 @@ import {
 
 import { useCardAnimation } from "@react-navigation/stack";
 import { MotiView } from "moti";
-import { memo, useCallback, useEffect } from "react";
+import { memo } from "react";
+import { FadeIn } from "react-native-reanimated";
 import { contentLengthLimit } from "../../constants";
 import { useTheme } from "../../hooks";
 import { ReanimatedView } from "../../utils/reanimated-view";
-import { FadeIn } from "react-native-reanimated";
 
 interface NoteScreenHeaderProps {
   onClipboardCopy: (e: GestureResponderEvent) => void;

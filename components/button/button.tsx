@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import Animated from "react-native-reanimated";
 import { useTheme } from "../../hooks";
+import { moderateFontScale, moderateScale, verticalScale } from "../../utils";
 interface ButtonProps extends PressableProps {
   children?: ReactNode;
   loading?: boolean;
@@ -42,7 +43,7 @@ export function Button({
             }}
             style={{
               paddingHorizontal: 20,
-              paddingVertical: 8,
+              paddingVertical: verticalScale(8),
               elevation: Platform.OS === "android" && 10,
               shadowColor: theme.onBackground,
               shadowOffset: { width: 0, height: 2 },
@@ -65,7 +66,12 @@ export function Button({
           >
             {loading && <ActivityIndicator size="small" color={"green"} />}
 
-            <Text style={{ color: pressed ? focusedTextColor : textColor }}>
+            <Text
+              style={{
+                color: pressed ? focusedTextColor : textColor,
+                fontSize: moderateFontScale(13),
+              }}
+            >
               {children}
             </Text>
           </MotiView>
