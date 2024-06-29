@@ -4,6 +4,7 @@ import Svg, { Path } from "react-native-svg";
 import { useTheme } from "../../../hooks";
 import { moderateScale } from "../../../utils";
 import { IconButtonBase } from "./types";
+import Feather from "@expo/vector-icons/Feather";
 
 export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
   const theme = useTheme();
@@ -32,22 +33,7 @@ export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
         shadowRadius: 3.05,
       }}
     >
-      <Svg
-        {...svgProps}
-        width={45}
-        height={45}
-        viewBox="0 0 39 39"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <Path
-          d="M9.795 19.5h19.41M19.5 29.205V9.795"
-          stroke={theme.primary}
-          strokeWidth={1.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </Svg>
+      <Feather name="plus" size={28} color={theme.primary} />
     </Pressable>
   );
 }

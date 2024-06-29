@@ -64,7 +64,7 @@ export const NoteOverlays = forwardRef(
           sharePdf={sharePdf}
           saveImage={saveImage}
           savePdf={savePdf}
-          onCencel={() => setSharingDialog(false)}
+          onCancel={() => setSharingDialog(false)}
         />
         <DateTimePickerDialog
           action={() => {
@@ -106,7 +106,7 @@ export const NoteOverlays = forwardRef(
           show={reminderDialog}
           time={reminder.time}
           date={reminder.date}
-          onCencel={() => setReminderDialog(false)}
+          onCancel={() => setReminderDialog(false)}
         />
 
         <NoteScreenHeader

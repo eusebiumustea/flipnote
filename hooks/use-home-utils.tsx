@@ -26,7 +26,7 @@ export function useHomeUtils(
       "Confirm Deletion",
       `You're about to permanently delete ${noteCount} note${plural}. This action cannot be undone. Proceed?`,
       [
-        { text: "Cencel", style: "cancel", onPress: () => null },
+        { text: "Cancel", style: "cancel", onPress: () => null },
         {
           text: "Delete permanently",
           style: "destructive",

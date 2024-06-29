@@ -17,7 +17,7 @@ import { MotiView } from "moti";
 
 export const Dialog = memo(
   ({
-    onCencel,
+    onCancel,
 
     visible,
     title,
@@ -39,7 +39,7 @@ export const Dialog = memo(
       <Modal
         statusBarTranslucent={statusBarTranslucent}
         transparent
-        onRequestClose={onCencel}
+        onRequestClose={onCancel}
         visible={visible}
         animationType={animation}
       >
@@ -124,7 +124,7 @@ export const Dialog = memo(
                   ...buttonsContainerStyle,
                 }}
               >
-                <Button onPress={onCencel}>Cencel</Button>
+                <Button onPress={onCancel}>Cancel</Button>
                 {filteredButtons.map(({ title, onPress, loading }, i) => (
                   <Button key={i} loading={loading} onPress={onPress}>
                     {title}

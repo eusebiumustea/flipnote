@@ -10,7 +10,7 @@ interface ButtonActionProps {
 export interface DialogProps {
   buttons: ButtonActionProps[];
   visible: boolean;
-  onCencel: () => void;
+  onCancel: () => void;
   title: string;
   children: PropsWithChildren<ReactNode>;
   onPress?: () => void;

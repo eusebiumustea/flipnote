@@ -6,18 +6,18 @@ import { BackgroundIcon, Dialog, PdfIcon } from "../../../components";
 import { useTheme } from "../../../hooks";
 interface NoteSharingDialogProps {
   visible: boolean;
-  onCencel: () => void;
-  sharePdf: (onCencel: () => void) => void;
-  shareImage: (onCencel: () => void) => void;
-  savePdf: (onCencel: () => void) => void;
-  saveImage: (onCencel: () => void) => void;
+  onCancel: () => void;
+  sharePdf: (onCancel: () => void) => void;
+  shareImage: (onCancel: () => void) => void;
+  savePdf: (onCancel: () => void) => void;
+  saveImage: (onCancel: () => void) => void;
 }
 
 export function NoteSharingDialog({
   visible,
   shareImage,
   sharePdf,
-  onCencel,
+  onCancel,
   saveImage,
   savePdf,
 }: NoteSharingDialogProps) {
@@ -34,7 +34,7 @@ export function NoteSharingDialog({
   return (
     <Dialog
       title="Share note content"
-      onCencel={onCencel}
+      onCancel={onCancel}
       styles={{ width: "90%" }}
       animation="fade"
       visible={visible}
@@ -43,9 +43,9 @@ export function NoteSharingDialog({
           title: "Save",
           onPress: () => {
             if (option === 0) {
-              saveImage(onCencel);
+              saveImage(onCancel);
             } else {
-              savePdf(onCencel);
+              savePdf(onCancel);
             }
           },
 
@@ -55,9 +55,9 @@ export function NoteSharingDialog({
           title: "Share",
           onPress: () => {
             if (option === 0) {
-              shareImage(onCencel);
+              shareImage(onCancel);
             } else {
-              sharePdf(onCencel);
+              sharePdf(onCancel);
             }
           },
         },

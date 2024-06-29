@@ -1,9 +1,9 @@
 import * as React from "react";
 import { TouchableOpacity } from "react-native";
-import Svg, { Path } from "react-native-svg";
 import { useTheme } from "../../../hooks";
 import { moderateScale, verticalScale } from "../../../utils";
 import { IconButtonBase } from "./types";
+import Feather from "@expo/vector-icons/Feather";
 
 export function DeleteIcon({
   svgProps,
@@ -21,20 +21,18 @@ export function DeleteIcon({
       style={{
         width: moderateScale(30),
         height: verticalScale(30),
+        alignItems: "center",
+        justifyContent: "center",
         ...style,
       }}
       {...btnProps}
     >
-      <Svg
-        width={"100%"}
-        height={"100%"}
-        fill={color || theme.onPrimary}
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
+      <Feather
+        name="trash-2"
+        size={moderateScale(24)}
+        color={color || theme.onPrimary}
         {...svgProps}
-      >
-        <Path d="M9 3v1H4v2h1v13a2 2 0 002 2h10a2 2 0 002-2V6h1V4h-5V3H9M7 6h10v13H7V6m2 2v9h2V8H9m4 0v9h2V8h-2z" />
-      </Svg>
+      />
     </TouchableOpacity>
   );
 }

@@ -74,7 +74,7 @@ export const NoteOptions = memo(
             shareNotes.length === 1 ? "note" : "notes"
           } as zip archive format?`}
           visible={showModal}
-          onCencel={onModalClose}
+          onCancel={onModalClose}
           buttons={[
             {
               title: "Save",
@@ -129,7 +129,11 @@ export const NoteOptions = memo(
         >
           <CloseIcon onPress={onClose} />
           <TouchableOpacity
-            style={{ flexDirection: "row", alignItems: "center" }}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: moderateScale(5),
+            }}
             onPress={onTotalSelect}
             activeOpacity={0.6}
           >

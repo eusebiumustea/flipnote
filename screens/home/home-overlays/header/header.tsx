@@ -94,8 +94,7 @@ export const Header = memo(
             style={{
               flexDirection: "row",
               alignItems: "center",
-
-              gap: moderateScale(8),
+              gap: moderateScale(12),
             }}
           >
             <InboxIcon

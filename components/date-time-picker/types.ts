@@ -7,6 +7,6 @@ export interface DateTimePickerProps {
   time: Date;
   date: Date;
   show: boolean;
-  onCencel: () => void;
+  onCancel: () => void;
   action: () => void;
 }

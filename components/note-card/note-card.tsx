@@ -123,8 +123,8 @@ export const NoteCard = memo(
             style={{
               position: "absolute",
               borderRadius: 100,
-              top: 0,
-              left: 0,
+              top: 4,
+              right: 4,
               zIndex: 2,
               margin: 2,
             }}

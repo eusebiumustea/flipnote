@@ -118,7 +118,7 @@ export function UpcomingReminders() {
                     fontWeight: "bold",
                   }}
                 >
-                  Cencel
+                  Cancel
                 </Text>
               </TouchableOpacity>
               <Text

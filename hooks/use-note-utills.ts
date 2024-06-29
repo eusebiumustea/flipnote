@@ -32,7 +32,7 @@ export function useNoteUtils(
     editNote.imageOpacity,
     editNote.imageData
   );
-  async function SharePDF(cencel: () => void) {
+  async function SharePDF(cancel: () => void) {
     loading("Preparing doc file...");
     Print.printToFileAsync({
       width: 794,
@@ -47,7 +47,7 @@ export function useNoteUtils(
           mimeType: "application/pdf",
         })
           .then(() =>
-            fs.deleteAsync(result.uri, { idempotent: true }).finally(cencel)
+            fs.deleteAsync(result.uri, { idempotent: true }).finally(cancel)
           )
           .catch(() =>
             toast({ message: "Failed to share pdf", textColor: "red" })
@@ -58,7 +58,7 @@ export function useNoteUtils(
       )
       .finally(() => loading(false));
   }
-  async function SavePDF(cencel: () => void) {
+  async function SavePDF(cancel: () => void) {
     loading("Preparing pdf doc file...");
     try {
       const permission =
@@ -84,18 +84,18 @@ export function useNoteUtils(
     } catch (error) {
       toast({ message: "Failed to save pdf" });
     } finally {
-      cencel();
+      cancel();
       loading(false);
     }
   }
-  function ShareImage(cencel: () => void) {
+  function ShareImage(cancel: () => void) {
     if (editNote.text.length > contentLengthLimit()) {
       toast({
         message: `Note content is too large for sharing as image format. Limit is up to ${contentLengthLimit()} characters`,
         duration: 3500,
         textColor: "orange",
       });
-      cencel();
+      cancel();
       return;
     }
     loading("Preparing image...");
@@ -107,7 +107,7 @@ export function useNoteUtils(
       viewShotRef.current
         ?.capture()
         .then((image) => {
-          Share.shareAsync(image).then(cencel);
+          Share.shareAsync(image).then(cancel);
         })
         .finally(() => loading(false));
     }, 100);
@@ -116,14 +116,14 @@ export function useNoteUtils(
       setShowTitle(true);
     }, 300);
   }
-  function SaveImage(cencel: () => void) {
+  function SaveImage(cancel: () => void) {
     if (editNote.text.length > contentLengthLimit()) {
       toast({
         message: `Note content is too large for saving as image format. Limit is up to ${contentLengthLimit()} characters`,
         duration: 3500,
         textColor: "orange",
       });
-      cencel();
+      cancel();
       return;
     }
     loading("Preparing image...");
@@ -138,7 +138,7 @@ export function useNoteUtils(
         .then((image) => {
           MediaLibrary.saveToLibraryAsync(image)
             .then(() => toast({ message: "Image saved to library" }))
-            .then(cencel)
+            .then(cancel)
             .catch(() =>
               toast({ message: "Failed to save image", textColor: "red" })
             );
@@ -163,11 +163,11 @@ export function useNoteUtils(
     if (scheduleDateForNotification > new Date()) {
       toast({
         button: {
-          title: "Cencel",
+          title: "Cancel",
           onPress: async () => {
             await Notifications.cancelScheduledNotificationAsync(id.toString());
             setEditNote((prev) => ({ ...prev, reminder: null }));
-            toast({ message: "Cenceled" });
+            toast({ message: "Canceled" });
           },
         },
         message: `Reminder already set for ${dateTime(

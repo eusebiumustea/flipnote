@@ -11,10 +11,10 @@ export interface NoteOverlaysProps {
   defaultContentTheme: string;
   reminderDialog: boolean;
   setReminderDialog: Dispatch<SetStateAction<boolean>>;
-  shareImage: (onCencel: () => void) => void;
-  sharePdf: (onCencel: () => void) => void;
-  saveImage: (onCencel: () => void) => void;
-  savePdf: (onCencel: () => void) => void;
+  shareImage: (onCancel: () => void) => void;
+  sharePdf: (onCancel: () => void) => void;
+  saveImage: (onCancel: () => void) => void;
+  savePdf: (onCancel: () => void) => void;
   noteStateIsEmpty: boolean;
   textFiltered: string;
 }

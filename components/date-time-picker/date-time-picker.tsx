@@ -11,7 +11,7 @@ import { Dialog } from "../dialog";
 export function DateTimePickerDialog({
   action,
   show,
-  onCencel,
+  onCancel,
   onChangeDate,
   onChangeTime,
   onChangeDateAndroid,
@@ -26,7 +26,7 @@ export function DateTimePickerDialog({
       animation="fade"
       buttons={[{ title: "Set reminder", onPress: action }]}
       title="Schedule a reminder for task"
-      onCencel={onCencel}
+      onCancel={onCancel}
       visible={show}
     >
       {Platform.OS === "ios" && (
