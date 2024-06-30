@@ -1,11 +1,11 @@
 import { ParamListBase, RouteProp } from "@react-navigation/native";
 import { StackNavigationOptions } from "@react-navigation/stack";
 import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
+import { Easing } from "react-native";
 import { light } from "../constants";
 import { shadows, springcfg } from "../ui-config";
 import { moderateScale, verticalScale } from "../utils";
 import { TransitionInterpolator } from "./transition-interpolator";
-import { Easing } from "react-native";
 
 export type NoteRouteParams = {
   id: number;
@@ -44,10 +44,10 @@ export const note_options = (
           scaleX: isCreating ? 1 : (width / 2 - 16) / width,
           scaleY: isCreating ? 1 : verticalScale(250) / height,
           y: isCreating
-            ? relativeY + verticalScale(40)
+            ? relativeY + verticalScale(30)
             : verticalScale(125) + relativeY,
           x: isCreating
-            ? relativeX + moderateScale(40)
+            ? relativeX + moderateScale(30)
             : (width / 2 - 16) / 2 + relativeX,
         },
       }),

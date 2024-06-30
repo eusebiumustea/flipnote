@@ -1,10 +1,10 @@
-import * as React from "react";
-import Svg, { Path, Circle } from "react-native-svg";
-import { useTheme } from "../../../hooks";
-import { TouchableOpacity } from "react-native";
-import { IconButtonBase } from "./types";
-import { moderateScale, verticalScale } from "../../../utils";
 import Feather from "@expo/vector-icons/Feather";
+import * as React from "react";
+import Svg, { Circle } from "react-native-svg";
+import { useTheme } from "../../../hooks";
+import { moderateScale, verticalScale } from "../../../utils";
+import { IconButtonContainer } from "../../icon-button-container";
+import { IconButtonBase } from "./types";
 
 export function InboxIcon({
   style,
@@ -15,8 +15,7 @@ export function InboxIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
+    <IconButtonContainer
       onPress={onPress}
       style={{ width: moderateScale(25), height: verticalScale(25), ...style }}
       {...btnProps}
@@ -35,6 +34,6 @@ export function InboxIcon({
           <Circle cx={16.5} cy={4.5} r={4.5} fill="#2AFF8C" />
         </Svg>
       )}
-    </TouchableOpacity>
+    </IconButtonContainer>
   );
 }

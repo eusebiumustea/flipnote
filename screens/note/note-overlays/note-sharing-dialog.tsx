@@ -1,9 +1,14 @@
+import { FontAwesome5 } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { useCallback, useState } from "react";
-import { useForm } from "react-hook-form";
-import { Dimensions, Platform, View } from "react-native";
-import { BackgroundIcon, Dialog, PdfIcon } from "../../../components";
+import { Platform, View } from "react-native";
+import { Dialog } from "../../../components";
 import { useTheme } from "../../../hooks";
+import Animated, {
+  FadeIn,
+  ZoomInDown,
+  ZoomInUp,
+} from "react-native-reanimated";
 interface NoteSharingDialogProps {
   visible: boolean;
   onCancel: () => void;
@@ -23,12 +28,13 @@ export function NoteSharingDialog({
 }: NoteSharingDialogProps) {
   const [option, setOption] = useState<number>(0);
   const Icon = useCallback(() => {
-    return options.find((_, i) => i === option)?.icon;
+    const iconName = options.find((_, i) => i === option)?.icon;
+    return <FontAwesome5 size={30} color={theme.onPrimary} name={iconName} />;
   }, [option]);
   const theme = useTheme();
   const options = [
-    { label: "Image", icon: <BackgroundIcon color={theme.onPrimary} /> },
-    { label: "PDF", icon: <PdfIcon /> },
+    { label: "Image", icon: "file-image" },
+    { label: "PDF", icon: "file-pdf" },
   ];
 
   return (
@@ -67,6 +73,7 @@ export function NoteSharingDialog({
         style={{
           flexDirection: "row",
           alignItems: "center",
+          padding: 26,
         }}
       >
         <Icon />

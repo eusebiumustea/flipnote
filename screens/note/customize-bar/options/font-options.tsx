@@ -1,9 +1,9 @@
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, TouchableOpacity } from "react-native";
+import { Text } from "react-native-fast-text";
 import { useTheme } from "../../../../hooks";
 import { moderateFontScale } from "../../../../utils";
 import { OptionProps } from "../../types";
-
-export function FontOptions({ fonts, setEditNote }: OptionProps) {
+export function FontOptions({ fonts }: OptionProps) {
   const theme = useTheme();
 
   return (

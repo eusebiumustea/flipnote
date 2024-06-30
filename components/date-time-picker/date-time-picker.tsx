@@ -1,12 +1,16 @@
-import { Platform, TouchableOpacity, View, Text } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import DateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
-import { dateTime, moderateFontScale } from "../../utils";
-import { DateTimePickerProps } from "./types";
 import React from "react";
+import { Platform, View } from "react-native";
+import { Text } from "react-native-fast-text";
 import { useTheme } from "../../hooks";
+import { shadows } from "../../ui-config";
+import { dateTime, moderateFontScale } from "../../utils";
 import { Dialog } from "../dialog";
+import { IconButtonContainer } from "../icon-button-container";
+import { DateTimePickerProps } from "./types";
 
 export function DateTimePickerDialog({
   action,
@@ -30,16 +34,7 @@ export function DateTimePickerDialog({
       visible={show}
     >
       {Platform.OS === "ios" && (
-        <View style={{ rowGap: 0, height: "100%" }}>
-          {/* <Text
-            style={{
-              fontSize: moderateFontScale(15),
-              color: "green",
-              textAlign: "center",
-            }}
-          >
-            Limited up to 250 words per notification
-          </Text> */}
+        <View style={{ rowGap: 0, height: "100%", padding: 26 }}>
           <DateTimePicker
             minimumDate={new Date()}
             style={{ height: "50%" }}
@@ -59,31 +54,39 @@ export function DateTimePickerDialog({
         </View>
       )}
       {Platform.OS === "android" && (
-        <>
-          <View
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-            }}
-          >
-            <Text
-              style={{
-                fontSize: moderateFontScale(20),
-                fontWeight: "bold",
-                color: theme.onPrimary,
-              }}
-            >{`Date: ${dateTime(date).split(" ")[0]}`}</Text>
-            <Text
-              style={{
-                fontSize: moderateFontScale(20),
-                fontWeight: "bold",
-                color: theme.onPrimary,
-              }}
-            >{`Hour: ${dateTime(time).split(" ")[1]}`}</Text>
-          </View>
-
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            paddingVertical: 26,
+          }}
+        >
           <Text
+            style={{
+              fontSize: moderateFontScale(20),
+              fontWeight: "bold",
+              color: theme.onPrimary,
+            }}
+          >{`Date: ${dateTime(date).split(" ")[0]}`}</Text>
+          <Text
+            style={{
+              fontSize: moderateFontScale(20),
+              fontWeight: "bold",
+              color: theme.onPrimary,
+            }}
+          >{`Hour: ${dateTime(time).split(" ")[1]}`}</Text>
+          <IconButtonContainer
+            style={{
+              flexDirection: "row",
+              backgroundColor: theme.primary,
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              marginTop: 6,
+              ...shadows(theme),
+              borderRadius: 100,
+              gap: 6,
+            }}
             onPress={() => {
               DateTimePickerAndroid.open({
                 minimumDate: new Date(),
@@ -94,16 +97,11 @@ export function DateTimePickerDialog({
                 positiveButton: { label: "Next" },
               });
             }}
-            style={{
-              color: "blue",
-              fontSize: moderateFontScale(20),
-              fontWeight: "bold",
-              alignSelf: "center",
-            }}
           >
-            Change
-          </Text>
-        </>
+            <MaterialIcons size={18} color={theme.onPrimary} name="update" />
+            <Text style={{ color: theme.onPrimary }}>Change</Text>
+          </IconButtonContainer>
+        </View>
       )}
     </Dialog>
   );

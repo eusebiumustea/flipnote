@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { Note, ReminderProps } from "../types";
-import { Animated } from "react-native";
+import { SharedValue } from "react-native-reanimated";
 
 export interface NoteOverlaysProps {
   editNote: Note;
@@ -17,4 +17,5 @@ export interface NoteOverlaysProps {
   savePdf: (onCancel: () => void) => void;
   noteStateIsEmpty: boolean;
   textFiltered: string;
+  bottomSpace: SharedValue<number>;
 }

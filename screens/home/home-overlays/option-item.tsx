@@ -1,10 +1,5 @@
 import { ReactNode } from "react";
-import {
-  ColorValue,
-  TouchableHighlight,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ColorValue, TouchableHighlight, View } from "react-native";
 import { Text } from "react-native-fast-text";
 import { useTheme } from "../../../hooks";
 export interface OptionItemProps {

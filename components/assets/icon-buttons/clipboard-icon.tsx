@@ -4,6 +4,7 @@ import { useTheme } from "../../../hooks";
 import { moderateScale, verticalScale } from "../../../utils";
 import { IconButtonBase } from "./types";
 import Feather from "@expo/vector-icons/Feather";
+import { IconButtonContainer } from "../../icon-button-container";
 
 export function ClipboardIcon({
   svgProps,
@@ -13,8 +14,7 @@ export function ClipboardIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
+    <IconButtonContainer
       onPress={onPress}
       style={{
         width: moderateScale(30),
@@ -30,6 +30,6 @@ export function ClipboardIcon({
         color={!color ? theme.onBackground : color}
         {...svgProps}
       />
-    </TouchableOpacity>
+    </IconButtonContainer>
   );
 }

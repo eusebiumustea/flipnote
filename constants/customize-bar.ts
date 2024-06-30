@@ -1,0 +1,23 @@
+import { actions } from "react-native-pell-rich-editor";
+export const editorActions = [
+  actions.keyboard,
+  actions.undo,
+  actions.redo,
+  actions.setBold,
+  actions.setItalic,
+  actions.setUnderline,
+  "textColor",
+  "changeFontSize",
+  "setBg",
+  actions.alignLeft,
+  actions.alignCenter,
+  actions.alignRight,
+  actions.checkboxList,
+  actions.insertOrderedList,
+  actions.insertBulletsList,
+  actions.setSubscript,
+  actions.setSuperscript,
+  actions.outdent,
+  actions.indent,
+  actions.removeFormat,
+];

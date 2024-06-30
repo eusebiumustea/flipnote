@@ -4,7 +4,7 @@ import { useTheme } from "../../../hooks";
 import { moderateScale, verticalScale } from "../../../utils";
 import { IconButtonBase } from "./types";
 
-export function RedoIcon({ svgProps, onPress, btnProps }: IconButtonBase) {
+export function RedoIcon({ svgProps }: IconButtonBase) {
   const theme = useTheme();
   return (
     <Svg

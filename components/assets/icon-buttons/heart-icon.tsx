@@ -1,11 +1,10 @@
-import * as React from "react";
-import { TouchableOpacity } from "react-native";
-import Svg, { Path } from "react-native-svg";
-import { moderateScale, verticalScale } from "../../../utils";
-import { IconButtonBase } from "./types";
-import { useTheme } from "../../../hooks";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import * as React from "react";
+import { useTheme } from "../../../hooks";
+import { moderateScale, verticalScale } from "../../../utils";
+import { IconButtonContainer } from "../../icon-button-container";
+import { IconButtonBase } from "./types";
 
 export function HeartIcon({
   svgProps,
@@ -16,8 +15,7 @@ export function HeartIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
+    <IconButtonContainer
       onPress={onPress}
       style={{
         width: moderateScale(30),
@@ -30,12 +28,12 @@ export function HeartIcon({
       {!focused && (
         <Feather
           name="heart"
-          size={24}
+          size={moderateScale(24)}
           color={!color ? theme.onBackground : color}
           {...svgProps}
         />
       )}
       {focused && <FontAwesome name="heart" size={24} color="red" />}
-    </TouchableOpacity>
+    </IconButtonContainer>
   );
 }

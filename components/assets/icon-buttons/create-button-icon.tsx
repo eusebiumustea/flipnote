@@ -1,16 +1,16 @@
+import Feather from "@expo/vector-icons/Feather";
 import * as React from "react";
-import { Pressable } from "react-native";
-import Svg, { Path } from "react-native-svg";
 import { useTheme } from "../../../hooks";
 import { moderateScale } from "../../../utils";
+import { IconButtonContainer } from "../../icon-button-container";
 import { IconButtonBase } from "./types";
-import Feather from "@expo/vector-icons/Feather";
 
-export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
+export function CreateIcon({ onPress }: IconButtonBase) {
   const theme = useTheme();
 
   return (
-    <Pressable
+    <IconButtonContainer
+      activeOpacity={1}
       onPress={onPress}
       style={{
         width: moderateScale(61),
@@ -33,7 +33,7 @@ export function CreateIcon({ svgProps, onPress }: IconButtonBase) {
         shadowRadius: 3.05,
       }}
     >
-      <Feather name="plus" size={28} color={theme.primary} />
-    </Pressable>
+      <Feather name="plus" size={moderateScale(28)} color={theme.primary} />
+    </IconButtonContainer>
   );
 }

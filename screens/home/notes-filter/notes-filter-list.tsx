@@ -1,5 +1,9 @@
 import { FlatList, View, useWindowDimensions } from "react-native";
-import { FilterButton, FilterFavoritesButton } from "./notes-filter";
+import {
+  FilterButton,
+  FilterFavoritesButton,
+  ResetButton,
+} from "./notes-filter";
 import { HomeOverlaysProps } from "../home-overlays/types";
 import { removeArrayKeyDuplicates, toggleArrayElement } from "../../../utils";
 import { memo, useMemo } from "react";
@@ -44,10 +48,9 @@ export const NotesFilterList = memo(
               alignItems: "center",
             }}
           >
-            <FilterButton
+            <ResetButton
               onSelected={() => setSelected([])}
               selected={selected.length === 0}
-              label="All"
             />
             {data.filter((e) => e.isFavorite === true).length > 0 && (
               <FilterFavoritesButton

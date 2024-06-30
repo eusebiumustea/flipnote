@@ -25,14 +25,21 @@ export function useHTMLRenderedContent(
   <html>
   <head>
     <style>
-        div {
-            color: ${defaultThemeText};
+        html {
+        font-size: 2em;
         }
-        span {
+        font {
+        font-size: 2em;
+        }
+        div {
             color: ${defaultThemeText};
         }
         h1 {
             color: ${defaultThemeText};
+        }
+        img {
+           padding-right: 32px;
+           width: 100%;
         }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
@@ -41,16 +48,14 @@ export function useHTMLRenderedContent(
     bg.includes("/") ? `url(${imageData})` : bg
   }; margin: 0px">
   ${
-    bg.includes("/")
+    bg.includes("/") && Platform.OS === "android"
       ? `<div style="position: fixed; top: 0px; z-index: -1; width: 100vw; height: 100vh; background-color: #000; opacity: ${imageOpacity}"></div>`
       : ""
   }
   <div style="margin: 32px;">
    ${
      title.length > 0
-       ? `<h1 style="${includeNewLines(
-           title
-         )} font-size: 30px; color: ${defaultThemeText}; margin-top: 32px; margin-bottom: 32px; font-weight: bold;">${title}</h1>`
+       ? `<h1 style="font-size: 65px; color: ${defaultThemeText}; margin-top: 32px; margin-bottom: 32px; font-weight: bold;">${title}</h1>`
        : ""
    }
      ${text}

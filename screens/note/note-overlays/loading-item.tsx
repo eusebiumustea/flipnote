@@ -4,7 +4,10 @@ import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BackIcon } from "../../../components";
 import { darkCardColors } from "../../../constants";
-export function LoadingItem({ bg }: { bg: string }) {
+import { memo } from "react";
+import { verticalScale } from "../../../utils";
+import { NoteScreenHeader } from "../note-screen-header";
+export const LoadingItem = memo(({ bg }: { bg: string }) => {
   const { top } = useSafeAreaInsets();
   const nav = useNavigation<StackNavigationHelpers>();
   const defaultThemeColor = darkCardColors.includes(bg) ? "#ffffff" : "#000000";
@@ -15,23 +18,20 @@ export function LoadingItem({ bg }: { bg: string }) {
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: bg,
-        paddingTop: top,
       }}
     >
-      <BackIcon
-        onPress={() => nav.goBack()}
-        color={defaultThemeColor}
+      <View
         style={{
+          width: "100%",
+          paddingTop: verticalScale(6) + top,
+          paddingHorizontal: 8,
           position: "absolute",
-          top,
-          left: 0,
-          marginTop: 8,
-          marginBottom: 8,
-          marginHorizontal: 8,
+          top: 0,
         }}
-      />
-
+      >
+        <BackIcon color={defaultThemeColor} onPress={() => nav.goBack()} />
+      </View>
       <ActivityIndicator size={"large"} />
     </View>
   );
-}
+});

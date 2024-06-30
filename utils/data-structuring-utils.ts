@@ -267,7 +267,7 @@ export function range(start: number, end: number) {
 export function sortStyles(styles: TextNoteStyle[]) {
   return styles.sort((a, b) => a?.interval?.start - b?.interval?.start);
 }
-export function dateTime(date: Date) {
+export function dateTime(date: Date, showSec = true) {
   const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
   const month =
     date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
@@ -277,7 +277,7 @@ export function dateTime(date: Date) {
     date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
   const sec =
     date.getSeconds() < 10 ? `0${date.getSeconds()}` : date.getSeconds();
-  return `${day}.${month}.${year} ${hour}:${min}:${sec}`;
+  return `${day}.${month}.${year} ${hour}:${min}${showSec ? `:${sec}` : ""}`;
 }
 export function removeEmptySpace(value: string) {
   return value.replace(/\s+/g, " ").replace(/\n/g, "");

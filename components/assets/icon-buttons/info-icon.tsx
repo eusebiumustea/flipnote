@@ -1,10 +1,9 @@
-import * as React from "react";
-import Svg, { Path } from "react-native-svg";
-import { useTheme } from "../../../hooks";
-import { moderateScale, verticalScale } from "../../../utils";
-import { IconButtonBase } from "./types";
-import { TouchableOpacity } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
+import * as React from "react";
+import { useTheme } from "../../../hooks";
+import { IconButtonContainer } from "../../icon-button-container";
+import { IconButtonBase } from "./types";
+import { moderateScale } from "../../../utils";
 
 export function InfoIcon({
   svgProps,
@@ -14,23 +13,13 @@ export function InfoIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={onPress}
-      style={{
-        width: moderateScale(27),
-        height: verticalScale(28),
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-      {...btnProps}
-    >
+    <IconButtonContainer onPress={onPress} {...btnProps}>
       <Feather
         name="info"
-        size={24}
+        size={moderateScale(24)}
         color={!color ? theme.onPrimary : color}
         {...svgProps}
       />
-    </TouchableOpacity>
+    </IconButtonContainer>
   );
 }

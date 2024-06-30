@@ -1,4 +1,5 @@
-import { FlatList, Text, View } from "react-native";
+import { FlatList, View } from "react-native";
+import { Text } from "react-native-fast-text";
 import { useRecoilState } from "recoil";
 import { Button, NoteCard } from "../../components";
 import { useTheme } from "../../hooks";

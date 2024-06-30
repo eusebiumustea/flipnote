@@ -1,28 +1,21 @@
 import * as React from "react";
-import { TouchableOpacity } from "react-native";
-import Svg, { Path } from "react-native-svg";
-
-import { useTheme } from "../../../hooks";
-import { IconButtonBase } from "./types";
 import Feather from "@expo/vector-icons/Feather";
+import { useTheme } from "../../../hooks";
+import { IconButtonContainer } from "../../icon-button-container";
+import { IconButtonBase } from "./types";
 
 export function BackIcon({
   svgProps,
-  onPress,
   btnProps,
   style,
   color,
+  onPress,
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
+    <IconButtonContainer
       onPress={onPress}
-      style={{
-        width: 37,
-        height: 37,
-        ...style,
-      }}
+      style={{ width: 37, height: 37, ...style }}
       {...btnProps}
     >
       <Feather
@@ -31,6 +24,6 @@ export function BackIcon({
         color={!color ? theme.onBackground : color}
         {...svgProps}
       />
-    </TouchableOpacity>
+    </IconButtonContainer>
   );
 }

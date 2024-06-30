@@ -1,7 +1,7 @@
-import { FlatList, Platform, Text, TouchableOpacity, View } from "react-native";
-
 import Checkbox from "expo-checkbox";
 import { memo, useMemo } from "react";
+import { FlatList, Platform, TouchableOpacity, View } from "react-native";
+import { Text } from "react-native-fast-text";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilValue } from "recoil";
@@ -117,7 +117,7 @@ export const NoteOptions = memo(
               flexDirection: "column",
               alignItems: "center",
             }}
-            style={{ width: "100%" }}
+            style={{ width: "100%", marginVertical: 32 }}
           />
         </Dialog>
         <View

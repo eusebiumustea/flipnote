@@ -4,7 +4,6 @@ export * from "./screen-header";
 export * from "./toast";
 export * from "./color-box";
 export * from "./dialog";
-export * from "./pan-responder";
 export * from "./img-box";
 export * from "./button";
 export * from "./date-time-picker";

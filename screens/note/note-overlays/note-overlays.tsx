@@ -29,6 +29,7 @@ export const NoteOverlays = forwardRef(
       savePdf,
       noteStateIsEmpty,
       textFiltered,
+      bottomSpace,
     }: NoteOverlaysProps,
     editorRef: React.MutableRefObject<RichEditor>
   ) => {
@@ -47,6 +48,7 @@ export const NoteOverlays = forwardRef(
     return (
       <>
         <CustomizeBar
+          bottomSpace={bottomSpace}
           defaultTextColor={defaultContentTheme}
           ref={editorRef}
           editNote={editNote}

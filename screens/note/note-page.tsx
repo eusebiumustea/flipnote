@@ -1,28 +1,19 @@
 import { NavigatorScreenParams } from "@react-navigation/native";
-import { useCardAnimation } from "@react-navigation/stack";
-import { Image } from "expo-image";
 import { MotiView } from "moti";
 import { memo, useMemo, useRef, useState } from "react";
-import {
-  Animated,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  useWindowDimensions,
-} from "react-native";
+import { Platform } from "react-native";
 import { RichEditor } from "react-native-pell-rich-editor";
-import { FadeInUp } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { FadeInUp, useSharedValue } from "react-native-reanimated";
 import ViewShot from "react-native-view-shot";
 import { darkCardColors } from "../../constants";
-import { useTheme } from "../../hooks";
 import { useNoteStorage } from "../../hooks/use-note-manager";
 import { useNoteUtils } from "../../hooks/use-note-utills";
-import { dateTime, debounce, verticalScale } from "../../utils";
+import { dateTime } from "../../utils";
 import { ReanimatedView } from "../../utils/reanimated-view";
+import { NoteBackgroundImage } from "./note-background-image";
+import { NoteContentEditor } from "./note-content-editor";
 import { NoteOverlays } from "./note-overlays";
 import { LoadingItem } from "./note-overlays/loading-item";
-import { NoteTitleInput } from "./note-title-input";
 import { Note, ReminderProps } from "./types";
 interface ParamsProps {
   id: number;
@@ -67,7 +58,6 @@ export const NotePage = memo(({ route }: NotePageProps) => {
   });
   const [reminderDialog, setReminderDialog] = useState(false);
   const viewShotRef = useRef<ViewShot>(null);
-  const { top } = useSafeAreaInsets();
   const [capturing, setCapturing] = useState(false);
   const [showTitle, setShowTitle] = useState(true);
 
@@ -103,16 +93,13 @@ export const NotePage = memo(({ route }: NotePageProps) => {
       return "#000000";
     }
   }, [editNote.imageOpacity, editNote.background]);
-  const scrollRef = useRef<ScrollView>(null);
-  const { current, closing } = useCardAnimation();
-  const { width, height } = useWindowDimensions();
+  const bottomSpace = useSharedValue(0);
   const conditionalViewShotRef = useMemo(() => {
     if (Platform.OS === "ios") {
       return viewShotRef;
     }
     return isImgBg ? viewShotRef : null;
   }, [isImgBg]);
-  const theme = useTheme();
   if (loadingProgress) {
     return <LoadingItem bg={background} />;
   }
@@ -131,7 +118,7 @@ export const NotePage = memo(({ route }: NotePageProps) => {
         <ViewShot
           options={{
             result: "tmpfile",
-            fileName: `flipnote-${dateTime(new Date(id))}`,
+            fileName: `flipnote-${dateTime(new Date(), false)}`,
             format: "jpg",
             quality: 0.9,
             useRenderInContext: !isImgBg,
@@ -142,101 +129,27 @@ export const NotePage = memo(({ route }: NotePageProps) => {
             backgroundColor: captureBackground,
           }}
         >
-          {isImgBg && (
-            <>
-              <MotiView
-                transition={{ type: "timing", duration: 200 }}
-                from={{ opacity: 0 }}
-                animate={{ opacity: editNote.imageOpacity }}
-                style={{
-                  height: height + top,
-                  width,
-                  position: "absolute",
-                  zIndex: -1,
-                  top: 0,
-                  backgroundColor: "#000",
-                }}
-              />
-              <Image
-                source={{
-                  uri: editNote.background,
-                }}
-                style={{
-                  height: height + top,
-                  width,
-                  position: "absolute",
-                  zIndex: -2,
-                  top: 0,
-                }}
-              />
-            </>
-          )}
-          <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-          >
-            <Animated.ScrollView
-              ref={scrollRef}
-              keyboardShouldPersistTaps="always"
-              keyboardDismissMode="none"
-              bounces={false}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={
-                !capturing && {
-                  paddingBottom: verticalScale(200),
-                  paddingTop: verticalScale(70) + top,
-                }
-              }
-              style={{
-                flex: 1,
-                opacity: closing && current.progress,
-              }}
-            >
-              <ViewShot
-                style={{
-                  backgroundColor: captureBackground,
-                  paddingVertical: capturing && editNote.title.length > 0 && 12,
-                }}
-                options={{
-                  result: "tmpfile",
-                  handleGLSurfaceViewOnAndroid: true,
-                  fileName: `flipnote-${dateTime(new Date(id))}`,
-                }}
-                ref={!isImgBg && Platform.OS === "android" ? viewShotRef : null}
-              >
-                {showTitle && (
-                  <NoteTitleInput
-                    editNote={editNote}
-                    setEditNote={setEditNote}
-                  />
-                )}
+          <NoteBackgroundImage
+            show={isImgBg}
+            overlayOpacity={editNote.imageOpacity}
+            uri={editNote.background}
+          />
 
-                <RichEditor
-                  placeholder="Take the note"
-                  ref={editorRef}
-                  pasteAsPlainText
-                  minimumFontSize={16}
-                  bounces={false}
-                  editorInitializedCallback={() => {
-                    if (!isCreating)
-                      editorRef.current.setContentHTML(editNote.text);
-                  }}
-                  editorStyle={{
-                    backgroundColor: "transparent",
-                    color: defaultContentTheme,
-                    placeholderColor: theme.placeholder,
-                    initialCSSText: "div h1 {font-size: 16px}",
-                  }}
-                  onChange={debounce((html: string) => {
-                    setEditNote((prev) => ({ ...prev, text: html }));
-                  }, 0)}
-                />
-              </ViewShot>
-            </Animated.ScrollView>
-          </KeyboardAvoidingView>
+          <NoteContentEditor
+            ref={editorRef}
+            bottomSpace={bottomSpace}
+            viewShotRef={viewShotRef}
+            captureBackground={captureBackground}
+            defaultContentTheme={defaultContentTheme}
+            showTitle={showTitle}
+            editNote={editNote}
+            setEditNote={setEditNote}
+            capturing={capturing}
+          />
         </ViewShot>
       </ReanimatedView>
       <NoteOverlays
+        bottomSpace={bottomSpace}
         ref={editorRef}
         textFiltered={textFiltered}
         noteStateIsEmpty={noteStateIsEmpty}

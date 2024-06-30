@@ -6,7 +6,6 @@ import { useRecoilState } from "recoil";
 import { useToast } from "../components";
 import { NOTES_PATH } from "../constants";
 import { notesData } from "../screens";
-import { useLoading } from "./use-loading-dialog";
 
 export function useHomeUtils(
   searchQuery: string,
@@ -55,15 +54,16 @@ export function useHomeUtils(
       ]
     );
   }
+
   const searchFilter = useMemo(() => {
     const searchFiltered = notes.data.filter((e) => {
       return (
-        e.text.includes(searchQuery.toLowerCase()) ||
-        e.title.includes(searchQuery.toLowerCase())
+        e.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
     });
 
-    if (searchQuery) {
+    if (searchQuery.length > 0) {
       return searchFiltered;
     }
     return notes.data;

@@ -21,9 +21,9 @@ export function BackgroundOptions({
         true
       );
 
-      if (status === ImagePicker.PermissionStatus.DENIED) {
+      if (status !== ImagePicker.PermissionStatus.GRANTED) {
         toast({
-          message: "Media access permission denied",
+          message: "Full Media access permission denied",
           button: {
             title: "Open settings",
             onPress: () => Linking.openSettings(),

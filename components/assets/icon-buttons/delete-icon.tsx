@@ -1,9 +1,9 @@
+import Feather from "@expo/vector-icons/Feather";
 import * as React from "react";
-import { TouchableOpacity } from "react-native";
 import { useTheme } from "../../../hooks";
 import { moderateScale, verticalScale } from "../../../utils";
+import { IconButtonContainer } from "../../icon-button-container";
 import { IconButtonBase } from "./types";
-import Feather from "@expo/vector-icons/Feather";
 
 export function DeleteIcon({
   svgProps,
@@ -15,7 +15,7 @@ export function DeleteIcon({
   const theme = useTheme();
 
   return (
-    <TouchableOpacity
+    <IconButtonContainer
       onPress={onPress}
       activeOpacity={0.7}
       style={{
@@ -33,6 +33,6 @@ export function DeleteIcon({
         color={color || theme.onPrimary}
         {...svgProps}
       />
-    </TouchableOpacity>
+    </IconButtonContainer>
   );
 }

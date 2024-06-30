@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Text, View } from "react-native";
 import { useTheme } from "../../../../hooks";
 import { moderateFontScale } from "../../../../utils";
-
 export function FontSizeOptions({
   onValueChange,
   onReset,

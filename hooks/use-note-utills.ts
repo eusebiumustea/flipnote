@@ -38,8 +38,7 @@ export function useNoteUtils(
       width: 794,
       height: 1102,
       html,
-
-      useMarkupFormatter: false,
+      useMarkupFormatter: true,
     })
       .then((result) => {
         Share.shareAsync(result.uri, {
@@ -72,7 +71,7 @@ export function useNoteUtils(
         });
         const newUri = await fs.StorageAccessFramework.createFileAsync(
           permission.directoryUri,
-          `Flipnote-${id}.pdf`,
+          `Flipnote-${dateTime(new Date(), false)}.pdf`,
           "application/pdf"
         );
         await fs.writeAsStringAsync(newUri, result.base64, {

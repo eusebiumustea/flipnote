@@ -5,13 +5,13 @@ import {
   Platform,
   Pressable,
   PressableProps,
-  Text,
 } from "react-native";
+import { Text } from "react-native-fast-text";
 import Animated from "react-native-reanimated";
 import { useTheme } from "../../hooks";
-import { moderateFontScale, moderateScale, verticalScale } from "../../utils";
+import { moderateFontScale, verticalScale } from "../../utils";
 interface ButtonProps extends PressableProps {
-  children?: ReactNode;
+  children: ReactNode;
   loading?: boolean;
   colors?: null | {
     focusedColor: string;

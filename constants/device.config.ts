@@ -1,6 +1,8 @@
 import * as Device from "expo-device";
 import { Platform } from "react-native";
-export const ram: number = Device.totalMemory / (1024 * 1024 * 1024);
+export const ram: number = Math.round(
+  Device.totalMemory / (1024 * 1024 * 1024)
+);
 
 export const contentLengthLimit = () => {
   if (ram <= 2) {
@@ -23,3 +25,12 @@ export const contentLengthLimit = () => {
   }
 };
 export const deviceIsLowRam = Platform.OS === "android" && ram < 4;
+export function renderDelay() {
+  if (Platform.OS === "ios") {
+    return 300;
+  }
+  if (deviceIsLowRam) {
+    return 350;
+  }
+  return 270;
+}

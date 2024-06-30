@@ -10,6 +10,8 @@ import {
   verticalScale,
 } from "../../../../utils";
 import { HeaderProps } from "./types";
+import { IconButtonContainer } from "../../../../components/icon-button-container";
+import { AntDesign } from "@expo/vector-icons";
 export const Header = memo(
   ({
     searchValue,
@@ -29,7 +31,7 @@ export const Header = memo(
     }, []);
     const theme = useTheme();
     const { top } = useSafeAreaInsets();
-
+    const inputRef = useRef<TextInput>(null);
     return (
       <Animated.View
         style={{
@@ -70,8 +72,25 @@ export const Header = memo(
           <SearchIcon
             style={{ position: "absolute", zIndex: 1, marginHorizontal: 26 }}
           />
-
+          {searchValue.length > 0 && (
+            <IconButtonContainer
+              onPress={() => {
+                onSearch("");
+                inputRef.current?.blur();
+              }}
+              style={{
+                width: moderateScale(15),
+                height: verticalScale(15),
+                position: "absolute",
+                right: "25%",
+                zIndex: 1,
+              }}
+            >
+              <AntDesign name="closecircle" color={theme.onPrimary} size={12} />
+            </IconButtonContainer>
+          )}
           <TextInput
+            ref={inputRef}
             value={searchValue}
             style={{
               width: "80%",
@@ -81,15 +100,18 @@ export const Header = memo(
               fontSize: moderateFontScale(14),
               borderRadius: moderateScale(15),
               color: theme.onBackgroundSearch,
-              paddingHorizontal: moderateScale(50),
+              paddingLeft: moderateScale(50),
+              paddingRight: moderateScale(28),
               fontFamily: "OpenSans",
             }}
             placeholder="Search for notes"
             onChangeText={onSearch}
+            clearButtonMode="while-editing"
             placeholderTextColor={theme.onBackgroundSearch}
             keyboardType="default"
             textContentType="none"
           />
+
           <View
             style={{
               flexDirection: "row",

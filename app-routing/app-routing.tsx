@@ -9,7 +9,6 @@ import { useTheme } from "../hooks";
 import { Home } from "../screens/home";
 import { Inbox } from "../screens/inbox";
 import { NotePage } from "../screens/note/note-page";
-import { springcfg } from "../ui-config";
 import { note_options } from "./route-options";
 enableFreeze(true);
 const Stack = createStackNavigator();
@@ -48,16 +47,13 @@ export function AppRouting() {
             },
             headerTintColor: theme.onBackground,
             headerShadowVisible: false,
-            gestureDirection: Platform.OS === "ios" ? "vertical" : "horizontal",
+            gestureDirection: "vertical",
             gestureEnabled: true,
-            transitionSpec: {
-              open: springcfg,
-              close: springcfg,
-            },
+
             cardStyleInterpolator:
               Platform.OS === "ios"
                 ? CardStyleInterpolators.forModalPresentationIOS
-                : CardStyleInterpolators.forHorizontalIOS,
+                : CardStyleInterpolators.forBottomSheetAndroid,
           }}
           name="inbox"
         />

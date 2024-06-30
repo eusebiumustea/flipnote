@@ -6,12 +6,11 @@ const ThemeContext = createContext(light);
 export function ThemeProvider({ children }: PropsWithChildren) {
   const colorScheme = useColorScheme();
   const deviceTheme = useMemo(() => {
-    switch (colorScheme) {
-      case "dark":
-        return dark;
-      default:
-        return light;
+    if (colorScheme === "dark") {
+      return dark;
     }
+
+    return light;
   }, [colorScheme]);
 
   return (

@@ -1,17 +1,13 @@
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/src/types";
 import { memo, useCallback, useRef, useState } from "react";
-import { FlatList, RefreshControl, Text } from "react-native";
+import { FlatList, RefreshControl } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRecoilValue } from "recoil";
 import { NoteCard } from "../../../components";
 import { useTheme } from "../../../hooks";
 import { useRequest } from "../../../hooks/use-request";
-import {
-  moderateFontScale,
-  toggleArrayElement,
-  verticalScale,
-} from "../../../utils";
+import { toggleArrayElement, verticalScale } from "../../../utils";
 import { notesData } from "../../note";
 import { NotesFilterList } from "../notes-filter/notes-filter-list";
 import { RenderLoading } from "./render-loading";
@@ -83,22 +79,7 @@ export const NotesList = memo(
           gap: 12,
         }}
         numColumns={2}
-        ListEmptyComponent={
-          loading ? (
-            <RenderLoading />
-          ) : (
-            <Text
-              style={{
-                alignSelf: "center",
-                paddingVertical: 26,
-                fontSize: moderateFontScale(20),
-                color: theme.onPrimary,
-              }}
-            >
-              Press + to start
-            </Text>
-          )
-        }
+        ListEmptyComponent={loading && <RenderLoading />}
         data={data}
         scrollEnabled={navigation.isFocused()}
         keyExtractor={(_, index) => index.toString()}
@@ -120,17 +101,16 @@ export const NotesList = memo(
                   setOptionsSelection(
                     toggleArrayElement(optionsSelection, item.id)
                   );
-                  return;
-                }
-
-                if (navigation.isFocused()) {
-                  navigation.navigate("note", {
-                    id: item.id,
-                    relativeX: pageX - locationX,
-                    relativeY: pageY - locationY,
-                    background: item.background,
-                    isCreating: false,
-                  });
+                } else {
+                  if (navigation.isFocused()) {
+                    navigation.navigate("note", {
+                      id: item.id,
+                      relativeX: pageX - locationX,
+                      relativeY: pageY - locationY,
+                      background: item.background,
+                      isCreating: false,
+                    });
+                  }
                 }
               }}
               item={item}
@@ -141,7 +121,7 @@ export const NotesList = memo(
         initialNumToRender={12}
         keyboardDismissMode="on-drag"
         updateCellsBatchingPeriod={300}
-        getItemLayout={(data, index) => ({
+        getItemLayout={(_, index) => ({
           length: verticalScale(250),
           offset: verticalScale(250) * index,
           index,
@@ -154,7 +134,6 @@ export const NotesList = memo(
           width: "100%",
           rowGap: 12,
           paddingBottom: bottom + 16,
-
           paddingTop: verticalScale(70) + top,
         }}
         style={{

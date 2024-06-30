@@ -3,9 +3,9 @@ import { StackNavigationHelpers } from "@react-navigation/stack/lib/typescript/s
 import * as FileSystem from "expo-file-system";
 import * as Notifications from "expo-notifications";
 import { useMemo } from "react";
+import { Text } from "react-native-fast-text";
 import {
   FlatList,
-  Text,
   TouchableOpacity,
   View,
   useWindowDimensions,

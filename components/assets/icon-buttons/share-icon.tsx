@@ -1,10 +1,9 @@
-import * as React from "react";
-import { TouchableOpacity } from "react-native";
-import Svg, { Path } from "react-native-svg";
-import { moderateScale, verticalScale } from "../../../utils";
-import { IconButtonBase } from "./types";
-import { useTheme } from "../../../hooks";
 import Feather from "@expo/vector-icons/Feather";
+import * as React from "react";
+import { useTheme } from "../../../hooks";
+import { moderateScale, verticalScale } from "../../../utils";
+import { IconButtonContainer } from "../../icon-button-container";
+import { IconButtonBase } from "./types";
 
 export function ShareIcon({
   svgProps,
@@ -14,8 +13,7 @@ export function ShareIcon({
 }: IconButtonBase) {
   const theme = useTheme();
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
+    <IconButtonContainer
       onPress={onPress}
       style={{
         width: moderateScale(30),
@@ -27,10 +25,10 @@ export function ShareIcon({
     >
       <Feather
         name="share"
-        size={24}
+        size={moderateScale(24)}
         color={!color ? theme.onBackground : color}
         {...svgProps}
       />
-    </TouchableOpacity>
+    </IconButtonContainer>
   );
 }

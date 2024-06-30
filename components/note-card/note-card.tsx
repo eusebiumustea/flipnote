@@ -1,5 +1,4 @@
 import Checkbox from "expo-checkbox";
-import { Image } from "expo-image";
 import React, { memo, useMemo } from "react";
 import {
   GestureResponderEvent,
@@ -14,7 +13,7 @@ import { useTheme } from "../../hooks";
 import { NotePreviewTypes } from "../../screens/note";
 import { shadows } from "../../ui-config";
 import { moderateFontScale, verticalScale } from "../../utils";
-import { MotiView } from "moti";
+import { CardBackgroundImage } from "./card-image-background";
 interface NoteCardProps {
   item?: NotePreviewTypes;
   onPress?: (event: GestureResponderEvent) => void;
@@ -60,38 +59,18 @@ export const NoteCard = memo(
           ...containerStyle,
         }}
       >
-        {isImgBg && (
-          <>
-            <View
-              style={{
-                height: containerStyle?.height || verticalScale(250),
-                width: containerStyle?.width || width / 2 - 16,
-                position: "absolute",
-                zIndex: -1,
-                top: 0,
-                borderRadius: 14,
-                backgroundColor: "#000",
-                opacity: item.imageOpacity,
-              }}
-            />
-            <Image
-              transition={{ duration: 100 }}
-              source={{ uri: item.background }}
-              style={{
-                height: containerStyle?.height || verticalScale(250),
-                width: containerStyle?.width || width / 2 - 16,
-                borderRadius: 16,
-                position: "absolute",
-                zIndex: -2,
-                top: 0,
-              }}
-            />
-          </>
-        )}
+        <CardBackgroundImage
+          uri={item.background}
+          overlayOpacity={item.imageOpacity}
+          height={containerStyle?.height || verticalScale(250)}
+          width={containerStyle?.width || width / 2 - 16}
+          show={isImgBg}
+        />
         <View
           style={{
             flex: 1,
             overflow: "hidden",
+            pointerEvents: "none",
           }}
         >
           {item.title && (
@@ -104,7 +83,7 @@ export const NoteCard = memo(
                 maxHeight: verticalScale(250),
               }}
             >
-              {item.title}...
+              {item.title}
             </Text>
           )}
           <Text
@@ -114,7 +93,7 @@ export const NoteCard = memo(
               color: defaultThemeText,
             }}
           >
-            {item.text}...
+            {item.text}
           </Text>
         </View>
 
@@ -131,16 +110,6 @@ export const NoteCard = memo(
             value={selectedForOptions}
           />
         )}
-        <View
-          style={{
-            height: verticalScale(250),
-            width: width / 2 - 16,
-            borderRadius: 16,
-            position: "absolute",
-            zIndex: 1,
-            top: 0,
-          }}
-        />
       </Pressable>
     );
   }

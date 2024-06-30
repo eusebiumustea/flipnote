@@ -6,7 +6,6 @@ import { Header } from "./header";
 import { NoteOptions } from "./note-options";
 import { OptionsOverlay } from "./options-overlay";
 import { HomeOverlaysProps } from "./types";
-import { cardColors } from "../../../constants";
 
 export const HomeOverlays = memo(
   ({

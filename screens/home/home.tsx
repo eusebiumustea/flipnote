@@ -8,7 +8,6 @@ import { removeReceivedReminder } from "../inbox/upcoming-reminders";
 import { receivedNotifications } from "../note";
 import { HomeOverlays } from "./home-overlays";
 import { NotesList } from "./notes-list";
-import { useLoading } from "../../hooks/use-loading-dialog";
 export function Home() {
   const [selected, setSelected] = useState<string[]>([]);
   const [badge, setBadge] = useState(false);
@@ -46,9 +45,7 @@ export function Home() {
       } catch (error) {}
     });
 
-    return () => {
-      listen.remove();
-    };
+    return () => listen.remove();
   }, []);
   useEffect(() => {
     if (notifications.length === 0 && badge) {

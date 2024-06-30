@@ -1,19 +1,13 @@
 import { BlurView } from "expo-blur";
+import { MotiView } from "moti";
 import { memo, useMemo } from "react";
-import {
-  Keyboard,
-  Modal,
-  Pressable,
-  Text,
-  TouchableWithoutFeedback,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { Modal, Pressable, View, useWindowDimensions } from "react-native";
+import { Text } from "react-native-fast-text";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../hooks";
 import { moderateFontScale } from "../../utils";
 import { Button } from "../button";
 import { DialogProps } from "./types";
-import { MotiView } from "moti";
 
 export const Dialog = memo(
   ({
@@ -31,10 +25,12 @@ export const Dialog = memo(
     animate,
   }: DialogProps) => {
     const theme = useTheme();
+
     const filteredButtons = useMemo(() => {
       return buttons.filter((btn) => !btn.hidden);
     }, [buttons]);
     const { height } = useWindowDimensions();
+    const { top } = useSafeAreaInsets();
     return (
       <Modal
         statusBarTranslucent={statusBarTranslucent}
@@ -49,7 +45,7 @@ export const Dialog = memo(
             tint="dark"
             style={{
               flex: 1,
-              zIndex: -1,
+              zIndex: -2,
             }}
           />
         )}
@@ -58,82 +54,90 @@ export const Dialog = memo(
             style={{
               flex: 1,
               backgroundColor: "#000",
-              zIndex: -1,
+              zIndex: -2,
               opacity: 0.6,
             }}
           />
         )}
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-          <View
+
+        <View
+          style={{
+            height,
+            width: "100%",
+            position: "absolute",
+            // zIndex: 1,
+            justifyContent: "center",
+          }}
+        >
+          <Pressable
+            onPress={onCancel}
             style={{
-              height: "100%",
               width: "100%",
+              height: height + top,
               position: "absolute",
-              zIndex: 1,
+              zIndex: -1,
+            }}
+          />
+          <MotiView
+            transition={{ type: "timing", duration: 200 }}
+            animate={animate}
+            style={{
+              width: "100%",
+              backgroundColor: theme.primary,
+              height: "auto",
               justifyContent: "center",
+              alignSelf: "center",
+              padding: 10,
+              flexDirection: "column",
+              maxHeight: height / 2,
+              paddingBottom: 30,
+              elevation: 10,
+              borderRadius: 16,
+              shadowColor: "#000000",
+              shadowOffset: {
+                width: 0,
+                height: 3,
+              },
+              shadowOpacity: 0.17,
+              shadowRadius: 3.05,
+              ...styles,
             }}
           >
-            <MotiView
-              transition={{ type: "timing", duration: 200 }}
-              animate={animate}
+            {children}
+            <Text
               style={{
-                width: "100%",
-                backgroundColor: theme.primary,
-                height: "auto",
-                justifyContent: "center",
-                alignSelf: "center",
-                padding: 10,
-                flexDirection: "column",
-                maxHeight: height / 2,
-                paddingBottom: 30,
-                elevation: 10,
-                borderRadius: 16,
-                shadowColor: "#000000",
-                shadowOffset: {
-                  width: 0,
-                  height: 3,
-                },
-                shadowOpacity: 0.17,
-                shadowRadius: 3.05,
-                ...styles,
+                position: "absolute",
+                top: 0,
+                left: 0,
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                color: theme.onPrimary,
+                fontSize: moderateFontScale(16),
               }}
             >
-              <View style={{ width: "100%", padding: 25 }}>{children}</View>
-              <Text
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  paddingHorizontal: 10,
-                  paddingVertical: 5,
-                  color: theme.onPrimary,
-                  fontSize: moderateFontScale(16),
-                }}
-              >
-                {title}
-              </Text>
+              {title}
+            </Text>
 
-              <View
-                style={{
-                  columnGap: 12,
-                  flexDirection: "row",
-                  position: "absolute",
-                  bottom: 0,
-                  right: 0,
-                  margin: 10,
-                  ...buttonsContainerStyle,
-                }}
-              >
-                <Button onPress={onCancel}>Cancel</Button>
-                {filteredButtons.map(({ title, onPress, loading }, i) => (
-                  <Button key={i} loading={loading} onPress={onPress}>
-                    {title}
-                  </Button>
-                ))}
-              </View>
-            </MotiView>
-          </View>
-        </TouchableWithoutFeedback>
+            <View
+              style={{
+                columnGap: 12,
+                flexDirection: "row",
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                margin: 10,
+                ...buttonsContainerStyle,
+              }}
+            >
+              <Button onPress={onCancel}>Cancel</Button>
+              {filteredButtons.map(({ title, onPress, loading }, i) => (
+                <Button key={i} loading={loading} onPress={onPress}>
+                  {title}
+                </Button>
+              ))}
+            </View>
+          </MotiView>
+        </View>
       </Modal>
     );
   }

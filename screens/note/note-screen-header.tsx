@@ -22,6 +22,7 @@ import { memo } from "react";
 import { FadeIn } from "react-native-reanimated";
 import { contentLengthLimit } from "../../constants";
 import { useTheme } from "../../hooks";
+import { verticalScale } from "../../utils";
 import { ReanimatedView } from "../../utils/reanimated-view";
 
 interface NoteScreenHeaderProps {
@@ -82,22 +83,24 @@ export const NoteScreenHeader = memo(
             />
           ),
           ios: (
-            <BlurView
-              tint={"systemUltraThinMaterial"}
-              style={{
-                width,
-                height: "100%",
-                position: "absolute",
-              }}
-            />
+            <ReanimatedView
+              entering={FadeIn.springify(1000)}
+              style={{ width, height: "100%", position: "absolute" }}
+            >
+              <BlurView
+                tint={"systemUltraThinMaterialDark"}
+                style={{
+                  flex: 1,
+                }}
+              />
+            </ReanimatedView>
           ),
         })}
 
         <View
           style={{
             width: "100%",
-            paddingTop: 8 + top,
-            paddingBottom: 6,
+            paddingTop: verticalScale(6) + top,
             paddingHorizontal: 8,
             flexDirection: "row",
             justifyContent: "space-between",
