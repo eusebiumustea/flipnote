@@ -125,8 +125,6 @@ export const NoteContentEditor = memo(
                     initialCSSText: "div h1 span {font-size: 16px}",
                   }}
                   onChange={debounce((html: string) => {
-                    console.log(html);
-
                     setEditNote((prev) => ({ ...prev, text: html }));
                   }, 0)}
                 />

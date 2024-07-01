@@ -47,9 +47,9 @@ export function AppRouting() {
             },
             headerTintColor: theme.onBackground,
             headerShadowVisible: false,
-            gestureDirection: "vertical",
-            gestureEnabled: true,
 
+            gestureEnabled: Platform.OS === "ios",
+            gestureDirection: "vertical",
             cardStyleInterpolator:
               Platform.OS === "ios"
                 ? CardStyleInterpolators.forModalPresentationIOS

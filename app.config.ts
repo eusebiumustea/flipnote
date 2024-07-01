@@ -31,6 +31,7 @@ export default {
   ios: {
     supportsTablet: true,
     bundleIdentifier: "com.eusebiu.flipnote",
+    buildNumber: "1.0.2",
   },
   android: {
     package: "com.eusebiu.flipnote",
